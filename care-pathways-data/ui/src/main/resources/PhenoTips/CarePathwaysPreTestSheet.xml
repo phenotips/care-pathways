@@ -20,7 +20,7 @@
 
 <xwikidoc version="1.1">
   <web>PhenoTips</web>
-  <name>CarePathwaysPreTest</name>
+  <name>CarePathwaysPreTestSheet</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
@@ -41,40 +41,114 @@
 
 {{include reference="PhenoTips.FormMacros" /}}
 
+{{include reference="PhenoTips.CarePathways" /}}
+
 {{velocity output=false}}
-$xwiki.ssx.use('PhenoTips.CarePathways')
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.ssx.use('PhenoTips.Entities', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.jsx.use('PhenoTips.Entities')##
+$xwiki.jsx.use('PhenoTips.CarePathways')##
+$xwiki.ssx.use('PhenoTips.CarePathways')##
+#template('carePathwaysMacros.vm')##
 ##
 ##
 #set ($displayDocExtra = false)
 ##
 ##
-#set($obj = $doc.getObject('PhenoTips.CarePathwaysPreTest', true))
+#set($obj = $doc.getObject('PhenoTips.CarePathwaysPreTestSheet', true))
 #set($class = $obj.xWikiClass)
 #set($discard = $doc.use($obj))
 ## Disable the Preview button
 #set($previewenabled = false)
+#set ($pretestQuestions = [
+    {
+      "question" : "CPQ:0",
+      "modules" : [{
+        "pursuedDate" : true,
+        "module" : "test",
+        "submodule" : "genetic",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:1",
+      "modules" : [{
+        "pursuedDate" : true,
+        "module" : "test",
+        "submodule" : "diagnostic",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:2",
+      "modules" : [{
+        "pursuedDate" : false,
+        "module" : "test",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:3",
+      "modules" : [{
+        "pursuedDate" : false,
+        "module" : "care",
+        "subject" : "proband"
+      }]
+    }
+  ])
+##
+##
+#macro (__displayPreTestSurvey)
+  #set ($section = "pretest")
+  #set ($sheet = "$!{class.name}")
+  #set ($storageClass = "PhenoTips.PatientCarePreTestClass")
+  #set ($clearCategory = $doc.getURL("get", "sheet=$sheet&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
+  #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
+  {{html clean="false" wiki="false"}}##
+  &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire"&gt;
+  &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
+  &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
+  #foreach ($question in $pretestQuestions)
+    &lt;table id="modules-for-$!{question.question}" class="${section}-section care-pathways-module-group-container"&gt;
+      &lt;tr class="care-pathways-section-label"&gt;
+        &lt;td colspan="2"&gt;
+          &lt;input type="hidden" class="cp-question-id" value="$!{question.question}"/&gt;
+          $!{services.vocabularies.care-pathways-questions.getTerm($question.question).name}
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="care-pathways-modules"&gt;
+        &lt;td&gt;
+          &lt;div class="care-pathways-modules-wrapper no-variants"&gt;
+            #set ($lastIdx = $question.modules.size() - 1)
+            #__displayModuleGroup($question.question, '', '', $question.modules, ${lastIdx}, $sheet, $storageClass, true)
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  #end
+  &lt;/div&gt;
+  {{/html}}##
+#end
+##
+##
 {{/velocity}}
 
 {{velocity}}
 (% class="" id="care-pathways-pretest-container"%)(((##
-{{html clean="false" wiki="false"}}
+{{html clean="false" wiki="false"}}##
   &lt;p class="box infomessage"&gt;These questions should be completed prior to whole exome testing&lt;/p&gt;
-  &lt;table id="pretest-questionnaire" class="care-pathways-questionnaire"&gt;
-    &lt;tbody&gt;&lt;/tbody&gt;
-  &lt;/table&gt;
+{{/html}}##
+  #__displayPreTestSurvey()##
+{{html clean="false" wiki="false"}}##
+  &lt;input type='hidden' id='data-storage-class' value="PhenoTips.PatientCarePreTestClass"/&gt;
   &lt;input type='hidden' id='prefix' value='$!{class.name}_$!{obj.number}_'/&gt;
   &lt;input type='hidden' id='current-tab-id' value='care-pathways-pretest-tab'/&gt;
   &lt;input type='hidden' name="objectPolicy" value='updateOrCreate'/&gt;
   #set ($supported_actions = ['edit', 'view'])
   &lt;input type='hidden' name="returnTo" value='#if ($supported_actions.contains("$!request.returnTo"))${request.returnTo}#{else}edit#{end}'/&gt;
-{{/html}}
+{{/html}}##
 )))
 {{/velocity}}</content>
   <object>
-    <name>PhenoTips.CarePathwaysPreTest</name>
+    <name>PhenoTips.CarePathwaysPreTestSheet</name>
     <number>0</number>
     <className>XWiki.UIExtensionClass</className>
     <guid>52cb1142-de8f-4dd5-9006-2ee0fa6fbcec</guid>
@@ -154,7 +228,7 @@ $xwiki.jsx.use('PhenoTips.Entities')##
     <property>
       <parameters>label=Care Pathways Pre Test
 cssId=care-pathways-pretest-tab
-href=$doc.getURL("edit", "sheet=PhenoTips.CarePathwaysPreTest&amp;returnTo=$!{xcontext.action}")
+href=$doc.getURL("edit", "sheet=PhenoTips.CarePathwaysPreTestSheet&amp;returnTo=$!{xcontext.action}")
 container=care-pathways-pretest-container
 order=0</parameters>
     </property>
