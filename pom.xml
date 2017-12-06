@@ -68,5 +68,6 @@
 
   <modules>
     <module>vocabulary-care-pathways</module>
+    <module>resources</module>
   </modules>
 </project>
