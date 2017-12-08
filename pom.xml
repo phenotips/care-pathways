@@ -67,6 +67,7 @@
   </properties>
 
   <modules>
+    <module>vocabulary-care-pathways</module>
     <module>care-pathways-data</module>
     <module>widgets</module>
     <module>resources</module>
