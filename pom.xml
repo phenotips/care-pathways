@@ -69,5 +69,6 @@
   <modules>
     <module>care-pathways-data</module>
     <module>widgets</module>
+    <module>resources</module>
   </modules>
 </project>
