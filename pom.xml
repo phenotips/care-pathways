@@ -61,15 +61,11 @@
     </repository>
   </repositories>
 
-  <properties>
-    <!-- Disable Clirr since this is the first version -->
-    <clirr.skip>true</clirr.skip>
-  </properties>
-
   <modules>
     <module>vocabulary-care-pathways</module>
     <module>care-pathways-data</module>
     <module>widgets</module>
     <module>resources</module>
+    <module>vocabulary-care-pathways-questions</module>
   </modules>
 </project>
