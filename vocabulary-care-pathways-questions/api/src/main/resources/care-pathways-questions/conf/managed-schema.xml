@@ -100,11 +100,11 @@
   <fields>
     <field name="version" type="string" indexed="true" stored="true" omitNorms="true"/>
     <field name="id" type="string" indexed="true" stored="true" required="true" omitNorms="true"/>
-    <field name="question" type="text_general" indexed="true" stored="true"/>
+    <field name="name" type="text_general" indexed="true" stored="true"/>
     <field name="term_group" type="string" indexed="true" stored="true"/>
-    <field name="questionSpell" type="text_spell" indexed="true" stored="false"/>
-    <field name="questionStub" type="text_prefix" indexed="true" stored="false" omitNorms="true"/>
-    <field name="questionSort" type="string" indexed="true" stored="false"/>
+    <field name="nameSpell" type="text_spell" indexed="true" stored="false"/>
+    <field name="nameStub" type="text_prefix" indexed="true" stored="false" omitNorms="true"/>
+    <field name="nameSort" type="string" indexed="true" stored="false"/>
 
     <!-- Catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema). -->
@@ -121,9 +121,9 @@
     -->
   <uniqueKey>id</uniqueKey>
 
-  <copyField source="question" dest="questionSort"/>
-  <copyField source="question" dest="questionSpell"/>
-  <copyField source="question" dest="questionStub"/>
+  <copyField source="name" dest="nameSort"/>
+  <copyField source="name" dest="nameSpell"/>
+  <copyField source="name" dest="nameStub"/>
   <copyField source="*" dest="text"/>
   <copyField source="*" dest="textSpell"/>
   <copyField source="*" dest="textStub"/>
