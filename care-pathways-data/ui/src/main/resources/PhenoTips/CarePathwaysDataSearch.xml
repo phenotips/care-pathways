@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.1">
+  <web>PhenoTips</web>
+  <name>CarePathwaysDataSearch</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1515191391000</creationDate>
+  <parent>PhenoTips.PatientClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1515199539000</date>
+  <contentUpdateDate>1515199539000</contentUpdateDate>
+  <version>1.1</version>
+  <title>CarePathwaysDataSearch</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+#if ($xcontext.action != 'get')
+  #break
+#end
+$!response.setContentType('application/json')##
+#if ("$!{request.outputSyntax}" == 'plain')
+  {{content syntax="plain/1.0"}}
+#else
+  {{html wiki="false" clean="false"}}
+#end
+#set ($userEnteredRows = [])
+#set ($rawInput = "$!{request.input}")
+#set ($input = $rawInput.toLowerCase())
+#set ($lowercaseResults = [])
+#set ($parentVal = "$!request.parent")
+#set ($standardMarker = "cp:")
+#set ($dataClass = "$!{request.dataclass}")
+#foreach($res in $services.query.hql('select distinct datum_prop.value from BaseObject as obj, StringProperty as datum_prop, StringProperty as parent_prop where obj.className = ? and datum_prop.id.id = obj.id and parent_prop.id.id = obj.id and parent_prop.id.name = ? and datum_prop.id.name = ? and parent_prop.value like ? and lower(datum_prop.value) like ? and lower(datum_prop.value) not like ?').bindValues(["$dataClass", "parent", "datum", "%${parentVal}%", "%${input}%", "%${standardMarker}%"]).setLimit(20).execute())
+  #set ($lowerRes = $res.toLowerCase())
+  #if (!$lowercaseResults.contains($lowerRes))
+    #set ($discard = $userEnteredRows.add({'name' : $res}))
+    #set ($discard = $lowercaseResults.add($lowerRes))
+  #end
+#end
+$jsontool.serialize($userEnteredRows)
+#if ("$!{request.outputSyntax}" == 'plain')
+  {{/content}}
+#else
+  {{/html}}
+#end
+{{/velocity}}</content>
+</xwikidoc>
