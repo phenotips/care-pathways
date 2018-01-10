@@ -66,5 +66,8 @@
     <clirr.skip>true</clirr.skip>
   </properties>
 
-  <modules></modules>
+  <modules>
+    <module>care-pathways-data</module>
+    <module>widgets</module>
+  </modules>
 </project>
