@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.1">
+  <web>PhenoTips</web>
+  <name>CPGeneClass</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1516121188000</creationDate>
+  <parent>PhenoTips.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1516121836000</date>
+  <contentUpdateDate>1516121836000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content/>
+  <class>
+    <name>PhenoTips.CPGeneClass</name>
+    <customClass/>
+    <customMapping/>
+    <defaultViewSheet/>
+    <defaultEditSheet/>
+    <defaultWeb/>
+    <nameField/>
+    <validationScript/>
+    <gene>
+      <customDisplay>{{velocity}}
+#macro (_displayGeneSymbol $prefix $name $value)
+  #set ($termStatus = "")
+  #set ($gene = {'id' : $!{escapetool.xml($value)}})
+  #set ($term = $services.vocabularies.hgnc.getTerm("${gene.id}"))
+  #if ($term)
+    #set ($gene.symbol = $term.symbol)
+  #else
+    #set ($termStatus = "notmapped")
+    #set ($gene.symbol = $gene.id)
+  #end
+  #set ($placeholder = $services.localization.render('Phenotips.GeneClass.geneNamePlaceholder'))
+  #if ($xcontext.action == 'edit')
+    {{html wiki="false" clean="false"}}&lt;input type='text' name='${prefix}symbol' class='suggested suggest-gene gene-name $!termStatus' placeholder='$placeholder' size='16' value='$!{gene.symbol}'/&gt;&lt;input type='hidden' name='${prefix}${name}' class='gene-id' value='$!{gene.id}'/&gt;{{/html}}
+  #else
+    ${gene.symbol}#if("$!{gene.symbol}" != ''){{html wiki="false" clean="false"}}&lt;input type='hidden' name='gene_name' class='gene-name $!termStatus' value="$!{gene.symbol}"/&gt;{{/html}}#end
+  #end
+#end
+##
+##
+#if ($prefix &amp;&amp; $name)
+#_displayGeneSymbol($prefix, $name, $value)
+#end
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <name>gene</name>
+      <number>1</number>
+      <picker>1</picker>
+      <prettyName>Gene</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </gene>
+    <subject>
+      <cache>0</cache>
+      <customDisplay>{{velocity}}
+#macro (_addGeneSubject $prefix $name $value)
+#if ($xcontext.action == 'edit')
+{{html wiki="false" clean="false"}}&lt;input type="hidden" id="${prefix}${name}" name="${prefix}${name}" class="gene-subject-value" value="$!{value}"/&gt;{{/html}}
+#end
+
+$stringtool.capitalize(${value})
+#end
+##
+##
+#if ($prefix &amp;&amp; $name)
+#_addGeneSubject($prefix, $name, $subject)
+#end
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <multiSelect>0</multiSelect>
+      <name>subject</name>
+      <number>2</number>
+      <picker>0</picker>
+      <prettyName>Subject</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator/>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>proband=Proband|mother=Mother|father=Father</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </subject>
+    <status>
+      <cache>0</cache>
+      <customDisplay>{{velocity}}
+#macro (_addGeneStatus $prefix $name $value)
+#if ($xcontext.action == 'edit')
+{{html wiki="false" clean="false"}}&lt;input type="hidden" id="${prefix}${name}" name="${prefix}${name}" class="gene-status-value" value="$!{value}"/&gt;&lt;input type="hidden" class="default-gene-status-value" value="$!{value}"/&gt;{{/html}}
+#end
+
+#if (${value} == "confirmed")
+  Confirmed causal
+#else
+  Confirmed secondary
+#end
+#end
+##
+##
+#if ($prefix &amp;&amp; $name)
+#_addGeneStatus($prefix, $name, $geneStatus)
+#end
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <multiSelect>0</multiSelect>
+      <name>status</name>
+      <number>3</number>
+      <picker>0</picker>
+      <prettyName>Status</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator/>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>confirmed=Confirmed causal|confirmed_secondary=Confirmed secondary</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </status>
+    <strategy>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>checkbox</displayType>
+      <multiSelect>1</multiSelect>
+      <name>strategy</name>
+      <number>4</number>
+      <picker>0</picker>
+      <prettyName>Strategy</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator>&lt;br/&gt;</separator>
+      <separators> ,|</separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>sequencing=Sequencing|deletion=Deletion/duplication|familial_mutation=Familial mutation/disease|common_mutations=Common mutations</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </strategy>
+    <comments>
+      <contenttype>PureText</contenttype>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <editor>PureText</editor>
+      <name>comments</name>
+      <number>5</number>
+      <picker>0</picker>
+      <prettyName>Comments</prettyName>
+      <rows>3</rows>
+      <size>40</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+    </comments>
+  </class>
+</xwikidoc>
