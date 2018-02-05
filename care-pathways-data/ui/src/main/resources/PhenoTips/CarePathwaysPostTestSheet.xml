@@ -1001,25 +1001,25 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 #macro (__displayPrimaryVariantsSection)
   &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
-    &lt;table class="${section}-section module-analysis care-pathways-analysis-container"&gt;
-      &lt;tr class="care-pathways-section-label analysis"&gt;
-        &lt;td&gt;#__displayQuestionLabel("CPQ:4")&lt;/td&gt;
+    &lt;table class="${section}-section module-analysis table care-pathways-analysis-container"&gt;
+      &lt;tr class="table-row care-pathways-section-label analysis"&gt;
+        &lt;td class="table-cell"&gt;#__displayQuestionLabel("CPQ:4")&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr class="care-pathways-modules analysis"&gt;
         &lt;td&gt;
-          &lt;div class="care-pathways-modules-wrapper"&gt;
+          &lt;div class="table care-pathways-modules-wrapper"&gt;
             #__displayPrimaryVariantList("CPQ:4")##
           &lt;/div&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
-    &lt;table class="${section}-section module-analysis care-pathways-analysis-container"&gt;
-      &lt;tr class="care-pathways-section-label analysis"&gt;
-        &lt;td&gt;#__displayQuestionLabel("CPQ:5")&lt;/td&gt;
+    &lt;table class="${section}-section module-analysis table care-pathways-analysis-container"&gt;
+      &lt;tr class="table-row care-pathways-section-label analysis"&gt;
+        &lt;td class="table-cell"&gt;#__displayQuestionLabel("CPQ:5")&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr class="care-pathways-modules analysis"&gt;
         &lt;td&gt;
-          &lt;div class="care-pathways-modules-wrapper"&gt;
+          &lt;div class="table care-pathways-modules-wrapper"&gt;
             #__displayPrimaryVariantAnalysis("CPQ:5")##
           &lt;/div&gt;
         &lt;/td&gt;
@@ -1076,16 +1076,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displayQuestionTable $questionId $modules)
-  &lt;table id="modules-for-$!{questionId}" class="${section}-section care-pathways-module-group-container"&gt;
-    &lt;tr class="care-pathways-section-label"&gt;
-      &lt;td colspan="2"&gt;
+  &lt;table id="modules-for-$!{questionId}" class="${section}-section table care-pathways-module-group-container"&gt;
+    &lt;tr class="table-row care-pathways-section-label"&gt;
+      &lt;td class="table-cell" colspan="2"&gt;
         &lt;input type="hidden" class="cp-question-id" value="$!{questionId}"/&gt;
         $!{services.vocabularies.care-pathways-questions.getTerm($questionId).name}
       &lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr class="care-pathways-modules"&gt;
       &lt;td&gt;
-        &lt;div class="care-pathways-modules-wrapper no-variants"&gt;
+        &lt;div class="table care-pathways-modules-wrapper no-variants"&gt;
           #set ($lastIdx = $modules.size() - 1)##
           #__displayModuleGroup($questionId, '', '', $modules, ${lastIdx}, $sheet, $storageClass, true)##
         &lt;/div&gt;
@@ -1298,13 +1298,13 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 #macro (__displaySecondaryVariantsSection)
   &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
-    &lt;table class="posttest-section module-analysis care-pathways-analysis-container"&gt;
-      &lt;tr class="care-pathways-section-label analysis"&gt;
-        &lt;td&gt;#__displayQuestionLabel("CPQ:6")&lt;/td&gt;
+    &lt;table class="posttest-section module-analysis table care-pathways-analysis-container"&gt;
+      &lt;tr class="table-row care-pathways-section-label analysis"&gt;
+        &lt;td class="table-cell"&gt;#__displayQuestionLabel("CPQ:6")&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr class="care-pathways-modules analysis"&gt;
         &lt;td&gt;
-          &lt;div class="care-pathways-modules-wrapper"&gt;
+          &lt;div class="table care-pathways-modules-wrapper"&gt;
             #__displaySecondaryVariantAnalysis("CPQ:6")
           &lt;/div&gt;
         &lt;/td&gt;
@@ -1373,9 +1373,9 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displayQuestionTable $questionId $variantModules)
-  &lt;table id="modules-for-$!{questionId}" class="${section}-section care-pathways-module-group-container"&gt;
-    &lt;tr class="care-pathways-section-label"&gt;
-      &lt;td colspan="2"&gt;
+  &lt;table id="modules-for-$!{questionId}" class="${section}-section table care-pathways-module-group-container"&gt;
+    &lt;tr class="table-row care-pathways-section-label"&gt;
+      &lt;td class="table-cell" colspan="2"&gt;
         &lt;input type="hidden" class="cp-question-id" value="$!{questionId}"/&gt;
         $!{services.vocabularies.care-pathways-questions.getTerm($questionId).name}
       &lt;/td&gt;
@@ -1383,7 +1383,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     &lt;tr class="care-pathways-modules"&gt;
       &lt;td&gt;
         #foreach($key in $variantModules.keySet())##
-          &lt;div class="care-pathways-modules-wrapper modules-for-secondary-variants with-variant-$!{key.number}"&gt;
+          &lt;div class="table care-pathways-modules-wrapper modules-for-secondary-variants with-variant-$!{key.number}"&gt;
             #set ($modules = $variantModules.get($key))##
             #set ($lastIdx = $modules.size() - 1)##
             #set ($term = $services.vocabularies.hgnc.getTerm($!{key.getProperty('gene').value}))##

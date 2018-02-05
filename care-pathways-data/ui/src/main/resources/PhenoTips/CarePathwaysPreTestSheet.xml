@@ -107,16 +107,16 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
   &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
   &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
   #foreach ($question in $pretestQuestions)
-    &lt;table id="modules-for-$!{question.question}" class="${section}-section care-pathways-module-group-container"&gt;
-      &lt;tr class="care-pathways-section-label"&gt;
-        &lt;td colspan="2"&gt;
+    &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container"&gt;
+      &lt;tr class="table-row care-pathways-section-label"&gt;
+        &lt;td class="table-cell" colspan="2"&gt;
           &lt;input type="hidden" class="cp-question-id" value="$!{question.question}"/&gt;
           $!{services.vocabularies.care-pathways-questions.getTerm($question.question).name}
         &lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr class="care-pathways-modules"&gt;
         &lt;td&gt;
-          &lt;div class="care-pathways-modules-wrapper no-variants"&gt;
+          &lt;div class="table care-pathways-modules-wrapper no-variants"&gt;
             #set ($lastIdx = $question.modules.size() - 1)
             #__displayModuleGroup($question.question, '', '', $question.modules, ${lastIdx}, $sheet, $storageClass, true)
           &lt;/div&gt;
