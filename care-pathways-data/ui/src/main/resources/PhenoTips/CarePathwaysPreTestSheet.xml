@@ -116,10 +116,11 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
       &lt;/tr&gt;
       &lt;tr class="care-pathways-modules"&gt;
         &lt;td&gt;
-          &lt;div class="table care-pathways-modules-wrapper no-variants"&gt;
+          &lt;table class="table care-pathways-modules-wrapper no-variants"&gt;
             #set ($lastIdx = $question.modules.size() - 1)
-            #__displayModuleGroup($question.question, '', '', $question.modules, ${lastIdx}, $sheet, $storageClass, true)
-          &lt;/div&gt;
+            #set ($editable = ($xcontext.action == "edit"))##
+            #__displayModuleGroup($question.question, '', '', $question.modules, ${lastIdx}, $sheet, $storageClass, true, $editable)
+          &lt;/table&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
@@ -228,7 +229,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     <property>
       <parameters>label=Care Pathways Pre Test
 cssId=care-pathways-pretest-tab
-href=$doc.getURL("edit", "sheet=PhenoTips.CarePathwaysPreTestSheet&amp;returnTo=$!{xcontext.action}")
+href=$doc.getURL("$!{xcontext.action}", "sheet=PhenoTips.CarePathwaysPreTestSheet&amp;returnTo=$!{xcontext.action}")
 container=care-pathways-pretest-container
 order=0</parameters>
     </property>

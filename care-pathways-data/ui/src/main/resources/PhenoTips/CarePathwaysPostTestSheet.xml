@@ -52,7 +52,7 @@
 (% class="" id="care-pathways-posttest-container"%)(((##
 {{html clean="false" wiki="false"}}
   &lt;p class="box infomessage"&gt;These questions should be completed following whole exome testing&lt;/p&gt;
-  &lt;div id="posttest-analysis" class="care-pathways-analysis"&gt;
+  &lt;div id="posttest-analysis" class="care-pathways-analysis#if($xcontext.action == 'edit') care-pathways-analysis-module#{end}"&gt;
 {{/html}}##
     #foreach ($e in $services.uix.getExtensions('org.phenotips.carePathways.posttest', {'sortByParameter' : 'order'}))
       #set ($extension_disabled = ($e.getParameters().get('enabled') == 'false'))
@@ -94,7 +94,7 @@
       <displayType/>
       <name>noPrimaryVariants</name>
       <number>1</number>
-      <prettyName>no primary variants</prettyName>
+      <prettyName>No primary variants</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
@@ -108,7 +108,7 @@
       <displayType/>
       <name>noSecondaryVariants</name>
       <number>2</number>
-      <prettyName>no secondary variants</prettyName>
+      <prettyName>No secondary variants</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
@@ -132,7 +132,7 @@
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>diagnostic=diagnostic|partially-diagnostic=partially-diagnostic|non-diagnostic=non-diagnostic</values>
+      <values>diagnostic=Diagnostic|partially-diagnostic=Partially-diagnostic|non-diagnostic=Non-diagnostic</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </primaryVariantAnalysis>
   </class>
@@ -251,13 +251,9 @@
   margin-left: 0;
 }
 
-#care-pathways-posttest-container tr.care-pathways-modules.analysis div.care-pathways-modules-wrapper {
+#care-pathways-posttest-container tr.care-pathways-modules.analysis .care-pathways-modules-wrapper {
   background-color: $theme.pageContentBackgroundColor;
   padding: 0;
-}
-
-#care-pathways-posttest-container div.care-pathways-modules-wrapper .variants-container {
-  background-color: #fbfbfb;
 }
 
 #primary-variants-interpretation-container {
@@ -265,9 +261,19 @@
   margin-bottom: 1em;
 }
 
+#primary-variants-interpretation-container .displayed-value {
+  margin-left: 2em;
+  display: block;
+  padding-left: 0;
+  border-left: none;
+}
+
 #primary-variants-interpretation-container .xwiki-form-listclass {
   display: block;
-  margin-left: 2em;
+}
+
+#care-pathways-posttest-container tr.variant-label-row td {
+  background-color: $theme.backgroundSecondaryColor;
 }
 
 #care-pathways-posttest-container h2.group-label {
@@ -280,10 +286,12 @@
   text-shadow: 0 1px 0 $theme.panelHeaderGradientColor;
   margin-top: 0;
   margin-bottom: 0;
+  padding-left: .5em;
 }
 
-#care-pathways-posttest-container h2.subject-label {
-  margin-left: 2.0em;
+#care-pathways-posttest-container h3.subject-label {
+  background-color: $theme.pageContentBackgroundColor;
+  padding-left: 2.5em;
 }
 #care-pathways-posttest-container .gene-table td.variant-default-input select {
   width: 170px;
@@ -291,12 +299,12 @@
 #care-pathways-posttest-container p &gt; span.displayed-value {
   display: none;
 }
-#care-pathways-posttest-container .chapter > h2 {
+#care-pathways-posttest-container .chapter &gt; h2 {
   margin: -1.5em 0 0;
 }
 #care-pathways-posttest-container .gene-table td.variant,
 #care-pathways-posttest-container .gene-table th.variant {
-  background: $theme.panelCollapsedBackgroundColor;
+  background: $theme.backgroundSecondaryColor;
 }
 #care-pathways-posttest-container .gene-table .variant-title {
   background-color: $theme.panelCollapsedBackgroundColor !important;
@@ -307,6 +315,11 @@
 #care-pathways-posttest-container .chapter div .expand-tools {
   margin-top: -2.0em;
   margin-right: -0.9em;
+}
+#care-pathways-posttest-container .variant label.create-button-label,
+#care-pathways-posttest-container .variant .add-data-button:before {
+  top: .40em !important;
+  left: .6em;
 }</code>
     </property>
     <property>
@@ -632,12 +645,12 @@ var XWiki = (function(XWiki) {
   },
 
   _removeModulesForVariant : function(container, variantIdx) {
-    var modules = container.select('div.care-pathways-modules-wrapper.with-variant-' + variantIdx);
+    var modules = container.select('.care-pathways-modules-wrapper.with-variant-' + variantIdx);
     if (modules.size() &gt; 0) {
       modules.each(function(module) {
         var containingTable = module.up('table.care-pathways-module-group-container');
         module.remove();
-        !containingTable.down('div.care-pathways-modules-wrapper') &amp;&amp; containingTable.remove();
+        !containingTable.down('.care-pathways-modules-wrapper') &amp;&amp; containingTable.remove();
       });
     }
   },
@@ -679,7 +692,7 @@ var XWiki = (function(XWiki) {
             dataRow.next().remove();
             dataRow.remove();
           } else {
-            //we are removing variant from the middle of the table-> updating table count
+            //we are removing variant from the middle of the table - updating table count
             dataRow.next().remove();
             dataRow.remove();
             var element = deleteTrigger.up('tr').select('.variant-row-count.variant')[0];
@@ -792,7 +805,7 @@ var XWiki = (function(XWiki) {
     <property>
       <parameters>label=Care Pathways Post Test
 cssId=care-pathways-posttest-tab
-href=$doc.getURL("edit", "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;returnTo=$!{xcontext.action}")
+href=$doc.getURL("$!{xcontext.action}", "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;returnTo=$!{xcontext.action}")
 container=care-pathways-posttest-container
 order=1</parameters>
     </property>
@@ -894,7 +907,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #template('carePathwaysMacros.vm')##
 ##
 ##
-#set ($type = "primary")
+#set ($geneStatus = 'confirmed')##
+#set ($variantStatus = "primary")##
 #set ($section = "posttest")
 #set ($storageClass = "PhenoTips.PatientCarePostTestClass")
 #set ($moduleSpecs = {
@@ -908,7 +922,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'test',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       },
@@ -921,14 +935,14 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             },
             {
                'pursuedDate':true,
                'module':'family',
                'submodule':'',
                'subject':'',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -943,7 +957,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'test',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       },
@@ -956,14 +970,14 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             },
             {
                'pursuedDate':true,
                'module':'family',
                'submodule':'',
                'subject':'',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -978,7 +992,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'test',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       },
@@ -991,7 +1005,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -1000,7 +1014,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displayPrimaryVariantsSection)
-  &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
+  &lt;div id="${section}-analysis-${variantStatus}-variants" class="subsection-data"&gt;
     &lt;table class="${section}-section module-analysis table care-pathways-analysis-container"&gt;
       &lt;tr class="table-row care-pathways-section-label analysis"&gt;
         &lt;td class="table-cell"&gt;#__displayQuestionLabel("CPQ:4")&lt;/td&gt;
@@ -1045,31 +1059,51 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   &lt;div class="no-variants-container"&gt;
   &lt;input type="hidden" id="clear-primary-data" value="$clearPrimaryData"/&gt;
   {{/html}}##
-    #__form_field('noPrimaryVariants') #__form_label('noPrimaryVariants' '' 'no primary variants')##
+    #set ($propName = 'noPrimaryVariants')##
+    #set ($hasNoPrimaryVar = $obj.getValue($propName) == 1)
+    #if ($xcontext.action == 'edit')##
+      #__form_field($propName) ##
+    #end##
+    #if ($hasNoPrimaryVar || $xcontext.action == 'edit')##
+      #__form_label($propName '' '')##
+    #end
   {{html clean="false" wiki="false"}}##
   &lt;/div&gt;
   &lt;div id="primary-wes-variants-all" class="primary-variants-container variants-container"&gt;
+    #if ($xcontext.action == 'edit')##
     &lt;div class="patient-form-variants hidden"&gt;
       {{/html}}
         #__gene_table($geneClassName, $variantClassName, {'tableIdPrefix' : 'patient-sheet__', 'tableClass' : 'patient-sheet', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation', 'zygosity'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
       {{html clean="false" wiki="false"}}
     &lt;/div&gt;
+    #end##
+    #if ($xcontext.action == 'edit' || $doc.getObject($cpGeneClassName, 'status', 'confirmed'))##
     &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
       &lt;input class="question-id" type="hidden" value="$question"/&gt;
       {{/html}}
-        #set ($geneStatus = 'confirmed')##
-        #set ($variantStatus = $type)##
         #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
       {{html clean="false" wiki="false"}}
     &lt;/div&gt;
+    #else
+      #if (!$hasNoPrimaryVar)##
+        &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
+          No variant data entered
+        &lt;/div&gt;
+     #end##
+    #end##
   &lt;/div&gt;
 #end
 ##
 ##
 #macro (__displayPrimaryVariantAnalysis $question)
-&lt;div id="primary-variants-interpretation-container"&gt;
+&lt;div id="primary-variants-interpretation-container" class="mandatory"&gt;
 {{/html}}##
-  #__form_field('primaryVariantAnalysis')
+  #set ($primaryAnalysisProp = 'primaryVariantAnalysis')
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty($primaryAnalysisProp).value}" != '')##
+    #__form_field($primaryAnalysisProp)
+  #else##
+    {{html clean="false" wiki="false"}}&lt;span class="displayed-value"&gt;No data entered&lt;/span&gt;{{/html}}##
+  #end##
 {{html clean="false" wiki="false"}}##
 &lt;/div&gt;
 #end
@@ -1085,10 +1119,11 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     &lt;/tr&gt;
     &lt;tr class="care-pathways-modules"&gt;
       &lt;td&gt;
-        &lt;div class="table care-pathways-modules-wrapper no-variants"&gt;
+        &lt;table class="table care-pathways-modules-wrapper no-variants"&gt;
           #set ($lastIdx = $modules.size() - 1)##
-          #__displayModuleGroup($questionId, '', '', $modules, ${lastIdx}, $sheet, $storageClass, true)##
-        &lt;/div&gt;
+          #set ($editable = ($xcontext.action == "edit"))##
+          #__displayModuleGroup($questionId, '', '', $modules, ${lastIdx}, $sheet, $storageClass, true, $editable)##
+        &lt;/table&gt;
       &lt;/td&gt;
     &lt;/tr&gt;
   &lt;/table&gt;
@@ -1103,7 +1138,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   &lt;input type="hidden" id="diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('diagnostic')))"&gt;
   &lt;input type="hidden" id="partially-diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('partially-diagnostic')))"/&gt;
   &lt;input type="hidden" id="non-diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('non-diagnostic')))"/&gt;
-  &lt;div id="${section}-questionnaire-${type}" class="care-pathways-questionnaire"&gt;
+  &lt;div id="${section}-questionnaire-${variantStatus}" class="care-pathways-questionnaire"&gt;
     #if ($specs)##
       #foreach ($spec in $specs)##
         #__displayQuestionTable($spec.get('question'), $spec.get('modules'))##
@@ -1237,7 +1272,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #template('carePathwaysMacros.vm')##
 ##
 ##
-#set ($type = "secondary")
+#set ($geneStatus = 'confirmed_secondary')##
+#set ($variantStatus = "secondary")##
 #set ($section = "posttest")
 #set ($storageClass = "PhenoTips.PatientCarePostTestClass")
 #set ($moduleSpecs = {
@@ -1251,14 +1287,14 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'proband',
-               'type':$type
+               'type':$variantStatus
             },
             {
                'pursuedDate':true,
                'module':'family',
                'submodule':'',
                'subject':'',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -1273,7 +1309,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'mother',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -1288,7 +1324,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                'module':'care',
                'submodule':'',
                'subject':'father',
-               'type':$type
+               'type':$variantStatus
             }
          ]
       }
@@ -1297,7 +1333,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displaySecondaryVariantsSection)
-  &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
+  &lt;div id="${section}-analysis-${variantStatus}-variants" class="subsection-data"&gt;
     &lt;table class="posttest-section module-analysis table care-pathways-analysis-container"&gt;
       &lt;tr class="table-row care-pathways-section-label analysis"&gt;
         &lt;td class="table-cell"&gt;#__displayQuestionLabel("CPQ:6")&lt;/td&gt;
@@ -1321,14 +1357,21 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displaySecondaryVariantAnalysis $question)
-  #set ($clearSecondaryData = $doc.getURL("get", "sheet=$!{class.name}&amp;associateddataclass=$storageClass&amp;action=cpcleargenes&amp;geneclassname=PhenoTips.CPGeneClass&amp;variantclassname=PhenoTips.CPGeneVariantClass&amp;genestatus=confirmed_secondary&amp;variantstatus=$type&amp;form_token=$!{services.csrf.getToken()}"))
+  #set ($clearSecondaryData = $doc.getURL("get", "sheet=$!{class.name}&amp;associateddataclass=$storageClass&amp;action=cpcleargenes&amp;geneclassname=PhenoTips.CPGeneClass&amp;variantclassname=PhenoTips.CPGeneVariantClass&amp;genestatus=confirmed_secondary&amp;variantstatus=$variantStatus&amp;form_token=$!{services.csrf.getToken()}"))
   &lt;div class="no-variants-container"&gt;
   &lt;input type="hidden" id="clear-secondary-data" value="$clearSecondaryData"/&gt;
   {{/html}}##
-    #__form_field('noSecondaryVariants') #__form_label('noSecondaryVariants' '' 'no secondary variants')##
+    #set ($propName = 'noSecondaryVariants')##
+    #set ($hasNoSecondaryVar = $obj.getValue($propName) == 1)
+    #if ($xcontext.action == 'edit')##
+      #__form_field($propName) ##
+    #end##
+    #if ($hasNoSecondaryVar || $xcontext.action == 'edit')##
+      #__form_label($propName '' '')##
+    #end
   {{html clean="false" wiki="false"}}##
   &lt;/div&gt;
-  &lt;div id="secondary-wes-variants-all" class="secondary-variants-container"&gt;
+  &lt;div id="secondary-wes-variants-all" class="secondary-variants-container#if($hasNoSecondaryVar) hidden#{end}"&gt;
     &lt;input class="question-id" type="hidden" value="$question"/&gt;
     #__displaySubjectBoxes('secondary-wes-variants')##
   &lt;/div&gt;
@@ -1338,37 +1381,38 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #macro (__displaySubjectBoxes $itemClass)
   #set ($geneClassName = 'PhenoTips.CPGeneClass')
   #set ($variantClassName = 'PhenoTips.CPGeneVariantClass')
-  #set ($geneStatus = 'confirmed_secondary')##
-  #set ($variantStatus = $type)##
   &lt;ul&gt;
     #set ($subject = 'proband')##
-    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
-      &lt;h2 class="subject-label group-label"&gt;Proband&lt;/h2&gt;
-      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
-        {{/html}}
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
-        {{html clean="false" wiki="false"}}
-      &lt;/div&gt;
-    &lt;/li&gt;
+    #__displaySecondaryVariantsForSubject($subject, $itemClass, $geneClassName, $variantClassName)##
     #set ($subject = 'mother')##
-    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
-      &lt;h2 class="subject-label group-label"&gt;Mother&lt;/h2&gt;
-      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
-        {{/html}}
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'mother-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
-        {{html clean="false" wiki="false"}}
-      &lt;/div&gt;
-    &lt;/li&gt;
+    #__displaySecondaryVariantsForSubject($subject, $itemClass, $geneClassName, $variantClassName)##
     #set ($subject = 'father')##
-    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
-      &lt;h2 class="subject-label group-label"&gt;Father&lt;/h2&gt;
-      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
-        {{/html}}
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'father-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
-        {{html clean="false" wiki="false"}}
-      &lt;/div&gt;
-    &lt;/li&gt;
+    #__displaySecondaryVariantsForSubject($subject, $itemClass, $geneClassName, $variantClassName)##
   &lt;/ul&gt;
+#end
+##
+##
+#macro (__displaySecondaryVariantsForSubject $subject $itemClass $geneClassName $variantClassName)
+  &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
+    &lt;h3 class="subject-label group-label"&gt;&lt;span&gt;&lt;strong&gt;$stringtool.capitalize("$!{subject}")&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+    &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
+      {{/html}}
+
+        #set($hasData = false)
+        #foreach($geneItem in $doc.getObjects($geneClassName, 'subject', $subject))
+          #if($!{geneItem.getProperty('status').value} == $geneStatus)
+            #set($hasData = true)
+            #break
+          #end
+        #end
+        #if ($xcontext.action == 'edit' || $hasData)
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'mother-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+        #else
+          No variant data entered
+        #end
+      {{html clean="false" wiki="false"}}
+    &lt;/div&gt;
+  &lt;/li&gt;
 #end
 ##
 ##
@@ -1383,12 +1427,13 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     &lt;tr class="care-pathways-modules"&gt;
       &lt;td&gt;
         #foreach($key in $variantModules.keySet())##
-          &lt;div class="table care-pathways-modules-wrapper modules-for-secondary-variants with-variant-$!{key.number}"&gt;
+          &lt;table class="table care-pathways-modules-wrapper modules-for-secondary-variants with-variant-$!{key.number}"&gt;
             #set ($modules = $variantModules.get($key))##
             #set ($lastIdx = $modules.size() - 1)##
             #set ($term = $services.vocabularies.hgnc.getTerm($!{key.getProperty('gene').value}))##
-            #__displayModuleGroup($questionId, $key.number, "$!{term.symbol} [$!{key.getProperty('cdna').value}]", $modules, ${lastIdx}, $sheet, $storageClass, true)##
-          &lt;/div&gt;
+            #set ($editable = ($xcontext.action == "edit"))##
+            #__displayModuleGroup($questionId, $key.number, "$!{term.symbol} [$!{key.getProperty('cdna').value}]", $modules, ${lastIdx}, $sheet, $storageClass, true, $editable)##
+          &lt;/table&gt;
         #end##
       &lt;/td&gt;
     &lt;/tr&gt;
@@ -1402,7 +1447,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   &lt;input type="hidden" id="proband-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.proband))"&gt;
   &lt;input type="hidden" id="mother-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.mother))"/&gt;
   &lt;input type="hidden" id="father-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.father))"/&gt;
-  &lt;div id="${section}-questionnaire-${type}" class="care-pathways-questionnaire"&gt;
+  &lt;div id="${section}-questionnaire-${variantStatus}" class="care-pathways-questionnaire"&gt;
   #foreach ($key in $moduleSpecs.keySet())##
     #set ($specs = $moduleSpecs.get($key))##
     #set ($variants = $doc.getObjects('PhenoTips.CPGeneVariantClass', 'subject', $key))##
@@ -1412,11 +1457,11 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       #set ($question = $spec.question)##
       #set ($modules = $spec.modules)##
       #foreach ($variant in $variants)##
-        #if ($variant.getProperty('status').value == $type)##
+        #if ($variant.getProperty('status').value == $variantStatus)##
           #set ($discard = $variantModules.put($variant, $modules))##
         #end##
       #end##
-      #if ($variantModules.size() > 0)##
+      #if ($variantModules.size() &gt; 0)##
         #__displayQuestionTable($question, $variantModules)##
       #end##
     #end##
