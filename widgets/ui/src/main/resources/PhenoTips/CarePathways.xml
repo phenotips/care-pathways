@@ -2318,6 +2318,238 @@ var init = function(event) {
   </object>
   <object>
     <name>PhenoTips.CarePathways</name>
+    <number>8</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>bb2cf944-dfc9-454d-ade6-b6652fceab8a</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  // Start XWiki augmentation
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+  
+  cp.RemoteDuplicatesValidator = Class.create({
+    // Constants.
+    NEW                  : "NEW",
+    CHECKING             : "CHECKING",
+    DONE                 : "DONE", 
+    UNIQUE_CLASS         : "LV_CPMatchingVariants_unique",
+    DUPLICATE_CLASS      : "LV_CPMatchingVariants_duplicate",
+
+    initialize : function(input, selector, message, options) {
+      this.options = options || {};
+      this.serviceUrl = options.serviceUrl;
+      if (!this.serviceUrl) { return; }
+      
+      this.input = input;
+      this.novel = true;
+      this.state = this.NEW;
+      this.value = input.value;
+      this.selector = selector;
+      this.message = message;            
+      this.hiddenElems = [];
+      
+      if (!this.input.__validation &amp;&amp; this.input.type !== "hidden") {
+        try {
+          this.input.__validation = new LiveValidation(this.input, {validMessage: '', wait : 500});
+        }
+        catch(err) {
+          //console.log(err);
+        }
+      }
+
+      this.input.__validation &amp;&amp; this.input.__validation.add(this.validate.bind(this));
+    },
+
+    check : function() {
+      if (this.input.value !== this.value) {
+        this.value = this.input.value;
+        this.state = this.CHECKING;
+        var _this = this;
+        jQuery.ajax(this.serviceUrl + this.value, {
+          method: "POST",
+        }).done(function(data, textStatus, jqXHR) {
+          _this._toggleDuplicate.bind(_this, data)();
+        }).always(function() {
+          _this.responded.bind(_this)();
+          var currentMsgEl = _this.input.next('span');
+          var currentMsg = currentMsgEl &amp;&amp; currentMsgEl.innerHTML || "";
+          if (currentMsg !== "" &amp;&amp; currentMsg !== _this.message) {
+            // If some other validation failed, and that failure message is displayed, it will be misleading to show 
+            // actions associated with this validation.
+            _this.hiddenElems &amp;&amp; _this._showDataElements(_this.hiddenElems);
+            _this.options.addOnWarnButtons &amp;&amp; _this._removeActionButtons(_this.options.addOnWarnButtons);
+          }
+        });
+      }    
+    },
+
+    _hideDataElements : function(elements) {
+      elements.each(function(hiddenElem) {
+        hiddenElem.addClassName('hidden');
+      });
+    },
+
+    _showDataElements : function(elements) {
+      elements.each(function(hiddenElem) {
+        hiddenElem.removeClassName('hidden');
+      });
+    },
+
+    _addActionButtons : function(buttons, data) {      
+      this.options.addOnWarnButtonsContainer &amp;&amp; this.options.addOnWarnButtonsContainer.insert(buttons) || this.input.insert({'after' : buttons});
+      buttons.observe('click', function(event) {
+        var button = event.findElement('.button');
+        button &amp;&amp; button.clickAction &amp;&amp; button.clickAction(data);
+      });
+    },
+
+    _removeActionButtons: function(buttons) {
+      buttons.up() &amp;&amp; buttons.remove();
+    },
+
+    _toggleDuplicate : function(matchingData) {            
+      if (Object.keys(matchingData).length) {
+        this._markDuplicate(matchingData);
+      } else {
+        this._markUnique();
+      }
+    },
+
+    _markDuplicate : function(matchingData) {
+      this.hiddenElems = this.options.hideOnWarnFx &amp;&amp; this.options.hideOnWarnFx() || [];
+      this.input.removeClassName(this.UNIQUE_CLASS);
+      this.input.addClassName(this.DUPLICATE_CLASS);
+      this.isDuplicate();
+      this.hiddenElems &amp;&amp; this._hideDataElements(this.hiddenElems);      
+      this.options.addOnWarnButtons &amp;&amp; this._addActionButtons(this.options.addOnWarnButtons, matchingData);
+    },
+
+    _markUnique : function() {
+      this.input.removeClassName(this.DUPLICATE_CLASS);
+      this.input.addClassName(this.UNIQUE_CLASS);
+      this.isUnique();
+      this.hiddenElems &amp;&amp; this._showDataElements(this.hiddenElems);
+      this.options.addOnWarnButtons &amp;&amp; this._removeActionButtons(this.options.addOnWarnButtons);
+    },
+
+    isUnique : function() {
+      this.novel = true;
+    },
+
+    isDuplicate : function() {
+      this.novel = false;
+    },
+
+    responded : function() {
+      this.state = this.DONE;
+      this.input.__validation.validate();
+    },
+
+    validate : function(value) {
+      if (value.blank()) {
+        return true;
+      }
+      if (this.state === this.DONE &amp;&amp;
+          this.value === value &amp;&amp;         
+          !this.novel) {        
+        Validate.fail(this.message);        
+      }
+      this.check();
+      return true;
+    }
+  });
+
+  // End PhenoTips augmentation
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Ajax duplicates validator</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
     <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
     <guid>32a05e52-7c49-4f3d-a80a-dc319dda42af</guid>
