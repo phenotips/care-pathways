@@ -4,12 +4,12 @@
 ##
 ##
 #macro (__gene__deleteWithVariants__tool $geneObj $variantClassName)
-{{html clean="false"}}<span class="buttonwrapper actions"><a class="action delete-gene button secondary" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;geneclassname=${geneObj.xWikiClass.name}&amp;variantclassname=$variantClassName&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletegene&amp;associateddataclass=PhenoTips.PatientCarePostTestClass&amp;objnumber=$geneObj.number&amp;gene=")" title="$services.localization.render('phenotips.tableMacros.delete')">✖</a></span>{{/html}}##
+{{html clean="false"}}<span class="buttonwrapper actions"><a class="action delete-gene button secondary" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;geneclassname=${geneObj.xWikiClass.name}&amp;variantclassname=$variantClassName&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletegene&amp;associateddataclass=PhenoTips.PatientCarePostTestClass&amp;objnumber=$geneObj.number&amp;gene=")" title="$escapetool.xml($services.localization.render('phenotips.tableMacros.delete'))">✖</a></span>{{/html}}##
 #end
 ##
 ##
 #macro (__variant__deleteTool $object)
-{{html clean="false"}}<span class="buttonwrapper"><a class="action delete-variant button secondary" style="margin-top : 0" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;classname=${object.xWikiClass.name}&amp;classid=${object.number}&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletevariant&amp;associateddataclass=PhenoTips.PatientCarePostTestClass")" title="$services.localization.render('phenotips.tableMacros.delete')">✖</a></span>{{/html}}##
+{{html clean="false"}}<span class="buttonwrapper"><a class="action delete-variant button secondary" style="margin-top : 0" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;classname=${object.xWikiClass.name}&amp;classid=${object.number}&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletevariant&amp;associateddataclass=PhenoTips.PatientCarePostTestClass")" title="$escapetool.xml($services.localization.render('phenotips.tableMacros.delete'))">✖</a></span>{{/html}}##
 #end
 ##
 ##
