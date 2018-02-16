@@ -118,7 +118,23 @@
     </noSecondaryVariants>
     <primaryVariantAnalysis>
       <cache>0</cache>
-      <customDisplay/>
+      <customDisplay>{{velocity}}
+#set ($diagnostic = "diagnostic")##
+#set ($partiallyDiagnostic = "partially-diagnostic")##
+#set ($nonDiagnostic = "non-diagnostic")##
+#set ($explanations = {$diagnostic : "WES result provides complete explanation of phenotype; further diagnostic investigations not indicated", $partiallyDiagnostic : "WES result provides partial explanation of phenotype; further dx investigations may be indicated", $nonDiagnostic : "WES result provides no explanation for phenotype; further dx investigations may be indicated"})##
+#if ($xcontext.action == "edit")
+{{html clean="false" wiki="false"}}
+&lt;span class="xwiki-form-listclass"&gt;&lt;label for="${prefix}${name}-0"&gt;&lt;input id="${prefix}${name}-0" value="${diagnostic}" name="${prefix}${name}" type="radio" #if($value == $diagnostic)checked="checked"#end/&gt;$stringtool.capitalize($diagnostic)&lt;/label&gt; &lt;span class="fa fa-question-circle  xHelpButton" title="${explanations[$diagnostic]}"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="xwiki-form-listclass"&gt;&lt;label for="${prefix}${name}-1"&gt;&lt;input id="${prefix}${name}-1" value="${partiallyDiagnostic}" name="${prefix}${name}" type="radio" #if($value == $partiallyDiagnostic)checked="checked"#end/&gt;$stringtool.capitalize($partiallyDiagnostic)&lt;/label&gt; &lt;span class="fa fa-question-circle  xHelpButton" title="${explanations[$partiallyDiagnostic]}"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class="xwiki-form-listclass"&gt;&lt;label for="${prefix}${name}-2"&gt;&lt;input id="${prefix}${name}-2" value="${nonDiagnostic}" name="${prefix}${name}" type="radio" #if($value == $nonDiagnostic)checked="checked"#end/&gt;$stringtool.capitalize($nonDiagnostic)&lt;/label&gt; &lt;span class="fa fa-question-circle  xHelpButton" title="${explanations[$nonDiagnostic]}"&gt;&lt;/span&gt;&lt;/span&gt;
+{{/html}}##
+#else
+{{html clean="false" wiki="false"}}
+$stringtool.capitalize(${value}) &lt;span class="fa fa-question-circle xHelpButton" title="${explanations[$value]}"&gt;&lt;/span&gt;
+{{/html}}##
+#end
+{{/velocity}}</customDisplay>
       <disabled>0</disabled>
       <displayType>radio</displayType>
       <multiSelect>0</multiSelect>

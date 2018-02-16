@@ -101,7 +101,7 @@
       &lt;td class="table-cell subject-group"&gt;
       #foreach ($subject in $subjects)##
         &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="checkbox"/&gt; &lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
+          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
         &lt;/span&gt;
       #end##
       &lt;/td&gt;
@@ -2768,6 +2768,10 @@ document.observe("cp-selection:data:loaded", function(event) {
   margin: .25em 0 0 -6.7em;
 }
 
+input[type='checkbox'],
+input[type='radio'] {
+  margin-right: .5em;
+}
 /**********************************************************************************************
  * Survey css.
  */
@@ -3136,7 +3140,7 @@ tr.care-pathways-family-module-container-view .table-cell {
 
 tr.care-pathways-family-module-container .term-picker {
   padding: 10px 0 10px 0;
-  width: 5.5em;
+  width: 6em;
   display: inline-block;
   text-align: center;
   cursor: pointer;
@@ -3147,7 +3151,7 @@ tr.care-pathways-family-module-container .term-picker {
 
 tr.care-pathways-family-module-container .term-picker input {
   padding: 0;
-  margin: 0;
+  margin: 0 .5em 0 0;
 }
 
 tr.care-pathways-family-module-container-view .affected-family-member {
