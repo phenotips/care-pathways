@@ -1262,6 +1262,7 @@
       this._pickSubjectElement(qualifiersWidget);
 
       this._container.hasClassName('with-mandatory-dates') &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
+        'trackLastEnteredDate' : true,
         'defListItemClass': 'date_pursued',
         'qualifierLabel': 'Completed on:',
         'qualifierName': 'date_pursued_fuzzy',
@@ -2921,6 +2922,15 @@ table.summary-group tr.term-holder span.patient-term-delete {
 
 .care-pathways-module-container-view table.terms-data-table td.no-data {
   padding: 1em;
+}
+
+tr.care-pathways-module-container table.summary-group div.summary-item div.fuzzy-date-picker {
+  display: inline-block;
+}
+
+tr.care-pathways-module-container table.summary-group div.summary-item span.parent-paste-last-date-button {
+  margin-left: .5em;
+  cursor: pointer;
 }
 
 tr.care-pathways-module-container table.summary-group div.summary-item.blurred dl,
