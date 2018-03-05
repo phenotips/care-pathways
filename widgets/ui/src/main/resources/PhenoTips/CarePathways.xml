@@ -137,20 +137,6 @@
       <code>#template('colorThemeInit.vm')
 
 /**********************************************************************************************
- * Tabs css.
- */
-
-.care-pathways-pretest-tab #mainContentArea,
-.care-pathways-posttest-tab #mainContentArea {
-  border-top: .4em solid $theme.menuGradientColor !important;
-}
-
-.care-pathways-pretest-tab #document-head,
-.care-pathways-posttest-tab #document-head {
-  margin-top: -3.3em !important;
-}
-
-/**********************************************************************************************
  * Survey css.
  */
 
