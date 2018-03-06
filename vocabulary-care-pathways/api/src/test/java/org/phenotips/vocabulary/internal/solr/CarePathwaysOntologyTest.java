@@ -178,9 +178,12 @@ public class CarePathwaysOntologyTest
     }
 
     @Test
-    public void getDefaultSourceLocationIsBlank()
+    public void getDefaultSourceLocation()
     {
-        Assert.assertTrue(StringUtils.EMPTY.equals(this.component.getDefaultSourceLocation()));
+        final URL source =
+                ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
+        final String sourceStr = source == null ? StringUtils.EMPTY : source.toString();
+        Assert.assertTrue(sourceStr.equals(this.component.getDefaultSourceLocation()));
     }
 
     @Test

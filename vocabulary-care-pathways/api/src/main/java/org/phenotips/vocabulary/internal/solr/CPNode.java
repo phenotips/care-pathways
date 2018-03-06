@@ -105,89 +105,66 @@ class CPNode
     }
 
     /**
-     * Adds a parent to the collection of {@link #isA parents}, and returns the updated collection.
+     * Adds a parent to the collection of {@link #isA parents}.
      *
      * @param parent the parent identifier to add
-     * @return the updated collection of parent identifiers
      */
-    @Nonnull
-    Collection<String> addParent(@Nullable final String parent)
+    void addParent(@Nullable final String parent)
     {
         CollectionUtils.addIgnoreNull(this.isA, parent);
-        return Collections.unmodifiableSet(this.isA);
     }
 
     /**
-     * Adds an ancestor to the collection of {@link #termCategory ancestors}, and returns the updated collection.
+     * Adds an ancestor to the collection of {@link #termCategory ancestors}.
      *
      * @param ancestor the ancestor identifier to add
-     * @return the updated collection of ancestor identifiers
      */
-    @Nonnull
-    Collection<String> addAncestor(@Nullable final String ancestor)
+    void addAncestor(@Nullable final String ancestor)
     {
         CollectionUtils.addIgnoreNull(this.termCategory, ancestor);
-        return Collections.unmodifiableSet(this.termCategory);
     }
 
     /**
-     * Adds a parents to the collection of {@link #isA parents}, and returns the updated collection.
+     * Adds parents to the collection of {@link #isA parents}.
      *
      * @param parents the collection of parent identifiers to add
-     * @return the updated collection of parent identifiers
      */
-    @Nonnull
-    Collection<String> addParents(@Nullable final Collection<String> parents)
+    void addParents(@Nullable final Collection<String> parents)
     {
         if (CollectionUtils.isNotEmpty(parents)) {
             this.isA.addAll(parents);
         }
-        return Collections.unmodifiableSet(this.isA);
     }
 
     /**
-     * Replaces the collection of {@link #isA parents} with {@code parents}, and returns the updated collection.
+     * Replaces the collection of {@link #isA parents} with {@code parents}.
      *
      * @param parents the new collection of parent identifiers
-     * @return the updated collection of parent identifiers
      */
-    @Nonnull
-    Collection<String> setParents(@Nullable final Set<String> parents)
+    void setParents(@Nullable final Set<String> parents)
     {
-        if (parents != null) {
-            this.isA = parents;
-        }
-        return Collections.unmodifiableSet(this.isA);
+        this.isA = CollectionUtils.isEmpty(parents) ? new HashSet<>() : new HashSet<>(parents);
     }
 
     /**
-     * Adds ancestors to the collection of {@link #termCategory ancestors}, and returns the updated collection.
+     * Adds ancestors to the collection of {@link #termCategory ancestors}.
      *
      * @param ancestors the collection of ancestor identifiers to add
-     * @return the updated collection of ancestor identifiers
      */
-    @Nonnull
-    Collection<String> addAncestors(@Nullable final Collection<String> ancestors)
+    void addAncestors(@Nullable final Collection<String> ancestors)
     {
         if (CollectionUtils.isNotEmpty(ancestors)) {
             this.termCategory.addAll(ancestors);
         }
-        return Collections.unmodifiableSet(this.termCategory);
     }
 
     /**
-     * Replaces the collection of {@link #termCategory ancestors} with {@code ancestors}, and returns the updated
-     * collection.
+     * Replaces the collection of {@link #termCategory ancestors} with {@code ancestors}.
      *
      * @param ancestors the new collection of ancestor identifiers
-     * @return the updated collection of ancestor identifiers
      */
-    @Nonnull
-    Collection<String> setAncestors(@Nullable final Set<String> ancestors)
+    void setAncestors(@Nullable final Set<String> ancestors)
     {
-        if (ancestors != null) {
-            this.termCategory = ancestors;
-        }
-        return Collections.unmodifiableSet(this.termCategory);
+        this.termCategory = CollectionUtils.isEmpty(ancestors) ? new HashSet<>() : new HashSet<>(ancestors);
     }
 }

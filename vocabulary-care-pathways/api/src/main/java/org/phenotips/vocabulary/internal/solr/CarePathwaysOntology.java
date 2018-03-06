@@ -140,8 +140,8 @@ public class CarePathwaysOntology extends AbstractCSVSolrVocabulary
     @Override
     public String getDefaultSourceLocation()
     {
-        // Is empty, as there is no default location for the vocabulary source file.
-        return StringUtils.EMPTY;
+        final URL url = ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
+        return url == null ? StringUtils.EMPTY : url.toString();
     }
 
     @Override
