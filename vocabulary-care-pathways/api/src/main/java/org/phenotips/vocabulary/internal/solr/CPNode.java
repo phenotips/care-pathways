@@ -21,11 +21,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A class that holds data pertaining to a care pathways test or care node. Has convenience methods such as
@@ -111,7 +113,9 @@ class CPNode
      */
     void addParent(@Nullable final String parent)
     {
-        CollectionUtils.addIgnoreNull(this.isA, parent);
+        if (StringUtils.isNotBlank(parent)) {
+            this.isA.add(parent);
+        }
     }
 
     /**
@@ -121,7 +125,9 @@ class CPNode
      */
     void addAncestor(@Nullable final String ancestor)
     {
-        CollectionUtils.addIgnoreNull(this.termCategory, ancestor);
+        if (StringUtils.isNotBlank(ancestor)) {
+            this.termCategory.add(ancestor);
+        }
     }
 
     /**
@@ -132,7 +138,7 @@ class CPNode
     void addParents(@Nullable final Collection<String> parents)
     {
         if (CollectionUtils.isNotEmpty(parents)) {
-            this.isA.addAll(parents);
+            parents.forEach(this::addParent);
         }
     }
 
@@ -143,7 +149,9 @@ class CPNode
      */
     void setParents(@Nullable final Set<String> parents)
     {
-        this.isA = CollectionUtils.isEmpty(parents) ? new HashSet<>() : new HashSet<>(parents);
+        this.isA = CollectionUtils.isEmpty(parents)
+                ? new HashSet<>()
+                : parents.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
     }
 
     /**
@@ -154,7 +162,7 @@ class CPNode
     void addAncestors(@Nullable final Collection<String> ancestors)
     {
         if (CollectionUtils.isNotEmpty(ancestors)) {
-            this.termCategory.addAll(ancestors);
+            ancestors.forEach(this::addAncestor);
         }
     }
 
@@ -165,6 +173,8 @@ class CPNode
      */
     void setAncestors(@Nullable final Set<String> ancestors)
     {
-        this.termCategory = CollectionUtils.isEmpty(ancestors) ? new HashSet<>() : new HashSet<>(ancestors);
+        this.termCategory = CollectionUtils.isEmpty(ancestors)
+                ? new HashSet<>()
+                : ancestors.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
     }
 }
