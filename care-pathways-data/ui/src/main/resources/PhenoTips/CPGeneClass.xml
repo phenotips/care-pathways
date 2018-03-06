@@ -47,6 +47,22 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
+    <comments>
+      <contenttype>PureText</contenttype>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <editor>PureText</editor>
+      <name>comments</name>
+      <number>5</number>
+      <picker>0</picker>
+      <prettyName>Comments</prettyName>
+      <rows>3</rows>
+      <size>40</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+    </comments>
     <gene>
       <customDisplay>{{velocity}}
 #macro (_displayGeneSymbol $prefix $name $value)
@@ -83,40 +99,6 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </gene>
-    <subject>
-      <cache>0</cache>
-      <customDisplay>{{velocity}}
-#macro (_addGeneSubject $prefix $name $value)
-#if ($xcontext.action == 'edit')
-{{html wiki="false" clean="false"}}&lt;input type="hidden" id="${prefix}${name}" name="${prefix}${name}" class="gene-subject-value" value="$!{value}"/&gt;{{/html}}
-#end
-
-$escapetool.xml($services.localization.render("PhenoTips.CPGeneClass_subject_${value}"))
-#end
-##
-##
-#if ($prefix &amp;&amp; $name)
-#_addGeneSubject($prefix, $name, $subject)
-#end
-{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <displayType>select</displayType>
-      <multiSelect>0</multiSelect>
-      <name>subject</name>
-      <number>2</number>
-      <picker>0</picker>
-      <prettyName>Subject</prettyName>
-      <relationalStorage>0</relationalStorage>
-      <separator/>
-      <separators>|, </separators>
-      <size>1</size>
-      <sort>none</sort>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <values>proband=Proband|mother=Mother|father=Father</values>
-      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-    </subject>
     <status>
       <cache>0</cache>
       <customDisplay>{{velocity}}
@@ -172,21 +154,39 @@ $escapetool.xml($services.localization.render("PhenoTips.CPGeneClass_status_${va
       <values>sequencing=Sequencing|deletion=Deletion/duplication|familial_mutation=Familial mutation/disease|common_mutations=Common mutations</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </strategy>
-    <comments>
-      <contenttype>PureText</contenttype>
-      <customDisplay/>
+    <subject>
+      <cache>0</cache>
+      <customDisplay>{{velocity}}
+#macro (_addGeneSubject $prefix $name $value)
+#if ($xcontext.action == 'edit')
+{{html wiki="false" clean="false"}}&lt;input type="hidden" id="${prefix}${name}" name="${prefix}${name}" class="gene-subject-value" value="$!{value}"/&gt;{{/html}}
+#end
+
+$escapetool.xml($services.localization.render("PhenoTips.CPGeneClass_subject_${value}"))
+#end
+##
+##
+#if ($prefix &amp;&amp; $name)
+#_addGeneSubject($prefix, $name, $subject)
+#end
+{{/velocity}}</customDisplay>
       <disabled>0</disabled>
-      <editor>PureText</editor>
-      <name>comments</name>
-      <number>5</number>
+      <displayType>select</displayType>
+      <multiSelect>0</multiSelect>
+      <name>subject</name>
+      <number>2</number>
       <picker>0</picker>
-      <prettyName>Comments</prettyName>
-      <rows>3</rows>
-      <size>40</size>
+      <prettyName>Subject</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator/>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-    </comments>
+      <values>proband=Proband|mother=Mother|father=Father</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </subject>
   </class>
 </xwikidoc>
