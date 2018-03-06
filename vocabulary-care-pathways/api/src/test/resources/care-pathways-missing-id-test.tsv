@@ -1,0 +1,12 @@
+Test [CP:1]
+Care [CP:2]
+Test [CP:1]	Cytogenetic [CP:3]
+Test [CP:1]	Molecular [CP:10]
+
+Care [CP:2]	Ongoing follow up with genetics [CP:168]
+Test [CP:1]	Cytogenetic [CP:3]	karyotype [CP:4]
+Test [CP:1]	Cytogenetic [CP:3]	microarray [CP:5]
+Test [CP:1]	Molecular	known mutation [CP:11]
+Care [CP:2]	Ongoing follow up with genetics [CP:168]	in 6 months [CP:169]
+Care [CP:2]	Ongoing follow up with genetics [CP:168]	in 1 yr [CP:170]
+Care [CP:2]	Ongoing follow up with genetics [CP:168]	in 2 yrs [CP:171]
