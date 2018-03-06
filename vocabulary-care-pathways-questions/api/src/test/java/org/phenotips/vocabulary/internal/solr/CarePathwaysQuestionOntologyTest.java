@@ -28,7 +28,6 @@ import org.xwiki.test.mockito.MockitoComponentMockingRule;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,23 +65,19 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the Care Pathways implementation of the {@link Vocabulary}, {@link CarePathwaysOntology}.
+ * Tests for the Care Pathways implementation of the {@link Vocabulary}, {@link CarePathwaysQuestionOntology}.
  */
-public class CarePathwaysOntologyTest
+public class CarePathwaysQuestionOntologyTest
 {
-    private static final String IDENTIFIER = "care-pathways";
+    private static final String IDENTIFIER = "care-pathways-questions";
 
-    private static final String NAME = "Care pathways tests and patient care";
+    private static final String NAME = "Care pathways survey questions";
 
     private static final String CORE_NAME = IDENTIFIER;
 
-    private static final String TERM_PREFIX = "CP";
+    private static final String TERM_PREFIX = "CPQ";
 
     private static final String COLON = ":";
-
-    private static final String TEST_CATEGORY = "test";
-
-    private static final String CARE_CATEGORY = "care";
 
     private static final String ID_LABEL = "id";
 
@@ -92,9 +87,11 @@ public class CarePathwaysOntologyTest
 
     private static final String TERM_NAME = "term1_name";
 
+    private static final Object QUESTION_CATEGORY = "survey-question";
+
     @Rule
     public final MockitoComponentMockingRule<Vocabulary> mocker =
-        new MockitoComponentMockingRule<>(CarePathwaysOntology.class);
+            new MockitoComponentMockingRule<>(CarePathwaysQuestionOntology.class);
 
     @Mock
     private SolrClient solrClient;
@@ -114,7 +111,7 @@ public class CarePathwaysOntologyTest
     @Mock
     private VocabularyTerm term;
 
-    private CarePathwaysOntology component;
+    private CarePathwaysQuestionOntology component;
 
     private Logger logger;
 
@@ -122,11 +119,11 @@ public class CarePathwaysOntologyTest
     public void setUp() throws ComponentLookupException, IOException, SolrServerException
     {
         MockitoAnnotations.initMocks(this);
-        this.component = (CarePathwaysOntology) this.mocker.getComponentUnderTest();
+        this.component = (CarePathwaysQuestionOntology) this.mocker.getComponentUnderTest();
         this.logger = this.mocker.getMockedLogger();
 
         final SolrVocabularyResourceManager externalServicesAccess =
-            this.mocker.getInstance(SolrVocabularyResourceManager.class);
+                this.mocker.getInstance(SolrVocabularyResourceManager.class);
         when(externalServicesAccess.getTermCache(CORE_NAME)).thenReturn(this.cache);
         when(externalServicesAccess.getReplacementSolrConnection(CORE_NAME)).thenReturn(this.solrClient);
         when(externalServicesAccess.getSolrConnection(CORE_NAME)).thenReturn(this.solrClient);
@@ -139,10 +136,10 @@ public class CarePathwaysOntologyTest
     }
 
     @Test
-    public void testCarePathwaysOntologyReindex() throws IOException, SolrServerException
+    public void testCarePathwaysQuestionsOntologyReindex() throws IOException, SolrServerException
     {
-        final int ontologyServiceResult = this.component.reindex(this.getClass().getResource("/care-pathways-test.tsv")
-            .toString());
+        final int ontologyServiceResult = this.component.reindex(this.getClass()
+                .getResource("/care-pathways-questions-test.tsv").toString());
         Mockito.verify(this.solrClient).commit();
         Mockito.verify(this.solrClient).add(Matchers.anyCollectionOf(SolrInputDocument.class));
         Mockito.verify(this.cache).removeAll();
@@ -172,16 +169,16 @@ public class CarePathwaysOntologyTest
     }
 
     @Test
-    public void getSupportedCategoriesReturnsCorrectSupportedCategories()
+    public void getSupportedCategoriesReturnsCorrectCategory()
     {
-        Assert.assertEquals(Arrays.asList(TEST_CATEGORY, CARE_CATEGORY), this.component.getSupportedCategories());
+        Assert.assertEquals(Collections.singletonList(QUESTION_CATEGORY), this.component.getSupportedCategories());
     }
 
     @Test
     public void getDefaultSourceLocation()
     {
         final URL source =
-                ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
+                ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysQuestions.tsv");
         final String sourceStr = source == null ? StringUtils.EMPTY : source.toString();
         Assert.assertTrue(sourceStr.equals(this.component.getDefaultSourceLocation()));
     }
@@ -203,6 +200,7 @@ public class CarePathwaysOntologyTest
     {
         Assert.assertTrue(CORE_NAME.equals(this.component.getCoreName()));
     }
+
 
     @Test
     public void getSolrDocsPerBatchReturnsCorrectNumber()
@@ -249,31 +247,36 @@ public class CarePathwaysOntologyTest
     @Test
     public void loadWorksAsExpectedWithCorrectData() throws MalformedURLException
     {
-        final URL url = new URL(this.getClass().getResource("/care-pathways-test.tsv").toString());
+        final URL url = new URL(this.getClass().getResource("/care-pathways-questions-test.tsv").toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNotNull(docs);
-        Assert.assertEquals(9, docs.size());
+        Assert.assertEquals(5, docs.size());
         verifyZeroInteractions(this.logger);
     }
 
     @Test
     public void loadReturnsNullWithMissingIdData() throws MalformedURLException
     {
-        final URL url = new URL(this.getClass().getResource("/care-pathways-missing-id-test.tsv").toString());
+        final URL url = new URL(this.getClass().getResource("/care-pathways-questions-missing-id-test.tsv")
+                .toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNull(docs);
-        verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways source: {}",
-            "Term Molecular is missing an id");
+        verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways question source: {}",
+                "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
+                        + "recordNumber=4, values=[post test, Overall, the interpretation of my patient's primary "
+                        + "sequencing results is:]]");
     }
 
     @Test
     public void loadReturnsNullWithMissingNameData() throws MalformedURLException
     {
-        final URL url = new URL(this.getClass().getResource("/care-pathways-missing-name-test.tsv").toString());
+        final URL url = new URL(this.getClass().getResource("/care-pathways-questions-missing-name-test.tsv")
+                .toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNull(docs);
-        verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways source: {}",
-            "Term [CP:NO_NAME] is missing a name");
+        verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways question source: {}",
+                "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
+                        + "recordNumber=4, values=[post test, , CPQ:5]]");
     }
 
     @Test
@@ -318,9 +321,9 @@ public class CarePathwaysOntologyTest
         public boolean matches(Object argument)
         {
             SolrParams params = (SolrParams) argument;
-            return params.get(CommonParams.FQ).startsWith("id")
-                && params.get(DisMaxParams.PF) == null
-                && params.get(DisMaxParams.QF) == null;
+            return params.get(CommonParams.FQ).startsWith(ID_LABEL)
+                    && params.get(DisMaxParams.PF) == null
+                    && params.get(DisMaxParams.QF) == null;
         }
     }
 
@@ -331,8 +334,8 @@ public class CarePathwaysOntologyTest
         {
             SolrParams params = (SolrParams) argument;
             return params.get(DisMaxParams.PF) != null
-                && params.get(DisMaxParams.QF) != null
-                && params.get(CommonParams.Q) != null;
+                    && params.get(DisMaxParams.QF) != null
+                    && params.get(CommonParams.Q) != null;
         }
     }
 }

@@ -1,0 +1,6 @@
+pre test	What genetic tests has your patient had to date?	CPQ:0
+pre test	What other diagnostic tests has your patient had in the past 1 year?	CPQ:1
+post test	My patient's analysis of primary variants revealed:	CPQ:4
+
+post test	Overall, the interpretation of my patient's primary sequencing results is:	CPQ:5
+post test	My patient's analysis of secondary variants revealed:	CPQ:6

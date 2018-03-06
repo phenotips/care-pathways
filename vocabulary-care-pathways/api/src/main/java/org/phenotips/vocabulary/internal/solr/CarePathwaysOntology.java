@@ -174,20 +174,6 @@ public class CarePathwaysOntology extends AbstractCSVSolrVocabulary
         return 500000;
     }
 
-    @Nullable
-    @Override
-    public VocabularyTerm getTerm(@Nullable final String id)
-    {
-        final VocabularyTerm result = super.getTerm(id);
-        if (result == null) {
-            final String optionalPrefix = STANDARD_PREFIX + COLON;
-            return StringUtils.startsWith(id, optionalPrefix)
-                ? getTerm(StringUtils.substringAfter(id, optionalPrefix))
-                : null;
-        }
-        return result;
-    }
-
     @Override
     protected Collection<SolrInputDocument> load(@Nonnull final URL url)
     {
