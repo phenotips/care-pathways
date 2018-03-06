@@ -127,7 +127,8 @@ public class CarePathwaysQuestionOntology extends AbstractCSVSolrVocabulary
     @Override
     public String getDefaultSourceLocation()
     {
-        return StringUtils.EMPTY;
+        final URL url = ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysQuestions.tsv");
+        return url == null ? StringUtils.EMPTY : url.toString();
     }
 
     @Override
