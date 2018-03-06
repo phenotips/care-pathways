@@ -247,21 +247,6 @@ public class CarePathwaysOntologyTest
     }
 
     @Test
-    public void getTermRemovesRedundantCPPrefix() throws IOException, SolrServerException
-    {
-        when(this.cache.get(TERM_PREFIX + COLON + TERM_ID)).thenReturn(null);
-        when(this.cache.get(TERM_ID)).thenReturn(null);
-        when(this.solrClient.query(any(SolrQuery.class))).thenReturn(null, this.response);
-        final VocabularyTerm result = this.component.getTerm(TERM_PREFIX + COLON + TERM_ID);
-        Assert.assertNotNull(result);
-        Assert.assertEquals(TERM_ID, result.getId());
-        Assert.assertEquals(TERM_NAME, result.getName());
-        verify(this.cache, times(1)).get(TERM_PREFIX + COLON + TERM_ID);
-        verify(this.cache, times(1)).get(TERM_ID);
-        verify(this.cache, times(1)).set(TERM_ID, result);
-    }
-
-    @Test
     public void loadWorksAsExpectedWithCorrectData() throws MalformedURLException
     {
         final URL url = new URL(this.getClass().getResource("/care-pathways-test.tsv").toString());
