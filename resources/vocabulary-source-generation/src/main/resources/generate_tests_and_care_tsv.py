@@ -2,9 +2,11 @@
 import xlrd
 import argparse
 
-# Used for generating term IDs. Numbers 1, 2, and 3 are taken by the "Test", "Care" and "Family Care" terms.
-COUNT = 4
+COUNT = 1
 TESTS_MAP = {}
+PREFIX = ""
+PREFIX_STUB = ""
+SUBCOUNT = 1
 
 
 def main(args):
@@ -28,40 +30,86 @@ def process_data(inputfile, outputfile):
     :param outputfile: the name of the TSV file to which processed data will be written
     """
     global TESTS_MAP
+    global PREFIX_STUB
+    global COUNT
+    global SUBCOUNT
 
     # Open Excel file.
     book = xlrd.open_workbook(inputfile)
 
+    # Update the prefix stub
+    PREFIX_STUB = "CP:1"
     # The Module A sheet.
     mod_a_sheet = book.sheet_by_index(1)
     # Process Module A data.
-    format_sheet(mod_a_sheet, 2, mod_a_sheet.nrows, 4, outputfile, "Test [CP:1]")
+    format_sheet(mod_a_sheet, 2, mod_a_sheet.nrows, 4, outputfile, "Test [CP:01]", True)
 
     # Clear the map.
     TESTS_MAP = {}
+    # Reset the count
+    COUNT = 1
+    # Reset important categories count
+    SUBCOUNT = 1
+    # Update the prefix stub
+    PREFIX_STUB = "CP:2"
     # The Module B sheet.
     mod_b_sheet = book.sheet_by_index(2)
     # Process Module B data.
-    format_sheet(mod_b_sheet, 3, mod_b_sheet.nrows, 3, outputfile, "Care [CP:2]")
+    format_sheet(mod_b_sheet, 3, mod_b_sheet.nrows, 3, outputfile, "Care [CP:02]", True)
 
     # Clear the map.
     TESTS_MAP = {}
+    # Reset the count
+    COUNT = 1
+    # Reset important categories count
+    SUBCOUNT = 1
+    # Update the prefix
+    PREFIX_STUB = "CP:3"
     # The Module C sheet.
     mod_c_sheet = book.sheet_by_index(3)
     # Process Module B data.
-    format_sheet(mod_c_sheet, 1, 4, 1, outputfile, "Family Care [CP:3]")
+    format_sheet(mod_c_sheet, 1, 4, 1, outputfile, "Family Care [CP:03]", True)
 
+def get_standard_prefix():
+    global PREFIX
+    return PREFIX
 
-def format_sheet(sheet, start_pos, num_rows, num_cols, file_name, root):
+def get_standard_count():
+    global COUNT
+    return COUNT
+
+def increment_standard_count():
+    global COUNT
+    COUNT += 1
+
+def get_test_prefix():
+    global PREFIX
+    global PREFIX_STUB
+    global SUBCOUNT
+    global COUNT
+    PREFIX = PREFIX_STUB + str(SUBCOUNT - 1)
+    COUNT = 1
+    return PREFIX_STUB
+
+def get_test_count():
+    global SUBCOUNT
+    return SUBCOUNT
+
+def increment_test_count():
+    global SUBCOUNT
+    SUBCOUNT += 1
+
+def format_sheet(sheet, start_pos, num_rows, num_cols, file_name, root, has_subcategories=False):
     """
     Read the sheet data and write it in correct format to the output file.
 
-    :param sheet:     the Excel sheet that is being processed
-    :param start_pos: the line number from which to start reading data
-    :param num_rows:  the total number of data rows
-    :param num_cols:  the total number of data columns
-    :param file_name: the name of the output file
-    :param root:      the root term
+    :param sheet:              the Excel sheet that is being processed
+    :param start_pos:          the line number from which to start reading data
+    :param num_rows:           the total number of data rows
+    :param num_cols:           the total number of data columns
+    :param file_name:          the name of the output file
+    :param root:               the root term
+    :param has_subcategories : a subcategories marker
     """
     f = open(file_name, 'a')
 
@@ -85,6 +133,7 @@ def format_sheet(sheet, start_pos, num_rows, num_cols, file_name, root):
                 prev_row[1] = row[1]
         else:
             prev_row[0] = row[0]
+            _attach_id(prev_row[0].strip(), True, has_subcategories)
         # Process the data row
         process_row(f, line, row, cur_pos, num_cols)
     f.close()
@@ -143,25 +192,34 @@ def _split_items(cell_str):
     return [] if (len(item_list) == 0 or item_list[0] == '') else item_list
 
 
-def _attach_id(item, store_item):
+def _attach_id(item, store_item, has_subcategories=False):
     """
     Generates and attaches an identifier to the item. Stores this identifier iff store_item is set to true.
 
-    :param item:       the item that needs an identifier attached to it
-    :param store_item: true iff the identifier and item pair should be stored for future retrieval
-    :return:           the item with the attached identifier
+    :param item                 : the item that needs an identifier attached to it
+    :param store_item           : true iff the identifier and item pair should be stored for future retrieval
+    :param has_subcategories    : a subcategories marker
+    :return                     : the item with the attached identifier
     """
     global TESTS_MAP
-    global COUNT
+
+    if has_subcategories:
+        get_count = get_test_count
+        increment_count = increment_test_count
+        get_prefix = get_test_prefix
+    else:
+        get_count = get_standard_count
+        increment_count = increment_standard_count
+        get_prefix = get_standard_prefix
 
     # If the ID was assigned to this item already, get it.
     if item in TESTS_MAP:
         test_id = TESTS_MAP.get(item)
     # Otherwise, update count, generate ID, and if this ID should be stored, store it in map.
     else:
-        old_count = COUNT
-        COUNT += 1
-        test_id = "CP:" + str(old_count)
+        old_count = get_count()
+        increment_count()
+        test_id = get_prefix() + str(old_count)
         if store_item:
             TESTS_MAP[item] = test_id
     # Return the ID.
