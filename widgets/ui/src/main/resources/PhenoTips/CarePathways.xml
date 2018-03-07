@@ -139,10 +139,10 @@
 ##
 ##
 #macro (__displayModule $module $submodule $question $variantNumber $storedValues)
-  #set ($test = "CP:1")
-  #set ($care = "CP:2")
-  #set ($genetic = "CP:4")
-  #set ($diagnostic = "CP:68")
+  #set ($test = "CP:01")
+  #set ($care = "CP:02")
+  #set ($genetic = "CP:11")
+  #set ($diagnostic = "CP:12")
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
   #if ($module == "test")
     #set ($testNodes = [])

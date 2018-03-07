@@ -897,7 +897,106 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #set ($type = "primary")
 #set ($section = "posttest")
 #set ($storageClass = "PhenoTips.PatientCarePostTestClass")
-#set ($moduleSpecs = {"diagnostic" : [{'question' : 'CPQ:7', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:7').name}", 'modules': [{'pursuedDate' : false, 'module' : 'test', 'submodule' : '', 'subject' : 'proband', 'type' : $type}]}, {'question' : 'CPQ:10', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:10').name}", 'modules': [{'pursuedDate' : true, 'module' : 'care', 'submodule' : '', 'subject' : 'proband', 'type' : $type}, {'pursuedDate' : true, 'module' : 'family', 'submodule' : '', 'subject' : '', 'type' : $type}]}], "partially-diagnostic" : [{'question' : 'CPQ:8', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:8').name}", 'modules': [{'pursuedDate' : true, 'module' : 'test', 'submodule' : '', 'subject' : 'proband', 'type' : $type}]}, {'question' : 'CPQ:11', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:11').name}", 'modules': [{'pursuedDate' : true, 'module' : 'care', 'submodule' : '', 'subject' : 'proband', 'type' : $type}, {'pursuedDate' : true, 'module' : 'family', 'submodule' : '', 'subject' : '', 'type' : $type}]}], "non-diagnostic" : [{'question' : 'CPQ:9', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:9').name}", 'modules': [{'pursuedDate' : true, 'module' : 'test', 'submodule' : '', 'subject' : 'proband', 'type' : $type}]}, {'question' : 'CPQ:12', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:12').name}", 'modules': [{'pursuedDate' : true, 'module' : 'care', 'submodule' : '', 'subject' : 'proband', 'type' : $type}]}]})##
+#set ($moduleSpecs = {
+   "diagnostic":[
+      {
+         'question':'CPQ:7',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:7').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:10',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:10').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "partially-diagnostic":[
+      {
+         'question':'CPQ:8',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:8').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:11',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:11').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "non-diagnostic":[
+      {
+         'question':'CPQ:9',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:9').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:12',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:12').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      }
+   ]
+})##
 ##
 ##
 #macro (__displayPrimaryVariantsSection)
@@ -1141,7 +1240,60 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #set ($type = "secondary")
 #set ($section = "posttest")
 #set ($storageClass = "PhenoTips.PatientCarePostTestClass")
-#set ($moduleSpecs = {"proband" : [{'question' : 'CPQ:13', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:13').name}", 'modules': [{'pursuedDate' : true, 'module' : 'care', 'submodule' : '', 'subject' : 'proband', 'type' : $type}, {'pursuedDate' : true, 'module' : 'family', 'submodule' : '', 'subject' : '', 'type' : $type}]}], "mother" : [{'question' : 'CPQ:14', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:14').name}", 'modules': [{'pursuedDate' : false, 'module' : 'care', 'submodule' : '', 'subject' : 'mother', 'type' : $type}]}], "father" : [{'question' : 'CPQ:15', 'questionLabel' : "$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:15').name}", 'modules': [{'pursuedDate' : false, 'module' : 'care', 'submodule' : '', 'subject' : 'father', 'type' : $type}]}]})
+#set ($moduleSpecs = {
+   "proband":[
+      {
+         'question':'CPQ:13',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:13').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "mother":[
+      {
+         'question':'CPQ:14',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:14').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'care',
+               'submodule':'',
+               'subject':'mother',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "father":[
+      {
+         'question':'CPQ:15',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:15').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'care',
+               'submodule':'',
+               'subject':'father',
+               'type':$type
+            }
+         ]
+      }
+   ]
+})##
 ##
 ##
 #macro (__displaySecondaryVariantsSection)
