@@ -38,36 +38,194 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output=false}}
-#macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData)
+#macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
 #if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
-  &lt;h2 class="module-group-label group-label"&gt;
-    &lt;input type="hidden" class="variant-number" value="$!{variantNumber}"&gt;
-    #if($!{groupTitle.trim()} != '')
-      &lt;p&gt;${groupTitle}&lt;/p&gt;
-    #else
-      &lt;p&gt;${variantNumber}&lt;/p&gt;
-    #end
-  &lt;/h2&gt;
+  &lt;tr class="table-row variant-label-row"&gt;
+    &lt;td colspan="2"&gt;
+      &lt;h2 class="module-group-label group-label"&gt;
+        &lt;input type="hidden" class="variant-number" value="$!{variantNumber}"&gt;
+        #if($!{groupTitle.trim()} != '')
+          &lt;p&gt;${groupTitle}&lt;/p&gt;
+        #else
+          &lt;p&gt;${variantNumber}&lt;/p&gt;
+        #end
+      &lt;/h2&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
 #end##
 #foreach ($i in [0..${modulesLastIdx}])
   #set($module = $modules.get($i))
+  #if ($!{module.get('module')} == 'family')
+    #__buildFamilyModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData)
+  #else
+    #__buildCategoryModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData)
+  #end
+#end##
+#end
+##
+##
+#macro(__buildFamilyModule $module $question $variantNumber $storageClass $retrieveStoredData)
+  #set ($subjects = ['mother', 'father', 'sister', 'brother', 'aunt', 'uncle'])
+  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': 'CP:3'}, {'sort': 'nameSort asc'}))
+  #foreach ($familyTest in $!{familyTesting})
+    #set ($testId = $familyTest.id)
+    #set ($testName = $familyTest.name)
+    #set ($familyTestObjs = $doc.getObjects($storageClass, 'datum', $testId))
+    #set ($storedAffectedMembers = [])
+    #foreach ($obj in ${familyTestObjs})
+      #if ($obj.getProperty('question').value == $question &amp;&amp; "$!{variantNumber}" == "$!{obj.getProperty('variant').value}")
+        #set ($datum = {"subject" : "$!{obj.getProperty('subject').value}", "count" : $obj.number})
+        #set ($discard = $storedAffectedMembers.add($datum))
+      #end
+    #end
+    #__displayFamilyModule($testId, $testName, $subjects, $storedAffectedMembers, $editable)
+  #end
+  &lt;tr class="table-row family-care-subtitle"&gt;
+    &lt;td class="table-cell" colspan="2"&gt;
+      Surveillance and/or specialist referral(s) for at risk family members:
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  #__buildCategoryModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData)
+#end
+##
+##
+#macro(__displayFamilyModule $testId $testName $subjects $storedAffectedMembers $editable)
+  #if ($editable)##
+    &lt;tr class="table-row care-pathways-family-module-container"&gt;
+      &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedAffectedMembers))}"/&gt;
+      &lt;input type="hidden" class="associated-variant-type" value="$!{module.type}"/&gt;
+      &lt;td class="table-cell family-test-name"&gt;
+        &lt;input class="test-id" value="$!{testId}" type="hidden"/&gt;
+        ${testName}
+      &lt;/td&gt;
+      &lt;td class="table-cell subject-group"&gt;
+      #foreach ($subject in $subjects)##
+        &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
+          &lt;label&gt;&lt;input type="checkbox"/&gt; &lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
+        &lt;/span&gt;
+      #end##
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  #else##
+    &lt;tr class="table-row care-pathways-family-module-container-view"&gt;
+      &lt;td class="table-cell family-test-data"&gt;
+        &lt;table class="table"&gt;
+          &lt;tr class="table-row"&gt;
+            &lt;td class="table-cell family-test-name"&gt;${testName}:&lt;/td&gt;
+            &lt;td class="table-cell subject-group"&gt;
+            #if ($storedAffectedMembers.size() == 0)##
+              &lt;span class="affected-family-member"&gt;None&lt;/span&gt;
+            #else##
+              #foreach($person in $storedAffectedMembers)##
+                &lt;span class="affected-family-member"&gt;$stringtool.capitalize("$!{person.subject}")&lt;/span&gt;
+              #end##
+            #end##
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/table&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  #end##
+#end
+##
+##
+#macro(__buildCategoryModule $module $question $variantNumber $storageClass $retrieveStoredData)
   #set ($storedValues = {})##
   #set ($curSubject = $!{module.get('subject')})
   #set ($moduleName = $!{module.get('module')})
   #set ($curSubmodule = $!{module.get('submodule')})
   #set ($curPursuedDate = $!{module.get('pursuedDate')})
   #set ($associatedVariantType = $!{module.get('type')})
-  #if ($retrieveStoredData)
+  #if ($retrieveStoredData || !$editable)
     #__getStoredValues("$!{question}", "$!{curSubject}", "$!{moduleName}", "$!{associatedVariantType}", "$!{variantNumber}", $storedValues, $storageClass)##
   #end
-  &lt;div class="care-pathways-module-container#if($curPursuedDate) with-mandatory-dates#{end}"&gt;
-    &lt;span class="selector-panel cp-categories"&gt;
-      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Browse categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+  #if ($editable)##
+    #__buildCategoryModuleEditMode($module, $question, $variantNumber, $storedValues)
+  #else
+    #__buildCategoryModuleViewMode($module, $question, $variantNumber, $storedValues)
+  #end##
+#end
+##
+##
+#macro(__buildCategoryModuleViewMode $module $question $variantNumber $storedValues)
+  &lt;tr class="table-row care-pathways-module-container-view"&gt;
+    &lt;td class="table-cell selector-panel cp-current-selection"&gt;
+      &lt;div class="cp-current-selection-panel current-selection-panel" name="$!{question}"&gt;
+        &lt;table class="terms-data-table"&gt;
+        #if($storedValues.size() == 0)##
+          &lt;tr&gt;
+            #set ($target = "#if($!{module.subject} != '')$!{module.subject}#{else}$!{module.module}#{end}")##
+            &lt;td class="no-data"&gt;&lt;span&gt;No data entered for $!{target}&lt;/span&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        #else##
+          #foreach($category in $storedValues.keySet())##
+            #set ($categoryData = $storedValues.get($category))##
+            &lt;tr class="${module.module}_field category-data"&gt;
+              &lt;td&gt;
+                &lt;table class="summary-group parent-summary-group"&gt;
+                  &lt;tr class="term-holder"&gt;
+                    &lt;td&gt;&lt;span class="term-data"&gt;&lt;label class="label-field"&gt;${categoryData.label}&lt;/label&gt;&lt;/span&gt;&lt;/td&gt;
+                  &lt;/tr&gt;
+                  &lt;tr&gt;
+                    &lt;td class="dialog-holder"&gt;
+                      #__displaySummaryItems($categoryData, $displayedData)
+                    &lt;/td&gt;
+                  &lt;/tr&gt;
+                &lt;/table&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          #end##
+        #end##
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+#end
+##
+##
+#macro(__displaySummaryItems $categoryData $displayedData)
+  #set ($qualifiers = $categoryData.qualifiers)##
+  #foreach($qualifier in $qualifiers)##
+  &lt;div class="summary-item"&gt;
+    &lt;div class="term-details"&gt;
+      &lt;dl&gt;
+        #foreach($key in $qualifier.keySet())##
+          #set ($keyValue = $qualifier.get($key))##
+          #set ($keyLabel = "$!{services.vocabularies.care-pathways.getTerm($keyValue).name}")
+          #set ($displayedData = {"datum" : {"displayedName" : "", "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"}, "date_pursued_fuzzy" : {"displayedName" : "Completed on", "displayedValue" : "#if($!{keyValue.opt('year')})$!{keyValue.opt('year')}#{end}#if($!{keyValue.opt('month')})-${stringtool.leftPad($keyValue.opt('month'), 2, '0')}#{end}#if($!{keyValue.opt('day')})-${stringtool.leftPad($keyValue.opt('day'), 2, '0')}#{end}"}, "notes" : {"displayedName" : "Notes"}, "subject" : {"displayedName" : "Family member", "displayedValue" : "#if($keyValue != 'proband')$!{keyValue}#{end}"}})##
+          #set ($itemSettings = $displayedData.get($key))
+          #if ($itemSettings)##
+            #set ($mappedVal = $!{itemSettings.displayedValue})
+            #set ($displayedVal = "#if($mappedVal)$!{mappedVal}#{else}$!{keyValue}#{end}")##
+            #if ($displayedVal != '')##
+              #set ($displayedName = "$!{itemSettings.displayedName}")##
+              &lt;dt class="$key#if($!{displayedName} == '') hidden#{end}"&gt;${displayedName}:&lt;/dt&gt;
+              &lt;dd class="$key"&gt;${displayedVal}&lt;/dd&gt;
+            #end##
+          #end##
+        #end##
+      &lt;/dl&gt;
+      &lt;div class="clearfloats"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  #end##
+#end
+##
+##
+#macro(__buildCategoryModuleEditMode $module $question $variantNumber $storedValues)
+  #set ($curSubject = $!{module.get('subject')})
+  #set ($moduleName = $!{module.get('module')})
+  #set ($curSubmodule = $!{module.get('submodule')})
+  #set ($curPursuedDate = $!{module.get('pursuedDate')})
+  #set ($associatedVariantType = $!{module.get('type')})
+  &lt;tr class="table-row care-pathways-module-container#if($curPursuedDate) with-mandatory-dates#{end}"&gt;
+    &lt;td class="table-cell selector-panel cp-categories"&gt;
+      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
       &lt;div class="cp-categories-panel browse-categories-panel"&gt;
         #__displayModule("$!{moduleName}", "$!{curSubmodule}", "$!{question}", "$!{variantNumber}", $storedValues)
       &lt;/div&gt;
-    &lt;/span&gt;
-    &lt;span class="selector-panel cp-current-selection"&gt;
+    &lt;/td&gt;
+    &lt;td class="table-cell selector-panel cp-current-selection"&gt;
       &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Current selection&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
       &lt;div class="cp-current-selection-panel current-selection-panel" name="$!{question}"&gt;
         &lt;input type="hidden" name="moduleType" value="$!{moduleName}"/&gt;
@@ -77,13 +235,12 @@
         &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedValues))}"/&gt;
         &lt;table class="terms-data-table"&gt;&lt;/table&gt;
       &lt;/div&gt;
-    &lt;/span&gt;
-  &lt;/div&gt;
-#end##
+    &lt;/td&gt;
+  &lt;/tr&gt;
 #end
 ##
 ##
-#macro (__getStoredValues $questionId $subject $module $type $variantNumber $categories $qualifierClassName)
+#macro(__getStoredValues $questionId $subject $module $type $variantNumber $categories $qualifierClassName)
   #set ($qualifierObjects = $doc.getObjects($qualifierClassName, 'question', $questionId))
   #if ($qualifierObjects)
     #foreach ($q in $qualifierObjects)
@@ -118,9 +275,9 @@
         #set ($itemName = $stringtool.capitalize("$!{item.name}"))
         #if ($stringtool.trim("$!{childrenHtml}") != "")
           #set ($otherKey = $stringtool.join([$item.id, '_other'], ''))##
-          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${item.id}_other'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${item.id}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
         #else
-          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${item.id}'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${item.id}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
         #end
       #end
     #end
@@ -133,7 +290,7 @@
   #set ($otherId = $stringtool.join([$rootNode.id, '_other'], ''))##
   &lt;ul&gt;
     #__displayChildren($rootNode, $rootChildren, $question, $storedValues)
-    &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${rootNode.id}_other'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${rootNode.id}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+    &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${rootNode.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${rootNode.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
   &lt;ul&gt;
 #end
 ##
@@ -160,6 +317,16 @@
   #elseif ($module == "care")
     #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
     #__displayCategories($rootNode, $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}), $question, $storedValues)
+  #elseif ($module == "family")
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}))
+    #set ($careSubset = [])
+    #foreach ($item in $allCare)
+      #if ($stringtool.containsIgnoreCase("$!{item.name}", "care") || $stringtool.containsIgnoreCase("$!{item.name}", "surveillance"))
+        #set($discard = $careSubset.add($item))
+      #end
+    #end
+    #__displayCategories($rootNode, $careSubset, $question, $storedValues)
   #end
 #end
 {{/velocity}}
@@ -170,7 +337,7 @@
     {{html clean="false" wiki="false"}}##
     #set($modulesObj = $jsontool.parseToJSONArray(${request.modules}))
     #set ($lastIdx = $modulesObj.length() - 1)
-    #__displayModuleGroup("$!{request.question}", "$!{request.variantNumber}", "$!{request.groupTitle}", $modulesObj, ${lastIdx}, "$!{request.tab}", "$!{request.storageClass}", false)
+    #__displayModuleGroup("$!{request.question}", "$!{request.variantNumber}", "$!{request.groupTitle}", $modulesObj, ${lastIdx}, "$!{request.tab}", "$!{request.storageClass}", false, true)
     {{/html}}
   #end
 #end
@@ -344,7 +511,7 @@
       );
       spanElem._getValue = _this._defaultGetInputValueFx(typeaheadEl);
       spanElem._setValue = _this._setInputValueFx(inputElem, options.storedToDisplayedMapper);
-      spanElem._addValue = _this._addInputValueFx(spanElem, options.qualifierName, options.displayedToStoredMapper);
+      spanElem._addValue = _this._addSimpleValueFx(spanElem, options.qualifierName, options.displayedToStoredMapper);
     },
 
     /**
@@ -411,7 +578,7 @@
      * @return {Function} a function for adding the input element value to the summary {Object}
      * @private
      */
-    _addInputValueFx : function (element, qualifierName, valueMapperFx) {
+    _addSimpleValueFx : function (element, qualifierName, valueMapperFx) {
       return function (values) {
         if (qualifierName) {
           values[qualifierName] = valueMapperFx ? valueMapperFx(element._getValue()) : element._getValue();
@@ -681,7 +848,7 @@
     },
     
     _buildModule : function() {
-      var trElem = this._container.up('table').down('tr.care-pathways-section-label');
+      var trElem = this._container.up('table.care-pathways-module-group-container').down('tr.care-pathways-section-label');
       var questionIdElement = trElem.down('input.cp-question-id');
       this._questionId = questionIdElement &amp;&amp; questionIdElement.value;
 
@@ -919,7 +1086,7 @@
       var variantNumber = this._selectedSummary.down('input.associated-variant-number');
       this._variantNumber = variantNumber &amp;&amp; variantNumber.value;
 
-      var trQuestionElem = this._container.up('table').down('tr.care-pathways-section-label');
+      var trQuestionElem = this._container.up('table.care-pathways-module-group-container').down('tr.care-pathways-section-label');
       var questionIdElement = trQuestionElem.down('input.cp-question-id');
       this._questionId = questionIdElement &amp;&amp; questionIdElement.value;
 
@@ -1032,7 +1199,7 @@
       var json = response &amp;&amp; response.rows;
       if (json) {
         var tableCol = new Element('td');
-        var tableRow = new Element('tr', {'class': this._moduleType + '_field'} )
+        var tableRow = new Element('tr', {'class': this._moduleType + '_field category-data'} )
         var qualifiersWidget = this._buildDetailsDialog(termId, termName, tooltip, options, json);
         var qualifiers = qualifiersWidget.get();
         // Set values silently, or initialize as affected, non-silently. If values are provided, then we're displaying
@@ -1060,20 +1227,51 @@
           'remote' : this._typeaheadRemote + "&amp;parent=" + termId + "&amp;input=" ,
           'data': json.map(function(x) { return x.name; }),
           'placeholder': 'Begin typing or click to show options',
-          'defListItemClass': this._moduleType,
+          'defListItemClass': this._moduleType + ' datum mandatory',
           'inputSourceClass': this._moduleType + '_typeahead',
           'qualifierLabel': "",
           'qualifierName': 'datum',
           'displayedToStoredMapper': this._getToStoredTypeAheadFx(json),
-          'storedToDisplayedMapper': this._getToDisplayedTypeAheadFx(json)})
+          'storedToDisplayedMapper': this._getToDisplayedTypeAheadFx(json)});
+
+      this._pickSubjectElement(qualifiersWidget);
 
       this._container.hasClassName('with-mandatory-dates') &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
         'defListItemClass': 'date_pursued',
         'qualifierLabel': 'Completed on:',
         'qualifierName': 'date_pursued_fuzzy',
-        'approxQualifierName' : 'date_pursued'
-      });
+        'approxQualifierName' : 'date_pursued'});
 
+      qualifiersWidget.dialogsAddTextBox(false, {
+        'defListItemClass': 'comments hidden',
+        'inputSourceClass': this._moduleType + '_notes',
+        'qualifierLabel': 'Additional information:',
+        'qualifierName': 'notes'});
+
+      return this._addHiddenDataElements(qualifiersWidget);
+    },
+
+    _pickSubjectElement : function(qualifiersWidget) {
+      if (this._moduleType === 'family') {
+        qualifiersWidget.dialogsAddItemSelect({
+          'data': ['', 'mother', 'father', 'sister', 'brother', 'aunt', 'uncle'],
+          'defListItemClass': 'subject mandatory',
+          'inputSourceClass': this._moduleType + '_subject',
+          'qualifierLabel': "Family member:",
+          'qualifierName': 'subject'
+        });
+      } else {
+        qualifiersWidget.dialogsAddHiddenDataElement({
+          'defListItemClass': 'subject hidden',
+          'inputSourceClass': this._moduleType + '_subject',
+          'qualifierName': 'subject',
+          'hiddenDataValue': this._subject
+        });
+      }
+      return qualifiersWidget;
+    },
+
+    _addHiddenDataElements : function(qualifiersWidget) {
       this._variantType &amp;&amp; qualifiersWidget.dialogsAddHiddenDataElement({
         'defListItemClass': 'type hidden',
         'inputSourceClass': this._moduleType + '_type',
@@ -1088,22 +1286,11 @@
         'hiddenDataValue': parseInt(this._variantNumber)
       });
 
-      return qualifiersWidget
-        .dialogsAddTextBox(false, {
-          'defListItemClass': 'comments hidden',
-          'inputSourceClass': this._moduleType + '_notes',
-          'qualifierLabel': 'Additional information:',
-          'qualifierName': 'notes'})
-        .dialogsAddHiddenDataElement({
+      return qualifiersWidget.dialogsAddHiddenDataElement({
           'defListItemClass': 'question hidden',
           'inputSourceClass': this._moduleType + '_question',
           'qualifierName': 'question',
           'hiddenDataValue': this._questionId})
-        .dialogsAddHiddenDataElement({
-          'defListItemClass': 'subject hidden',
-          'inputSourceClass': this._moduleType + '_subject',
-          'qualifierName': 'subject',
-          'hiddenDataValue': this._subject})
         .dialogsAddHiddenDataElement({
           'defListItemClass': 'date_entered hidden',
           'inputSourceClass': this._moduleType + '_date_entered',
@@ -1254,7 +1441,6 @@ require.config({
   }
 });
 var initNavAndSelMods = function(modules) {
-  require(["jquery", "bloodhound", "typeahead"], function(jquery, Bloodhound, typeahead) {
     modules &amp;&amp; modules.length &gt; 0 &amp;&amp; modules.each(function(module) {
       var localUrl = XWiki.contextPath + "/rest/vocabularies/care-pathways/suggest?sort=nameSort%20asc&amp;maxResults=10000&amp;";
       var dataStorageEl = $("data-storage-class");
@@ -1262,18 +1448,51 @@ var initNavAndSelMods = function(modules) {
       var remoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
       var clearCategoryEl = $('clear-category-action');
       var deleteQualifierEl = $('delete-qualifier-action');
-      //TODO: fix me!!
       var options = {"tooltip" : "", "localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage};
       new PhenoTips.widgets.carePathways.ModuleSelectionPanel(module, options);
       new PhenoTips.widgets.carePathways.ModuleNavigationPanel(module, options);
     });
     return true;
+};
+
+var initFamilyMods = function(modules) {
+  modules &amp;&amp; modules.length &gt; 0 &amp;&amp; modules.each(function(module) {
+    var dataStorageEl = $("data-storage-class");
+    var dataStorage = dataStorageEl &amp;&amp; dataStorageEl.value;
+    var deleteQualifierEl = $('delete-qualifier-action');
+
+    var tableEl = module.up('table.posttest-section.care-pathways-module-group-container');
+    var questionEl = tableEl &amp;&amp; tableEl.down('input.cp-question-id');
+
+    var moduleGroupEl = module.up('.care-pathways-modules-wrapper');
+    var variantEl = moduleGroupEl &amp;&amp; moduleGroupEl.down('input.variant-number');
+
+    var datumEl = module.down('input.test-id');
+
+    var typeEl = module.down('input.associated-variant-type');
+
+    var storedDataEl = module.down('input.cp-current-selection-stored-data');
+    var dataElements = {"question" : questionEl &amp;&amp; questionEl.value, "variant" : variantEl &amp;&amp; variantEl.value, "datum" : datumEl &amp;&amp; datumEl.value, "type" : typeEl &amp;&amp; typeEl.value};
+    var options = {"getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "dataName" : "subject", "dataElements" : dataElements, "storedDataEl" : storedDataEl};
+    new PhenoTips.widgets.carePathways.MultiPicker(module, options);
   });
+  return true;
 };
 
 var init = function(event) {
-  var modules = event.memo &amp;&amp; event.memo.element &amp;&amp; event.memo.element.select(".care-pathways-module-container") || $$(".care-pathways-module-container");
-  return initNavAndSelMods(modules);
+  require(["jquery", "bloodhound", "typeahead"], function(jquery, Bloodhound, typeahead) {
+    if (event.memo &amp;&amp; event.memo.element) {
+      var elem = event.memo.element;
+      var standardModules = elem.select(".care-pathways-module-container");
+      initNavAndSelMods(standardModules);
+      var familyModules = elem.select(".care-pathways-family-module-container");
+      initFamilyMods(familyModules);
+    } else {
+      initNavAndSelMods($$(".care-pathways-module-container"));
+      initFamilyMods($$(".care-pathways-family-module-container"));
+    }
+    return true;
+  });
 };
 
 (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", function(event) {
@@ -1501,7 +1720,7 @@ var init = function(event) {
         method : "GET",
         data : params
       });
-      var container = new Element("div", {"class" : "care-pathways-modules-wrapper " + containerCssClass});
+      var container = new Element("table", {"class" : "care-pathways-modules-wrapper table " + containerCssClass});
       return req.success(function(data, textStatus, jqXHR) {
         questionContainer.insert(container.insert(data));
         var titleEl = container.down('h2.module-group-label p');
@@ -1551,9 +1770,9 @@ var init = function(event) {
     _buildQuestionContainer : function(questionnaireContainer, questionId, questionLabel) {
       var tableId = 'modules-for-' + questionId;
       var modulesContainer = new Element('td');
-      var questionTable = new Element("table", {"id" : tableId, "class" : this._section + "-section care-pathways-module-group-container"});
-      questionTable.insert(new Element("tr", {"class" : "care-pathways-section-label"})
-        .insert(new Element("td", {"colspan" : "2"})
+      var questionTable = new Element("table", {"id" : tableId, "class" : this._section + "-section table care-pathways-module-group-container"});
+      questionTable.insert(new Element("tr", {"class" : "table-row care-pathways-section-label"})
+        .insert(new Element("td", {"colspan" : "2", "class" : "table-cell"})
           .insert(new Element("input", {"type" : "hidden", "class" : "cp-question-id", "value" : questionId}))
           .insert(questionLabel || questionId)))
       .insert(new Element("tr", {"class" : "care-pathways-modules"})
@@ -1735,7 +1954,7 @@ var init = function(event) {
   });
 
   var init = function() {
-    var analysisModules = $$('.care-pathways-analysis');
+    var analysisModules = $$('.care-pathways-analysis-module');
     analysisModules &amp;&amp; analysisModules.each(function(module) {
       var options = {};
       var moduleId = module.id;
@@ -1748,6 +1967,7 @@ var init = function(event) {
       options.buildModulesUrl = new XWiki.Document('CarePathways', 'PhenoTips').getURL('get');
       new PhenoTips.widgets.carePathways.VariantAnalysisModule(module, options);
     });
+    return true;
   };
 
   (XWiki.domIsLoaded &amp;&amp; init()) || document.observe('xwiki:dom:loaded', init);
@@ -1761,6 +1981,198 @@ var init = function(event) {
     </property>
     <property>
       <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>6</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>bb5650f9-cfc6-4c61-910b-af451bb0616a</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  //Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+
+  cp.MultiPicker = Class.create({
+    initialize : function(container, options) {
+      this._container = container;
+      this._qualifierCount = 0;
+      this._getCount = options.getCount || function() { return this._qualifierCount; };
+      this._updateCount = options.updateCount || function(count) { this._qualifierCount = count; };
+      this._incrementCount = options.incrementCount || function() { this._qualifierCount++; };
+      this._deleteQualifierAction = options.deleteQualifier;
+      this._qualifierDataMarker = options.qualifierDataMarker;
+      this._dataElements = options.dataElements || {};
+      this._dataName = options.dataName;
+
+      this._setStoredValues(options.storedDataEl);
+      this._attachClickListeners();
+    },
+
+    _setStoredValues : function(storedDataEl) {
+      if (storedDataEl) {
+        var storedStr = storedDataEl.value;
+        storedDataEl.remove();
+        var storedJson = JSON.parse(storedStr || "[]");
+        var _this = this;
+        storedJson.each(function(elem) {
+          var term = elem[_this._dataName];
+          var target = _this._container.down('span.term-picker.' + term);
+          var checkbox = target &amp;&amp; target.down('input[type="checkbox"]');
+          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox)();
+        });
+      }
+    },
+
+    _attachClickListeners : function() {
+      var _this = this;
+      this._container.observe('change', function(event) {
+        event.stop();
+      });
+      this._container.observe('click', function(event) {
+        event.stop();
+        var target = event.findElement('span.term-picker');
+        if (target) {
+          _this._toggleSelected.bind(_this, target)();
+        }
+      });
+    },
+    
+    _toggleSelected : function(target) {
+      var checkbox = target.down('input[type="checkbox"]');
+      if (target.hasClassName('selected')) {
+        this._deleteElData(target, checkbox);
+      } else {
+        var pickedEl = target.down('span');
+        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox);
+      }
+    },
+
+    _insertDataElements : function(pickedElVal, count, target, checkbox) {
+      var _this = this;
+      $H(this._dataElements).each(function(pair) {
+        var propName = pair.key;
+        var propValue = pair.value;
+        if (propValue !== undefined &amp;&amp; propValue !== null) {
+          var dataEl = new Element('input', {'type' : 'hidden', 'class' : propName + '-stored-value', 'name' : _this._qualifierDataMarker + '_' + count + '_' + propName, 'value' : propValue});
+          target.insert(dataEl);
+        }
+      });
+      target.addClassName('selected');
+      checkbox &amp;&amp; (checkbox.checked = true);
+      var pickedDataEl = new Element('input', {'type' : 'hidden', 'class' : this._dataName + '-stored-value', 'name' : this._qualifierDataMarker + '_' + count + '_' + this._dataName, 'value' : pickedElVal});
+      var countEl = new Element('input', {'type' : 'hidden', 'class' : this._dataName + '-count', 'value' : count});
+      target.insert(pickedDataEl).insert(countEl);
+      count &gt;= _this._getCount() &amp;&amp; _this._updateCount(++count);
+    },
+
+    _deleteElData : function(target, checkbox) {
+      var elCount = target.down('input.' + this._dataName + '-count');
+      if (elCount &amp;&amp; this._deleteQualifierAction) {        
+        var url = this._deleteQualifierAction.replace(/([&amp;?]classid=)(xXx__COUNT_TEMPLATE__xXx)([&amp;$])/, "$1" + elCount.value + "$3");
+        jQuery.ajax(url, {
+          method: "GET", 
+          beforeSend: function () { target.disabled = true; }
+        })
+        .always(function () { target.disabled = false; })
+        .done(function (data, textStatus, jqXHR) {
+          target.select('input[type="hidden"]').each(function(hiddenEl) {
+            hiddenEl.remove();
+          });
+          target.removeClassName('selected');
+          checkbox &amp;&amp; (checkbox.checked = false);
+        });
+      }
+    }
+  });
+
+  // End PhenoTips augmentation.
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Care Pathways picker widget</name>
+    </property>
+    <property>
+      <parse>0</parse>
     </property>
     <property>
       <use>onDemand</use>
@@ -1864,61 +2276,69 @@ var init = function(event) {
     <property>
       <code>#template('colorThemeInit.vm')
 
+.main table {
+  margin: 0;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2.5px;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-cell {
+  display: table-cell;
+}
+
 /**********************************************************************************************
  * Survey css.
  */
 
 table.care-pathways-module-group-container,
 table.care-pathways-analysis-container {
-  display: table;
   border-collapse: separate;
   border-spacing: 2.5px;
   background-color: $theme.borderColor;
-  width: 100%;
   margin: 0;
 }
-tr.care-pathways-modules div.care-pathways-modules-wrapper {
-  display: table;
-  width: 100%;
-}
-tr.care-pathways-modules div.care-pathways-module-container {
-  display: table-row;
-}
-tr.care-pathways-modules span.selector-panel {
-  display: table-cell;
+tr.care-pathways-modules td.selector-panel {
   background-color: $theme.pageContentBackgroundColor;
   padding: 0;
 }
-tr.care-pathways-modules span.cp-categories {
+tr.care-pathways-modules td.cp-categories {
   vertical-align: top;
   width: 30%;
   min-width: 400px;
 }
-tr.care-pathways-modules span.cp-categories div.cp-categories-panel li.term-entry span.expand-tool {
+tr.care-pathways-modules td.cp-categories div.cp-categories-panel li.term-entry span.expand-tool {
   margin: 0.5em;
   font-size: inherit;
 }
-tr.care-pathways-modules span.cp-current-selection {
+tr.care-pathways-modules td.cp-current-selection {
   vertical-align: top;
 }
-tr.care-pathways-modules span.cp-current-selection div.current-selection-panel {
+tr.care-pathways-modules td.cp-current-selection div.current-selection-panel {
   padding-left: 15px;
 }
 tr.care-pathways-section-label {
-  display: table-row;
-  background-color: $theme.highlightColor;
   height: 2.0em;
+  color: #000;
+  font-size: 130%;
 }
 tr.care-pathways-section-label td {
-  display: table-cell;
-  padding: 10px;
+  padding: 10px 10px 0 10px;
 }
-tr.care-pathways-modules span > h3 {
-  font-size: 0.8em !important;
-  font-weight: 700;
+tr.care-pathways-modules li &gt; h3,
+tr.care-pathways-modules td &gt; h3 {
+  font-size: 0.8em;
   letter-spacing: 0;
   margin: 0 !important;
-  padding: 5px 20px 5px 15px !important;
+  padding: 5px 20px 5px 15px;
   text-align: left;
   text-transform: uppercase;
   background-color: $theme.fieldGradientColor;
@@ -1972,40 +2392,60 @@ table.summary-group div.summary-item span.parent-dialog-delete,
 table.summary-group tr.term-holder span.patient-term-delete {
   color: $theme.notificationErrorColor;
 }
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dl,
-div.care-pathways-module-container-view table.summary-group div.summary-item dl {
+
+.care-pathways-module-container-view table.summary-group tr.term-holder label {
+  font-weight: normal;
+  margin-left: .5em;
+}
+
+.care-pathways-module-container-view table.terms-data-table td.no-data {
+  padding: 1em;
+}
+
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dl,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dl {
   display: inline-block;
   margin: .2em;
   vertical-align: middle;
 }
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
-div.care-pathways-module-container-view table.summary-group div.summary-item dt {
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt {
   margin: 0 0 0 .5em;
+  border-bottom-left-radius: .3em;
+  border-top-left-radius: .3em;
 }
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dl:first-child,
-div.care-pathways-module-container-view table.summary-group div.summary-item dl:first-child {
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dl:first-child,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dl:first-child {
   margin-left: 0;
 }
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
-div.care-pathways-module-container-view table.summary-group div.summary-item dd {
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
   margin: 0;
+  border-bottom-right-radius: .3em;
+  border-top-right-radius: .3em;
 }
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
-div.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
-div.care-pathways-module-container-view table.summary-group div.summary-item dt,
-div.care-pathways-module-container-view table.summary-group div.summary-item dd {
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dt.hidden + dd + dd.preview,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt.hidden + dd {
+  margin: 0;
+  border-bottom-left-radius: .3em;
+  border-top-left-radius: .3em;
+}
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
   display: inline-block;
   background-color: $theme.pageContentBackgroundColor;
   float: left;
-  padding: .2em;
+  padding: .3em;
   clear: none;
 }
-div.care-pathways-module-container table.summary-group div.summary-item dt,
-div.care-pathways-module-container table.summary-group div.summary-item dd {
+tr.care-pathways-module-container table.summary-group div.summary-item dt,
+tr.care-pathways-module-container table.summary-group div.summary-item dd {
   margin-top: .5em;
   margin-bottom: .5em;
 }
-div.care-pathways-module-container table.summary-group div.summary-item dt {
+tr.care-pathways-module-container table.summary-group div.summary-item dt {
   float: left;
   clear: left;
 }
@@ -2034,12 +2474,10 @@ table.summary-group div.summary-item ul {
   padding-left: 1em;
   margin-left: 0;
 }
-.test_field .clickable:hover,
-.care_field .clickable:hover {
+.category-data .clickable:hover {
   cursor: pointer;
 }
-.test_field label.clickable.disabled,
-.care_field label.clickable.disabled {
+.category-data label.clickable.disabled {
   color: #CCC;
   cursor: default;
 }
@@ -2050,8 +2488,7 @@ table.summary-group td.add-button-holder span.patient-details-add {
  * Typeahead css.
  */
 
-table.summary-group div.summary-item.focused dd.inline.test,
-table.summary-group div.summary-item.focused dd.inline.care {
+table.summary-group div.summary-item.focused dd.inline.datum {
   width: 60%;
 }
 span.scrollable-typeahead {
@@ -2097,6 +2534,171 @@ select + .LV_validation_message {
     </property>
     <property>
       <name>Care Pathways survey styles</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>1</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>d31fabab-df3e-42df-b82e-39cb0866166d</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>#template('colorThemeInit.vm')
+
+tr.family-care-subtitle .table-cell,
+tr.care-pathways-family-module-container .table-cell,
+tr.care-pathways-family-module-container-view .family-test-data.table-cell {
+  padding: 1em 1em 1em 2em;
+}
+
+tr.care-pathways-family-module-container-view td.family-test-data table td {
+  border: none;
+}
+
+tr.care-pathways-family-module-container .table-cell,
+tr.care-pathways-family-module-container-view .table-cell {
+  background-color: $theme.pageContentBackgroundColor;
+}
+
+tr.care-pathways-family-module-container .term-picker {
+  padding: 10px 0 10px 0;
+  width: 5.5em;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid;
+  border-color: $theme.buttonSecondaryBackgroundColor;
+  color: $theme.textColor;
+}
+
+tr.care-pathways-family-module-container .term-picker input {
+  padding: 0;
+  margin: 0;
+}
+
+tr.care-pathways-family-module-container-view .affected-family-member {
+  padding: 5px;
+  width: 60px;
+  text-align: center;
+}
+
+tr.care-pathways-family-module-container-view .family-test-name {
+  width: 290px;
+}
+
+tr.care-pathways-family-module-container-view .affected-family-member,
+tr.care-pathways-family-module-container .term-picker.selected {
+  background-color: $theme.panelCollapsedBackgroundColor;
+}
+
+(tr.care-pathways-family-module-container .term-picker) + (tr.care-pathways-family-module-container .term-picker) {
+  margin: 0 .1em 0 .1em;
+}
+
+tr.family-care-subtitle .table-cell {
+  padding: 1em 0 .5em .5em;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Care Pathways picker widget</name>
     </property>
     <property>
       <parse>1</parse>
