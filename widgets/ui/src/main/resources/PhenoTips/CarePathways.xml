@@ -252,8 +252,7 @@
       #if (($subject == '' || $q.getProperty('subject').value == $subject) &amp;&amp; ($type == '' || $q.getProperty('type').value == $type) &amp;&amp; ($variantNumber == '' || "$!{q.getProperty('variant').value}" == "$!{variantNumber}") &amp;&amp; ($module == '' || $q.getProperty('module').value == $module))
         #set ($storedDatum = {})
         #set ($parent = "$!{q.getProperty('parent').value}")
-        #set ($isStandard = $!{services.vocabularies.care-pathways.getTerm($parent)})
-        #set ($label = "#if($isStandard)$stringtool.defaultIfBlank($!{isStandard.name}, $parent)#{else}Other#{end}")
+        #set ($label = "#__buildLabelPath($parent)")
         #set ($discard = $categories.putIfAbsent($parent, {"id" : $parent, "label" : $label, "affected" : true, "qualifiers" : []}))
         #set ($categoryItems = $categories.get($parent).get("qualifiers"))
         #foreach($prop in $q.xWikiClass.properties)
@@ -269,6 +268,29 @@
     #end
   #end
 #end
+##
+##
+#macro(__buildLabelPath $test)
+  #set ($excludes = [$testTerm, $careTerm, $familyCareTerm, $geneticTerm, $diagnosticTerm])##
+  #if (!$excludes.contains($test))##
+    #set ($node = $!{services.vocabularies.care-pathways.getTerm($test)})##
+    #if ($node)##
+      #set ($macro.accumulatedPath = "$!{node.name}")##
+      #if ($node.is_a &amp;&amp; $node.is_a.size() &gt; 0)##
+        #set ($nodeId = $node.is_a.get(0))##
+        #set ($prefix = "#__buildLabelPath($nodeId)")##
+        #set ($macro.accumulatedPath = "#if($!{prefix} != '')$!{prefix} » #{end}$!{macro.accumulatedPath}")##
+      #end##
+    #else##
+      #set ($nodeId = "$stringtool.substringBefore($test, '_other')")##
+      #if ($!{services.vocabularies.care-pathways.getTerm($nodeId)})##
+        #set ($prefix = "#__buildLabelPath($nodeId)")##
+        #set ($macro.accumulatedPath = "#if($!{prefix} != '')$!{prefix} » #{end}Other")##
+      #end##
+    #end##
+    $!{macro.accumulatedPath}##
+  #end##
+#end##
 ##
 ##
 #macro (__displayChildren $term $childrenList $question $storedValues)
@@ -844,6 +866,7 @@
       if (!container) { return; }
       this._container = container;
       this._tooltip = options.tooltip || "";
+      this._showPath = options.showPath;
 
       this._buildModule();
     },
@@ -936,7 +959,8 @@
       var termName = termNameEl ? termNameEl.innerHTML : "";
       if (termName) {
         var parentLi = elem.up('li.term-entry');
-        var memo = {"term_id" : elem.name, "term_name" : termName};
+        var prefix = this._showPath ? this._getLabelPrefix(parentLi) : "";
+        var memo = {"term_id" : elem.name, "term_name" : prefix + termName};
         if (parentLi.hasClassName('custom')) {
           var parentIdElem = parentLi.down('input.parent-id');
           var parentId = parentIdElem &amp;&amp; parentIdElem.value;
@@ -946,6 +970,18 @@
         var event = (elem.checked 
           &amp;&amp; Event.fire(this._container, "cp-navigation:category:checked", memo))
           || this._uncheckAfterSuccessfulDelete(elem, "cp-navigation:category:unchecked", memo);
+      }
+    },
+
+    _getLabelPrefix : function(listElem) {
+      var parentListElem = listElem.up('li.term-entry');
+      if (parentListElem) {
+        var nameElem = parentListElem.down('span.term-name');
+        var name = nameElem &amp;&amp; nameElem.innerHTML || "";
+        var prefix = this._getLabelPrefix(parentListElem);
+        return prefix + name + " » ";
+      } else {
+        return "";
       }
     },
 
@@ -1100,20 +1136,27 @@
 
     _retrieveStoredData : function() {
       var storedDataElem = this._selectedSummary.down('input.cp-current-selection-stored-data');
-      var storedData = storedDataElem &amp;&amp; storedDataElem.value || null;
-      storedDataElem.remove();
+      var storedData;
+      if (storedDataElem) {
+        storedData = storedDataElem.value;
+        storedDataElem.remove();
+      }
       var json = storedData &amp;&amp; JSON.parse(storedData);
       if (json) {
         var _this = this;
         var promises = [];
         $H(json).each(function(pair) {
           var data = pair.value;
-          var request = data.id &amp;&amp; data.label &amp;&amp; _this._buildNewTermElement.bind(_this, data.id, data.label, _this._tooltip, data)();
-          promises.push(request);
+          if (data.id &amp;&amp; data.label) {
+            var request = _this._buildNewTermElement.bind(_this, data.id, data.label, _this._tooltip, data)();
+            promises.push(request);
+          }
         });
         // Do one by one.
         jQuery.when.apply(null, promises).done(function() {
-          Event.fire(document, "cp-selection:data:loaded")
+          Event.fire(document, "cp-selection:data:loaded");
+          // Importing already saved data.
+          Event.fire(document, "xwiki:document:saved");
         });
       }
     },
@@ -1430,7 +1473,7 @@ var initNavAndSelMods = function(modules) {
       var remoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
       var clearCategoryEl = $('clear-category-action');
       var deleteQualifierEl = $('delete-qualifier-action');
-      var options = {"tooltip" : "", "localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage};
+      var options = {"tooltip" : "", "localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
       new PhenoTips.widgets.carePathways.ModuleSelectionPanel(module, options);
       new PhenoTips.widgets.carePathways.ModuleNavigationPanel(module, options);
     });
@@ -2084,16 +2127,14 @@ var init = function(event) {
           var checkbox = target &amp;&amp; target.down('input[type="checkbox"]');
           _this._insertDataElements.bind(_this, term, elem.count, target, checkbox)();
         });
+        // Importing already saved data.
+        Event.fire(document, "xwiki:document:saved");
       }
     },
 
     _attachClickListeners : function() {
       var _this = this;
-      this._container.observe('change', function(event) {
-        event.stop();
-      });
       this._container.observe('click', function(event) {
-        event.stop();
         var target = event.findElement('span.term-picker');
         if (target) {
           _this._toggleSelected.bind(_this, target)();
@@ -2113,6 +2154,7 @@ var init = function(event) {
 
     _insertDataElements : function(pickedElVal, count, target, checkbox) {
       var _this = this;
+      if (target.disabled) { return; }
       $H(this._dataElements).each(function(pair) {
         var propName = pair.key;
         var propValue = pair.value;
@@ -2131,7 +2173,7 @@ var init = function(event) {
 
     _deleteElData : function(target, checkbox) {
       var elCount = target.down('input.' + this._dataName + '-count');
-      if (elCount &amp;&amp; this._deleteQualifierAction) {        
+      if (!target.disabled &amp;&amp; elCount &amp;&amp; this._deleteQualifierAction) {
         var url = this._deleteQualifierAction.replace(/([&amp;?]classid=)(xXx__COUNT_TEMPLATE__xXx)([&amp;$])/, "$1" + elCount.value + "$3");
         jQuery.ajax(url, {
           method: "GET", 
@@ -2872,6 +2914,7 @@ table.summary-group tr.term-holder span.patient-term-delete {
 }
 
 .care-pathways-module-container-view table.summary-group tr.term-holder label {
+  width: 100%;
   font-weight: normal;
   margin-left: .5em;
 }
