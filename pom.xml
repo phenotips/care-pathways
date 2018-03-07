@@ -63,9 +63,10 @@
 
   <modules>
     <module>vocabulary-care-pathways</module>
-    <module>care-pathways-data</module>
+    <module>vocabulary-care-pathways-questions</module>
     <module>widgets</module>
     <module>resources</module>
-    <module>vocabulary-care-pathways-questions</module>
+    <module>care-pathways-data</module>
+    <module>ui</module>
   </modules>
 </project>
