@@ -322,7 +322,8 @@
 #care-pathways-posttest-container .variant .add-data-button:before {
   top: .40em !important;
   left: .6em;
-}</code>
+}
+</code>
     </property>
     <property>
       <contentType>CSS</contentType>
@@ -726,6 +727,203 @@ var XWiki = (function(XWiki) {
       <use>onDemand</use>
     </property>
   </object>
+<object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>2</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>24574d06-ed47-4095-8ce3-d4cf9f4d6518</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var getAssociatedGeneName = function(parentCol) {
+  // Find the associated gene name.
+  var geneColumn = parentCol.previous('td.v-collapsed');
+  var geneContainer = geneColumn &amp;&amp; geneColumn.down('input[type="text"]');
+  return geneContainer &amp;&amp; geneContainer.value || "";
+};
+
+var hideOnWarnFx = function(parentRow, moreInfoRow) {
+  return function() {
+    var hideOnWarn = parentRow.select('td.variant:not(.cdna, .variant-row-count) &gt; *');
+    hideOnWarn.push(moreInfoRow);
+    return hideOnWarn;
+  };
+};
+
+var getImportButtonClickAction = function(cdnaInput, variantNumberStr, parentRow, moreInfoRow) {
+  return function(data) {
+    $H(data).each(function(pair) {
+      var key = pair.key;
+      var value = pair.value;
+
+      var dataName = ':input[name="PhenoTips.CPGeneVariantClass_' + variantNumberStr + '_' + key + '"]';
+      var formElems = moreInfoRow.select(dataName).concat(parentRow.select(dataName));
+
+      if (formElems.length) {
+        var currentCol;
+        formElems.each(function(item) {
+          if (item.type === "checkbox") {
+            item.value === value &amp;&amp; (item.checked = true);
+          } else {
+            item.value = value;
+          }
+          var parentCol = item.up('td');
+          if (parentCol !== currentCol) {
+            currentCol = parentCol;
+            var displayedElem = currentCol.down('span.variant-property-value.variant-label-' + variantNumberStr);
+            displayedElem &amp;&amp; (displayedElem.innerHTML = value);
+          }
+        });
+      }
+      cdnaInput.__CPMatchingVariants_detector._markUnique();
+      cdnaInput.__CPMatchingVariants_detector.responded();
+    });
+  };
+};
+
+var getDismissButtonClickAction = function(cdnaInput) {
+  return function(data) {
+    cdnaInput.__CPMatchingVariants_detector._markUnique();
+    cdnaInput.__CPMatchingVariants_detector.responded();
+  };
+};
+
+var getOnWarnButtons = function(cdnaInput, variantNumberStr, parentRow, moreInfoRow) {
+  var importButton = new Element('button', {'class' : 'matching-variant-action import-variant-action secondary button', 'title' : 'Import matching variant data'}).insert('Import');
+  var dismissButton = new Element('button', {'class' : 'matching-variant-action dismiss-variant-action secondary button', 'title' : 'Dismiss warning'}).insert('Dismiss');
+  // The import button click action.
+  importButton.clickAction = getImportButtonClickAction(cdnaInput, variantNumberStr, parentRow, moreInfoRow);
+  // The dismiss button click action.
+  dismissButton.clickAction = getDismissButtonClickAction(cdnaInput);
+
+  return new Element('span', {'class' : 'matching-variant-actions-buttons'})
+    .insert(new Element('span', {'class' : 'buttonwrapper'})
+      .insert(importButton))
+    .insert(new Element('span', {'class' : 'buttonwrapper'})
+      .insert(dismissButton));
+};
+
+var attachDuplicateVariantsInPatientSheetValidator = function(event) {
+  var primaryVarContainer = $('primary-wes-variants-proband');
+  var serviceUrlEl = $('matching-patient-variants-url');
+  var serviceUrl = serviceUrlEl &amp;&amp; serviceUrlEl.value
+
+  if (primaryVarContainer &amp;&amp; serviceUrl) {
+    var elements = event &amp;&amp; event.memo &amp;&amp; event.memo.elements;
+    ((elements) || [primaryVarContainer]).each(function(element) {
+      var selector = 'td.variant.variant-default-input.cdna input';
+      element.up('#primary-wes-variants-proband') &amp;&amp; element.select(selector).each(function(cdnaInput) {
+        var options = {};
+
+        var parentRow = cdnaInput.up('tr');
+        var geneNumberStr = parentRow.className.substring(parentRow.className.lastIndexOf("-") + 1);
+        var moreInfoRow = parentRow.next('tr.variant-gene-' + geneNumberStr + '.variant-moreinfo-row');
+
+        var parentCol = cdnaInput.up('td');
+        var variantNumberStr = parentCol.className.substring(parentCol.className.lastIndexOf("-") + 1);
+
+        // Add the servce url.
+        options.serviceUrl = serviceUrl + '&amp;gene=' + getAssociatedGeneName(parentCol) + '&amp;cdna=';
+        // Elements to hide when the warning is displayed.
+        options.hideOnWarnFx = hideOnWarnFx(parentRow, moreInfoRow);
+        // Buttons to add when the warning is displayed.
+        options.addOnWarnButtons = getOnWarnButtons(cdnaInput, variantNumberStr, parentRow, moreInfoRow);
+        // The container for the new buttons that will be added.
+        options.addOnWarnButtonsContainer = parentCol.next('td');
+
+        // Add the validator.
+        cdnaInput.__CPMatchingVariants_detector = new PhenoTips.widgets.carePathways.RemoteDuplicatesValidator(cdnaInput, selector, "$escapetool.javascript($services.localization.render('PhenoTips.CPGeneVariantClass.valueAlreadyEnteredInPatientForm'))", options);
+      });
+    });
+  }
+  return true;
+};
+
+(XWiki.domIsLoaded &amp;&amp; attachDuplicateVariantsInPatientSheetValidator()) || document.observe("xwiki:dom:loaded", attachDuplicateVariantsInPatientSheetValidator);
+document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValidator);</code>
+    </property>
+    <property>
+      <name>Care Pathways duplicate variant present in Patient Sheet validation</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
   <object>
     <name>PhenoTips.CarePathwaysPostTestSheet</name>
     <number>0</number>
@@ -1052,8 +1250,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displayPrimaryVariantList $question)
-  #set ($geneClassName = 'PhenoTips.GeneClass')
-  #set ($variantClassName = 'PhenoTips.GeneVariantClass')
   #set ($cpGeneClassName = 'PhenoTips.CPGeneClass')
   #set ($cpVariantClassName = 'PhenoTips.CPGeneVariantClass')
   #set ($subject = 'proband')
@@ -1072,13 +1268,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   {{html clean="false" wiki="false"}}##
   &lt;/div&gt;
   &lt;div id="primary-wes-variants-all" class="primary-variants-container variants-container"&gt;
-    #if ($xcontext.action == 'edit')##
-    &lt;div class="patient-form-variants hidden"&gt;
-      {{/html}}
-        #__gene_table($geneClassName, $variantClassName, {'tableIdPrefix' : 'patient-sheet__', 'tableClass' : 'patient-sheet', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation', 'zygosity'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
-      {{html clean="false" wiki="false"}}
-    &lt;/div&gt;
-    #end##
     #if ($xcontext.action == 'edit' || $doc.getObject($cpGeneClassName, 'status', 'confirmed'))##
     &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
       &lt;input class="question-id" type="hidden" value="$question"/&gt;
@@ -1155,10 +1344,12 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 
 {{velocity}}
   {{html clean="false" wiki="false"}}
-    #set ($clearCategory = $doc.getURL("get", "sheet=$!{class.name}&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
-    #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
+    #set ($clearCategory = $doc.getURL("get", "sheet=$!{class.name}&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))##
+    #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))##
+    #set ($getMatchingVariant = $xwiki.getURL("PhenoTips.CarePathwaysVariantSearch", "get", "id=$!{doc.name}"))
     &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
     &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
+    &lt;input type="hidden" id="matching-patient-variants-url" value="$getMatchingVariant"/&gt;
     #__displayPrimaryVariantsSection()##
   {{/html}}##
   #__displayStoredPrimaryData()##
@@ -1408,7 +1599,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
           #end
         #end
         #if ($xcontext.action == 'edit' || $hasData)
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'mother-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${subject}-${variantStatus}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
         #else
           No variant data entered
         #end
