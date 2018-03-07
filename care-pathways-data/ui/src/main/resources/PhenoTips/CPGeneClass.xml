@@ -112,6 +112,9 @@ $escapetool.xml($services.localization.render("PhenoTips.CPGeneClass_status_${va
 ##
 ##
 #if ($prefix &amp;&amp; $name)
+#if("$!{geneStatus}" == "")##
+#set($geneStatus = $!{value})##
+#end##
 #_addGeneStatus($prefix, $name, $geneStatus)
 #end
 {{/velocity}}</customDisplay>
@@ -167,6 +170,9 @@ $escapetool.xml($services.localization.render("PhenoTips.CPGeneClass_subject_${v
 ##
 ##
 #if ($prefix &amp;&amp; $name)
+#if("$!{subject}" == "")##
+#set($subject = $!{value})##
+#end##
 #_addGeneSubject($prefix, $name, $subject)
 #end
 {{/velocity}}</customDisplay>

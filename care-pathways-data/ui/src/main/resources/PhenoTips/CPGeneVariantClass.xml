@@ -345,6 +345,9 @@ $!{value}
 ##
 ##
 #if ($prefix &amp;&amp; $name)
+#if("$!{variantStatus}" == "")##
+#set($variantStatus = $!{value})##
+#end##
 #_addVariantStatus($prefix, $name, $variantStatus)
 #end
 {{/velocity}}</customDisplay>
@@ -379,6 +382,9 @@ $!{value}
 ##
 ##
 #if ($prefix &amp;&amp; $name)
+#if("$!{subject}" == "")##
+#set($subject = $!{value})##
+#end##
 #_addVariantSubject($prefix, $name, $subject)
 #end
 {{/velocity}}</customDisplay>
