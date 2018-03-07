@@ -38,6 +38,11 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output=false}}
+#set ($testTerm = "CP:01")
+#set ($careTerm = "CP:02")
+#set ($familyCareTerm = "CP:03")
+#set ($geneticTerm = "CP:11")
+#set ($diagnosticTerm = "CP:12")
 #macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
 #if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
   &lt;tr class="table-row variant-label-row"&gt;
@@ -66,7 +71,7 @@
 ##
 #macro(__buildFamilyModule $module $question $variantNumber $storageClass $retrieveStoredData)
   #set ($subjects = ['mother', 'father', 'sister', 'brother', 'aunt', 'uncle'])
-  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': 'CP:3'}, {'sort': 'nameSort asc'}))
+  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': $familyCareTerm}, {'sort': 'nameSort asc'}))
   #foreach ($familyTest in $!{familyTesting})
     #set ($testId = $familyTest.id)
     #set ($testName = $familyTest.name)
@@ -101,7 +106,7 @@
       &lt;td class="table-cell subject-group"&gt;
       #foreach ($subject in $subjects)##
         &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="checkbox"/&gt; &lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
+          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
         &lt;/span&gt;
       #end##
       &lt;/td&gt;
@@ -296,29 +301,25 @@
 ##
 ##
 #macro (__displayModule $module $submodule $question $variantNumber $storedValues)
-  #set ($test = "CP:01")
-  #set ($care = "CP:02")
-  #set ($genetic = "CP:11")
-  #set ($diagnostic = "CP:12")
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
   #if ($module == "test")
     #set ($testNodes = [])
-    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $genetic}, {'sort': 'nameSort asc'}))
-    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnostic}, {'sort': 'nameSort asc'}))
+    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc'}))
+    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnosticTerm}, {'sort': 'nameSort asc'}))
     #set ($discard = $testNodes.addAll($geneticNodes))
     #set ($discard = $testNodes.addAll($diagnosticNodes))
     #if ($submodule == "")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($test), $testNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($testTerm), $testNodes, $question, $storedValues)
     #elseif ($submodule == "genetic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($genetic), $geneticNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($geneticTerm), $geneticNodes, $question, $storedValues)
     #elseif ($submodule == "diagnostic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnostic), $diagnosticNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnosticTerm), $diagnosticNodes, $question, $storedValues)
     #end
   #elseif ($module == "care")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
     #__displayCategories($rootNode, $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}), $question, $storedValues)
   #elseif ($module == "family")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
     #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}))
     #set ($careSubset = [])
     #foreach ($item in $allCare)
@@ -2617,7 +2618,7 @@ var init = function(event) {
   if (dialog) {
     var commentsDt = dialog.down('dt.comments');
     var selectedId = event.memo.selected;
-    if (selectedId === "CP:15") {
+    if (selectedId === "CP:1111") {
       commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
     } else {
       // If we select something that is not a gene panel, want to make sure to remove the warning message, since it doesn't apply to anything else.
@@ -2629,7 +2630,7 @@ var init = function(event) {
 
 document.observe("cp-selection:data:loaded", function(event) {
   // Get all gene panel entries.
-  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:15"]');
+  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:1111"]');
   // Add the warning message for all of them.
   panelItems.each(function(item) {
     var commentsDt = item.up('dd.datum').next('dt.comments');
@@ -2768,6 +2769,10 @@ document.observe("cp-selection:data:loaded", function(event) {
   margin: .25em 0 0 -6.7em;
 }
 
+input[type='checkbox'],
+input[type='radio'] {
+  margin-right: .5em;
+}
 /**********************************************************************************************
  * Survey css.
  */
@@ -3136,7 +3141,7 @@ tr.care-pathways-family-module-container-view .table-cell {
 
 tr.care-pathways-family-module-container .term-picker {
   padding: 10px 0 10px 0;
-  width: 5.5em;
+  width: 6em;
   display: inline-block;
   text-align: center;
   cursor: pointer;
@@ -3147,7 +3152,7 @@ tr.care-pathways-family-module-container .term-picker {
 
 tr.care-pathways-family-module-container .term-picker input {
   padding: 0;
-  margin: 0;
+  margin: 0 .5em 0 0;
 }
 
 tr.care-pathways-family-module-container-view .affected-family-member {
