@@ -2618,7 +2618,7 @@ var init = function(event) {
   if (dialog) {
     var commentsDt = dialog.down('dt.comments');
     var selectedId = event.memo.selected;
-    if (selectedId === "CP:15") {
+    if (selectedId === "CP:1111") {
       commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
     } else {
       // If we select something that is not a gene panel, want to make sure to remove the warning message, since it doesn't apply to anything else.
@@ -2630,7 +2630,7 @@ var init = function(event) {
 
 document.observe("cp-selection:data:loaded", function(event) {
   // Get all gene panel entries.
-  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:15"]');
+  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:1111"]');
   // Add the warning message for all of them.
   panelItems.each(function(item) {
     var commentsDt = item.up('dd.datum').next('dt.comments');
