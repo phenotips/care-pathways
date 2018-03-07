@@ -611,7 +611,7 @@
           }
         });
         _this._setInput(inputHiddenElem, formattedVal(), null);
-        Event.fire(_this._container, "cp:typeahead:" + (matched ? "selected" : "custom"), {'id' : _this._elementID, 'dialog' : _this._termDetails});
+        Event.fire(_this._container, "cp:typeahead:" + (matched ? "selected" : "custom"), {'id' : _this._elementID, 'selected' : formattedVal(), 'dialog' : _this._termDetails});
       });
     }
   });
@@ -1111,7 +1111,9 @@
           promises.push(request);
         });
         // Do one by one.
-        jQuery.when.apply(null, promises);
+        jQuery.when.apply(null, promises).done(function() {
+          Event.fire(document, "cp-selection:data:loaded")
+        });
       }
     },
 
@@ -1134,27 +1136,6 @@
           deleteAction &amp;&amp; deleteAction.click();
         }
       });
-
-      this._container.observe("cp:typeahead:custom", function(event) {
-        var dialog = event.memo.dialog;
-        var dt = dialog &amp;&amp; dialog.down("dt.comments");
-        var dd = dialog &amp;&amp; dialog.down("dd.comments");
-        dt &amp;&amp; dt.removeClassName("hidden");
-        dd &amp;&amp; dd.removeClassName("hidden");
-      });
-
-      this._container.observe("cp:typeahead:selected", function(event) {
-        var dialog = event.memo.dialog;
-        var dt = dialog &amp;&amp; dialog.down("dt.comments");
-        var dd = dialog &amp;&amp; dialog.down("dd.comments");
-        dt &amp;&amp; dt.addClassName("hidden");
-        dd &amp;&amp; dd.addClassName("hidden");
-        //TODO: Clear notes??
-      });
-    },
-
-    _setUnmappedIconTitle : function(qualifiers) {
-
     },
 
     _observeQualifierEvents : function(qualifiers) {
@@ -1172,7 +1153,7 @@
         .replace(/([&amp;?]category=)(xXx__CATEGORY_TEMPLATE__xXx)([&amp;$])/, "$1" + termId + "$3")
         .replace(/([&amp;?]question=)(xXx__QUESTION_TEMPLATE__xXx)([&amp;$])/, "$1" + this._questionId + "$3");
       var options = {'allowMultiDialogs': true, 'disableTermDelete': false, 'termDeleteAction' : termDeleteStr};
-      this._doDoneDataResponse(this._constructDataRequest(termId), termId, termName, tooltip, options, values);
+      return this._doDoneDataResponse(this._constructDataRequest(termId), termId, termName, tooltip, options, values);
     },
 
     _constructDataRequest : function(termId) {
@@ -1188,7 +1169,7 @@
     },
 
     _doDoneDataResponse : function(req, termId, termName, tooltip, options, values) {
-      req
+      return req
         .done(this._buildNewTermElementFromResponse.bind(this, termId, termName, tooltip, options, values))
         .fail(function(jqXHR, textStatus, errorThrown) {
         // TODO: Construct dialog with no typeahead options on failure??
@@ -1243,9 +1224,9 @@
         'approxQualifierName' : 'date_pursued'});
 
       qualifiersWidget.dialogsAddTextBox(false, {
-        'defListItemClass': 'comments hidden',
+        'defListItemClass': 'comments',
         'inputSourceClass': this._moduleType + '_notes',
-        'qualifierLabel': 'Additional information:',
+        'qualifierLabel': 'Notes:',
         'qualifierName': 'notes'});
 
       return this._addHiddenDataElements(qualifiersWidget);
@@ -1662,7 +1643,7 @@ var init = function(event) {
         this._currentInterpretationEl = targetElement;
         this._ajaxRequestNewQuestions(this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants');
       } else {
-        if (confirm("$!services.localization.render('phenotips.carePathways.postTest.cpmodulesDeleteConfirmation')")) {
+        if (confirm("$!escapetool.javascript($services.localization.render('phenotips.carePathways.postTest.cpmodulesDeleteConfirmation'))")) {
           var req = this._clearQuestionData(this._questionsClearUrl, this._currentlyDisplayedPrimaryQuestions(), questionnaireContainer);
           var _this = this;
           // Proceed only after stored question data has been deleted.
@@ -1877,7 +1858,7 @@ var init = function(event) {
     _ajaxClearGenes : function(url, checkbox, genesTables, variantsContainer, clearRelatedDataFx) {
       var _this = this;
       if (checkbox.disabled) { return; }
-      if (confirm("$!services.localization.render('phenotips.carePathways.postTest.cpNoVariantsConfirmation')")) {
+      if (confirm("$!escapetool.javascript($services.localization.render('phenotips.carePathways.postTest.cpNoVariantsConfirmation'))")) {
         var req = jQuery.ajax(url, {
           method: "GET",
           beforeSend: function () { checkbox.disabled = true; }
@@ -1904,6 +1885,9 @@ var init = function(event) {
         var geneNameInput = dataRow.down('input.gene-name');
         geneNameInput.__validation.destroy();
         $$('.variant-gene-' + geneIndex).each(function(item) {
+          item.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+            validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
+          });
           item.remove();
         });
         dataRow.remove()
@@ -2550,6 +2534,121 @@ var init = function(event) {
   </object>
   <object>
     <name>PhenoTips.CarePathways</name>
+    <number>9</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>a3e85fbe-d1d9-4acd-8f7a-cdc2aeb3a2ba</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>document.observe("cp:typeahead:selected", function(event) {
+  var dialog = event.memo &amp;&amp; event.memo.dialog;
+  if (dialog) {
+    var commentsDt = dialog.down('dt.comments');
+    var selectedId = event.memo.selected;
+    if (selectedId === "CP:15") {
+      commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
+    } else {
+      // If we select something that is not a gene panel, want to make sure to remove the warning message, since it doesn't apply to anything else.
+      var msg = commentsDt &amp;&amp; commentsDt.down('p.cp-hideable-warningmessage');
+      msg &amp;&amp; msg.remove();
+    }
+  }
+});
+
+document.observe("cp-selection:data:loaded", function(event) {
+  // Get all gene panel entries.
+  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:15"]');
+  // Add the warning message for all of them.
+  panelItems.each(function(item) {
+    var commentsDt = item.up('dd.datum').next('dt.comments');
+    commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
+  });
+});</code>
+    </property>
+    <property>
+      <name>Care pathways gene panel modification</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
     <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
     <guid>32a05e52-7c49-4f3d-a80a-dc319dda42af</guid>
@@ -2822,6 +2921,12 @@ tr.care-pathways-module-container table.summary-group div.summary-item dd {
 tr.care-pathways-module-container table.summary-group div.summary-item dt {
   float: left;
   clear: left;
+}
+tr.care-pathways-module-container table.summary-group div.summary-item.focused dt:not(.inline) {
+  width: 100%;
+}
+tr.care-pathways-module-container table.summary-group div.summary-item.blurred p.cp-hideable-warningmessage {
+  display: none;
 }
 table.summary-group div.summary-item.focused dt.collapsible span.selected-value {
   font-weight: normal;

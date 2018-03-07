@@ -600,7 +600,7 @@ var XWiki = (function(XWiki) {
     var geneId = this._geneTable.select('[name="' + this.geneClassName + '_' + geneIndex + '_gene"]')[0].value;
    
     var _this = this;
-    if (confirm("$!services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation')")) {
+    if (confirm("$!escapetool.javascript($services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation'))")) {
       var req = jQuery.ajax(deleteTrigger.href + geneId, {
         method: "GET",
         beforeSend: function () { deleteTrigger.disabled = true; }
@@ -617,6 +617,9 @@ var XWiki = (function(XWiki) {
           _this._removeModulesForVariants.bind(_this, geneIndex)();
 
           _this._geneTable.select('.variant-gene-' + geneIndex).each(function (item) {
+            item.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+              validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
+            });
             item.remove();
           });
           dataRow.remove();
@@ -665,7 +668,7 @@ var XWiki = (function(XWiki) {
     var geneClass = this.geneClassName;
 
     var _this = this;
-    if (confirm("$!services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation')")) {
+    if (confirm("$!escapetool.javascript($services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation'))")) {
       var req = jQuery.ajax(deleteTrigger.href, {
         method: "GET",
         beforeSend: function () { deleteTrigger.disabled = true; }
@@ -681,7 +684,9 @@ var XWiki = (function(XWiki) {
             _this._removeModulesForVariant.bind(_this, secondaryQuestionnaireContainer, variantIdx)();
           }
           var cdnaInput = cdnaCol.down('input');
-          cdnaInput.__validation.destroy();
+          dataRow.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+            validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
+          });
           var className = dataRow.previous().className;
           var geneIndex = parseInt(className.substring(className.lastIndexOf('-') + 1), 10);
           //we are deleting the only variant in the gene: remove variant table header,
