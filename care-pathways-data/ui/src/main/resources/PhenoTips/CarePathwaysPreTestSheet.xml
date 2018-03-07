@@ -145,6 +145,8 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
   &lt;input type='hidden' name="objectPolicy" value='updateOrCreate'/&gt;
   #set ($supported_actions = ['edit', 'view'])
   &lt;input type='hidden' name="returnTo" value='#if ($supported_actions.contains("$!request.returnTo"))${request.returnTo}#{else}edit#{end}'/&gt;
+  &lt;input type='hidden' name="cpredirect" value="$escapetool.xml($doc.getURL("view", "sheet=$!{class.name}&amp;returnTo=view"))"/&gt;
+  &lt;input type='hidden' name="cpActionEdit" value="$escapetool.xml($doc.getURL("edit", "sheet=$!{class.name}&amp;returnTo=edit"))"/&gt;
 {{/html}}##
 )))
 {{/velocity}}</content>

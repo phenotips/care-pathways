@@ -2180,6 +2180,144 @@ var init = function(event) {
   </object>
   <object>
     <name>PhenoTips.CarePathways</name>
+    <number>7</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>883b6583-8c2a-4cab-a751-175db7cd1f3f</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>document.on("xwiki:dom:loaded", function(event) {
+  var updateSaveAndViewAction = function() {
+    var redirects = $$('input[name="xredirect"]');
+    var redirect = redirects &amp;&amp; redirects.length &gt; 0 &amp;&amp; redirects[0];
+    var cpredirects = $$('input[name="cpredirect"]');
+    var cpredirect = cpredirects &amp;&amp; cpredirects.length &gt; 0 &amp;&amp; cpredirects[0];
+    if (cpredirect &amp;&amp; redirect) {
+      redirect.value = cpredirect.value;
+    }
+  };
+
+  var updatePatientRecordActions = function() {
+    var recordActions = $('patient-record-actions');
+    var documentAuthors = $('document-authors');
+    if (documentAuthors) {
+      documentAuthors.show();
+    }
+    if (recordActions) {
+      var listElem = recordActions.down('ul');
+      var listItems = listElem &amp;&amp; listElem.childElements();
+      listItems &amp;&amp; listItems.each(function(listElem) {
+        var editAction = listElem.down('#prActionEdit');
+        if (!editAction &amp;&amp; !listElem.down('input[name="action_saveandcontinue"]')) {
+          listElem.hide();
+        } else {
+          var cpActionEditItems = $$('input[name="cpActionEdit"]');
+          var cpActionEdit = cpActionEditItems &amp;&amp; cpActionEditItems.length &amp;&amp; cpActionEditItems[0];
+          if (editAction &amp;&amp; cpActionEdit) {
+            editAction.href = cpActionEdit.value;
+          }
+        }
+      });
+      recordActions.show();
+    }
+  };
+
+  var hideSectionEditButtons = function() {
+    var currentContainer = $('care-pathways-posttest-container') || $('care-pathways-pretest-container');
+    currentContainer &amp;&amp; currentContainer.select('h2 a.action-edit').each(function(editIcon) {
+      editIcon.hide();
+    });
+  };
+
+  updateSaveAndViewAction();
+  updatePatientRecordActions();
+  hideSectionEditButtons();
+});</code>
+    </property>
+    <property>
+      <name>Edit save actions</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
     <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
     <guid>32a05e52-7c49-4f3d-a80a-dc319dda42af</guid>
@@ -2293,6 +2431,10 @@ var init = function(event) {
 
 .table-cell {
   display: table-cell;
+}
+
+.menu-horizontal > ul ul {
+  margin: .25em 0 0 -6.7em;
 }
 
 /**********************************************************************************************
