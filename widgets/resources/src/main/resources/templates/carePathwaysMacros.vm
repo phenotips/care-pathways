@@ -1,0 +1,207 @@
+## =====================================================================
+##
+## geneVariantMacros overrides
+##
+##
+#macro (__gene__deleteWithVariants__tool $geneObj $variantClassName)
+{{html clean="false"}}<span class="buttonwrapper actions"><a class="action delete-gene button secondary" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;geneclassname=${geneObj.xWikiClass.name}&amp;variantclassname=$variantClassName&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletegene&amp;associateddataclass=PhenoTips.PatientCarePostTestClass&amp;objnumber=$geneObj.number&amp;gene=")" title="$services.localization.render('phenotips.tableMacros.delete')">✖</a></span>{{/html}}##
+#end
+##
+##
+#macro (__variant__deleteTool $object)
+{{html clean="false"}}<span class="buttonwrapper"><a class="action delete-variant button secondary" style="margin-top : 0" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;classname=${object.xWikiClass.name}&amp;classid=${object.number}&amp;form_token=$!{services.csrf.getToken()}&amp;action=cpdeletevariant&amp;associateddataclass=PhenoTips.PatientCarePostTestClass")" title="$services.localization.render('phenotips.tableMacros.delete')">✖</a></span>{{/html}}##
+#end
+##
+##
+#macro (__variant_row_empty $variantClassName $geneObjNumber $options)##
+#set($fakeObj = $doc.newObject($variantClassName))
+#set($variantIndex = 'ZZVARIANT_INDEX_PLACEHOLDERZZ')
+#set($geneObjNumber = 'ZZGENE_INDEX_PLACEHOLDERZZ')
+#set($count = 'ZZVRCOUNT_PLACEHOLDERZZ')
+|(% class="v-collapsed" %) $doc.display('gene', $options.mode, $fakeObj)##
+|(% class="pseudoindent" %) ##
+|(% class="variant-row-count variant-${variantIndex} variant" %)$count##
+#foreach($propName in $options.defaultProperties)
+|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)$doc.display($propName, $options.mode, $fakeObj)##
+#end
+#set($colspan = $!{options.defaultProperties.size()})
+#__variant__deleteTool($variantObj)\\
+(% class="variant-gene-$geneObjNumber variant-moreinfo-row v-collapsed variant-hide-heading-$geneObjNumber" %)##
+|(% class="pseudoindent" %)##
+|(% class = "variant" %)##
+|(% colspan="$colspan" class="variant moreinfo" %)(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)(((##
+#foreach ($prop in $fakeObj.xWikiClass.properties)
+#if ($prop.getName() != 'gene' && !$options.defaultProperties.contains($prop.getName()))
+
+#set ($isInputString = $options.inputStrings.contains($prop.getName()))
+#set($rawValue = "")
+|(% class="variant-moreinfo variant-property-name-$variantIndex %)**${prop.translatedPrettyName}**##
+| (% class="variant-property-value ${prop.getName()}-$variantIndex variant-label-$variantIndex" %) ##
+#if($isInputString)
+$rawValue ##
+#else
+$doc.display($prop.getName(), 'view', $fakeObj )##
+#end ##
+(%%) (% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $fakeObj )##
+#end
+#end
+))) (% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)\\
+#end
+##
+##
+#macro (__variant_row $variantObj $count $variantIndex $geneObjNumber $options)
+#if ($options.mode == 'edit')
+|(% class="v-collapsed" %) $doc.display('gene', $options.mode, $variantObj)##
+#end
+|(% class="pseudoindent" %) |(% class="variant-row-count variant-${variantIndex} variant" %)$count##
+#foreach($propName in $options.defaultProperties)
+#set ($isInputString = $options.inputStrings.contains($propName))
+|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)#if ($xcontext.action == 'edit')$doc.display($propName, 'edit', $variantObj)#elseif($isInputString)$!{services.rendering.escape($variantObj.getValue($propName), $doc.syntax)}#else$doc.display($propName, 'view', $variantObj)#end##
+#end
+#set($colspan = $!{options.defaultProperties.size()})
+#if ($options.mode == 'edit')#__variant__deleteTool($variantObj)#end\\
+(% class="variant-gene-$geneObjNumber variant-moreinfo-row v-collapsed variant-hide-heading-$geneObjNumber" %)##
+|(% class="pseudoindent" %)|(% class = "variant" %)|(% colspan="$colspan" class="variant moreinfo" %)##
+#if ($options.mode == 'edit')(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)#end(((##
+#foreach ($prop in $variantObj.xWikiClass.properties)
+#if ($prop.getName() != 'gene' && !$options.defaultProperties.contains($prop.getName()))
+#set($rawValue = $variantObj.getValue($prop.getName()))
+#set($isValueEmpty = "$!{rawValue}" == '' || $rawValue == 'NA' || $rawValue == [])
+#if ($options.mode == 'edit' || ($options.mode != 'edit' && !$isValueEmpty))
+(% class="variant-moreinfo-table" %)
+#set ($isInputString = $options.inputStrings.contains($prop.getName()))
+|(% class="variant-moreinfo variant-property-name-$variantIndex %)**${prop.translatedPrettyName}**##
+| (% class="variant-property-value ${prop.getName()}-$variantIndex ##
+#if ($options.mode == 'edit') variant-label-$variantIndex #end"%)#if($isInputString)$!{services.rendering.escape($rawValue, $doc.syntax)}#else $doc.display($prop.getName(), 'view', $variantObj )#end
+ (%%)#if ($options.mode == 'edit')(% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $variantObj )#end#end##
+#end#end
+))) #if ($options.mode == 'edit')(% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)#end\\
+#end
+##
+##
+## =====================================================================
+##
+## Care pathways macros
+##
+##
+#macro(__remove_gene $gene $subject $variantStatus $variantClass $associatedDataClass)
+  #set ($geneId = "$!{gene.getProperty('gene').value}")
+  #set ($variantObjects = $doc.getObjects($variantClass, 'gene', $geneId))
+  ## delete gene
+  $doc.removeObject($gene)
+  ## delete variants
+  #foreach ($variant in $variantObjects)
+    #if (($subject == "" || "$!{variant.getProperty('subject').value}" == $subject) && ($variantStatus == "" || "$!{variant.getProperty('status').value}" == $variantStatus))
+      #if ("$!{associatedDataClass}" != "")
+        #set ($associatedDataObjs = $doc.getObjects($associatedDataClass, "variant", $variant.number))
+        #__clear_objects($associatedDataObjs)
+      #end
+      $doc.removeObject($variant)
+    #end
+  #end
+#end
+##
+##
+#macro(__clear_genes $subject $geneStatus $geneClass $variantStatus $variantClass $associatedDataClass)
+  #if ($geneStatus == "")
+    #set ($genes = $doc.getObjects($geneClass))
+  #else
+    #set ($genes = $doc.getObjects($geneClass, 'status', $geneStatus))
+  #end
+  #foreach($gene in $genes)
+    #if ($subject == "" || "$!{gene.getProperty('subject').value}" == $subject)
+      #__remove_gene($gene $subject $variantStatus $variantClass $associatedDataClass)##
+    #end
+  #end
+#end
+##
+##
+#macro(__clear_objects $objects)
+  #foreach ($obj in $objects)
+    $doc.removeObject($obj)
+  #end
+#end
+##
+##
+## =====================================================================
+##
+## Clear care-pathways category data script service with bulk qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' && $request.action == 'clearcategory' && "$!{request.cpclassname}" != '' && "$!{request.category}" != '' && "$!{request.question}" != '' && $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($qualifierObjects = $doc.getObjects($request.cpclassname, 'question', $request.question))
+  ## delete qualifiers
+  #if ($qualifierObjects)
+    #set ($requestedValue = $request.category)
+    #set ($parentProp = 'parent')
+    #foreach ($q in $qualifierObjects)
+      #set ($storedValue = $q.getProperty($parentProp).value)
+      #if ($storedValue == $requestedValue)
+        $doc.removeObject($q)
+      #end
+    #end
+  #end
+  ## save document
+  $doc.save("Deleted care pathways question qualifiers and category data")
+#end
+
+## =====================================================================
+##
+## Clear care-pathways genes data script service with bulk gene and qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' && $request.action == 'cpcleargenes' && "$!{request.geneclassname}" != '' && "$!{request.variantclassname}" != '' && "$!{request.genestatus}" != '' && "$!{request.variantstatus}" != '' && $services.csrf.isTokenValid("$!{request.form_token}"))
+  #__clear_genes("$!{request.subject}" $request.genestatus $request.geneclassname $request.variantstatus $request.variantclassname $request.associateddataclass)
+  ## save document
+  $doc.save("Deleted care pathways genes with $request.genestatus and associated $request.variantstatus for $request.subject")
+#end
+
+## =====================================================================
+##
+## Clear care-pathways questions data script service with bulk question delete
+##
+##
+#if ($xcontext.action == 'get' && $request.action == 'cpclearquestions' && $services.csrf.isTokenValid("$!{request.form_token}"))
+  #foreach ($question in $!{request.getParameterValues('question')})
+    #set ($dataObjs = $doc.getObjects($!{request.classname}, 'question', $question))
+    #__clear_objects($dataObjs)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways survey question data")
+#end
+
+## =====================================================================
+##
+## Delete care-pathways gene data script service with bulk qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' && $request.action == 'cpdeletegene' && "$!{request.objnumber}" != '' && "$!{request.geneclassname}" != '' && "$!{request.variantclassname}" != '' && $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($geneNum = $mathtool.toInteger($request.objnumber))
+  #set ($geneObject = $doc.getObject($request.geneclassname, $geneNum))
+  #set ($subject = "$!{geneObject.getProperty('subject').value}")
+  #set ($geneStatus = "$!{geneObject.getProperty('status').value}")
+  #set ($variantStatus = "#if ($geneStatus == 'confirmed')primary#{else}secondary#{end}")
+  #if ($!{geneObject})
+    #__remove_gene($geneObject $subject $variantStatus $request.variantclassname $request.associateddataclass)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways gene and associated variants")
+#end
+
+## =====================================================================
+##
+## Delete care-pathways variant data script service
+##
+##
+#if ($xcontext.action == 'get' && $request.action == 'cpdeletevariant' && "$!{request.classid}" != '' && "$!{request.classname}" != '' && $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($variantObject = $doc.getObject($request.classname, $request.classid))
+  #if ("$!{request.associateddataclass}" != "")
+    #set ($associatedDataObjs = $doc.getObjects($associatedDataClass, "variant", $variantObject.number))
+    #__clear_objects($associatedDataObjs)
+  #end
+  #if ($!{variantObject})
+    $doc.removeObject($variantObject)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways variant and associated question data")
+#end

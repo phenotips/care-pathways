@@ -1,0 +1,1454 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.1">
+  <web>PhenoTips</web>
+  <name>CarePathwaysPostTestSheet</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1511381166000</creationDate>
+  <parent>PhenoTips.PatientSheet</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1511385757000</date>
+  <contentUpdateDate>1511385757000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity output=false}}
+#set ($displayDocExtra = false)
+##
+##
+#set($obj = $doc.getObject('PhenoTips.CarePathwaysPostTestSheet', true))
+#set($class = $obj.xWikiClass)
+#set($discard = $doc.use($obj))
+## Disable the Preview button
+#set($previewenabled = false)
+{{/velocity}}
+
+{{velocity}}
+(% class="" id="care-pathways-posttest-container"%)(((##
+{{html clean="false" wiki="false"}}
+  &lt;p class="box infomessage"&gt;These questions should be completed following whole exome testing&lt;/p&gt;
+  &lt;div id="posttest-analysis" class="care-pathways-analysis"&gt;
+{{/html}}##
+    #foreach ($e in $services.uix.getExtensions('org.phenotips.carePathways.posttest', {'sortByParameter' : 'order'}))
+      #set ($extension_disabled = ($e.getParameters().get('enabled') == 'false'))
+      #if (!$extension_disabled)
+      (% class="clear clinical-info $stringtool.substringAfterLast($e.id, '.') chapter" %)(((
+        == $e.getParameters().get('title') ==
+
+        {{html clean="false" wiki="false"}}$services.rendering.render($e.execute(), 'xhtml/1.0'){{/html}}##
+      )))
+      #end
+    #end
+{{html clean="false" wiki="false"}}
+  &lt;/div&gt;
+  #set ($clearQuestions = $doc.getURL("get", "sheet=$!{class.name}&amp;action=cpclearquestions&amp;classname=PhenoTips.PatientCarePostTestClass&amp;form_token=$!{services.csrf.getToken()}"))
+  &lt;input type='hidden' id='clear-questions-data' value="${clearQuestions}"/&gt;
+  &lt;input type='hidden' id='data-storage-class' value="PhenoTips.PatientCarePostTestClass"/&gt;
+  &lt;input type='hidden' id='prefix' value='$!{class.name}_$!{obj.number}_'/&gt;
+  &lt;input type='hidden' id='current-tab-id' value='care-pathways-posttest-tab'/&gt;
+  &lt;input type='hidden' name="objectPolicy" value='updateOrCreate'/&gt;
+  #set ($supported_actions = ['edit', 'view'])
+  &lt;input type='hidden' name="returnTo" value='#if ($supported_actions.contains("$!request.returnTo"))${request.returnTo}#{else}edit#{end}'/&gt;
+{{/html}}##
+)))
+{{/velocity}}</content>
+  <class>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <customClass/>
+    <customMapping/>
+    <defaultViewSheet/>
+    <defaultEditSheet/>
+    <defaultWeb/>
+    <nameField/>
+    <validationScript/>
+    <noPrimaryVariants>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>checkbox</displayFormType>
+      <displayType/>
+      <name>noPrimaryVariants</name>
+      <number>1</number>
+      <prettyName>no primary variants</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noPrimaryVariants>
+    <noSecondaryVariants>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>checkbox</displayFormType>
+      <displayType/>
+      <name>noSecondaryVariants</name>
+      <number>2</number>
+      <prettyName>no secondary variants</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noSecondaryVariants>
+    <primaryVariantAnalysis>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>radio</displayType>
+      <multiSelect>0</multiSelect>
+      <name>primaryVariantAnalysis</name>
+      <number>3</number>
+      <picker>0</picker>
+      <prettyName>Primary variant analysis</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator>&lt;br/&gt;</separator>
+      <separators> ,|</separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>diagnostic=diagnostic|partially-diagnostic=partially-diagnostic|non-diagnostic=non-diagnostic</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </primaryVariantAnalysis>
+  </class>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>b3eb0460-b904-4a4b-a486-6e6499bd0e7b</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>#template('colorThemeInit.vm')
+
+#care-pathways-posttest-container td {
+  text-align: left;
+}
+
+#care-pathways-posttest-container div.care-pathways-analysis div.no-variants-container,
+#care-pathways-posttest-container div.care-pathways-analysis .subject-variants-container {
+  margin: 1em 0 1em 2em;
+}
+
+#care-pathways-posttest-container div.care-pathways-analysis div.secondary-variants-container ul {
+  margin: 0;
+}
+
+#care-pathways-posttest-container div.no-variant-container input[type="checkbox"] {
+  margin-left: 0;
+}
+
+#care-pathways-posttest-container tr.care-pathways-modules.analysis div.care-pathways-modules-wrapper {
+  background-color: $theme.pageContentBackgroundColor;
+  padding: 0;
+}
+
+#care-pathways-posttest-container div.care-pathways-modules-wrapper .variants-container {
+  background-color: #fbfbfb;
+}
+
+#primary-variants-interpretation-container {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+#primary-variants-interpretation-container .xwiki-form-listclass {
+  display: block;
+  margin-left: 2em;
+}
+
+#care-pathways-posttest-container h2.group-label {
+  font-size: 1.0em !important;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: uppercase;
+  color: $theme.panelHeaderTextColor;
+  text-shadow: 0 1px 0 $theme.panelHeaderGradientColor;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#care-pathways-posttest-container h2.subject-label {
+  margin-left: 2.0em;
+}
+#care-pathways-posttest-container .gene-table td.variant-default-input select {
+  width: 170px;
+}
+#care-pathways-posttest-container p &gt; span.displayed-value {
+  display: none;
+}
+#care-pathways-posttest-container .chapter > h2 {
+  margin: -1.5em 0 0;
+}
+#care-pathways-posttest-container .gene-table td.variant,
+#care-pathways-posttest-container .gene-table th.variant {
+  background: $theme.panelCollapsedBackgroundColor;
+}
+#care-pathways-posttest-container .gene-table .variant-title {
+  background-color: $theme.panelCollapsedBackgroundColor !important;
+}
+#care-pathways-posttest-container .gene-table .variant-title:before {
+  border-bottom: 15px solid $theme.panelCollapsedBackgroundColor;
+}
+#care-pathways-posttest-container .chapter div .expand-tools {
+  margin-top: -2.0em;
+  margin-right: -0.9em;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Care Pathways post test form styles</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>dea91ae8-26b8-48c2-8ae6-2affd132af24</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code> // This validator variation should only be used in this section.
+var $init = XWiki.widgets.DuplicateValidator.prototype.initialize;
+
+XWiki.widgets.DuplicateValidator.addMethods({
+  initialize : function (input, selector, message) {
+    $init.bind(this)(input, selector, message);
+    var reference = $$('table.gene-table.patient-sheet.extradata-list');
+    this.refTable = reference.size() &gt; 0 &amp;&amp; reference[0];
+  },
+
+  check : function() {     
+    if (this.input.value != this.value) {
+      this.value = this.input.value;
+      this.state = 'CHECKING';
+      var curTable = this.input.up('table.gene-table.extradata-list');
+      var tables;
+
+      if (this.selector.include('gene-name')) {
+        // Genes should not be replicated only in the current table.
+        tables = [curTable];
+      } else {
+        // Variants should not be replicated in tables with the same subject (e.g. proband).
+        var curTableId = curTable.id;
+        var subjectAndType = curTableId.substring(0, curTableId.lastIndexOf('__')).split('-');
+        var subject = subjectAndType[0];
+        var type = subjectAndType[1];
+        var _this = this;
+        tables = $$('table.gene-table.extradata-list').filter(function(table) {
+          return table != _this.refTable &amp;&amp; table.id.include(subject) ? true : false;
+        })
+      }
+      this._checkData(tables);
+    }
+  },
+
+  _checkData : function(tables) {
+    var el = this.input;
+    var allItems = [];
+    var _this = this;
+    tables.forEach(function(currentTable) {
+      currentTable.select(_this.selector).each(function(item) {
+        if (item != el) {
+          allItems.push(item.value);
+        }
+      });
+    });
+    this._markStatus(allItems, el);
+  },
+
+  _markStatus : function(allItems, el) {
+    if (allItems.indexOf(el.value) &gt; -1) {
+      this.invalid();
+    } else {
+      this.available();
+    }
+    this.responded();
+  }
+});
+
+var XWiki = (function(XWiki) {
+  var validateOptionSelected = function (value) {
+    return (value === '' || value === 'NA' || value === null || value === undefined) ? false : true;
+  };
+  var init = function(event) {
+    ((event &amp;&amp; event.memo.elements) || [$('body')]).each(function(element) {
+      element.select(".variant.mandatory select").each(function(element) {
+        if (!element.__validation) {
+          element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+        }
+        element.__validation.add(Validate.Custom, {against: validateOptionSelected, failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
+      });
+    });
+    return true;
+  };
+
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+  document.observe("xwiki:dom:updated", init);
+
+  // End XWiki augmentation.
+  return XWiki;
+}(XWiki || {}));</code>
+    </property>
+    <property>
+      <name>Care Pathways gene and variant duplicate validator widget</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>1</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>ab88ae43-7f26-427d-a078-dcfaca7a9e1e</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>ExtraGeneVariantData.tools.Editor.addMethods({
+  ajaxDeleteGeneData: function(event) {
+    event.stop();
+    var deleteTrigger = event.element();
+    if (deleteTrigger.disabled) { return; };
+    var className = deleteTrigger.up('td').className;
+    var geneIndex = parseInt(className.substring(className.lastIndexOf('-') + 1), 10);
+    var geneId = this._geneTable.select('[name="' + this.geneClassName + '_' + geneIndex + '_gene"]')[0].value;
+   
+    var _this = this;
+    if (confirm("$!services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation')")) {
+      var req = jQuery.ajax(deleteTrigger.href + geneId, {
+        method: "GET",
+        beforeSend: function () { deleteTrigger.disabled = true; }
+      })
+      .always(function () { deleteTrigger.disabled = false; })
+      .done(function (data, textStatus, jqXHR) {
+        var dataRow = deleteTrigger.up('tr:not(.head-group)');
+        if (dataRow) {
+          var geneIdInput = dataRow.down('input.gene-id');
+          geneIdInput.remove();
+          var geneNameInput = dataRow.down('input.gene-name');
+          geneNameInput.__validation.destroy();
+
+          _this._removeModulesForVariants.bind(_this, geneIndex)();
+
+          _this._geneTable.select('.variant-gene-' + geneIndex).each(function (item) {
+            item.remove();
+          });
+          dataRow.remove();
+        }
+        if (_this._geneTable) {
+          var i = 1;
+          _this._geneTable.select('td.row-count').each(function (item) {
+            var geneRowIndex = item.next().className.substring(item.next().className.lastIndexOf('-') + 1);
+            var y = 1;
+            _this._geneTable.select('.variant-hide-heading-' + geneRowIndex + ' .variant-row-count').each(function (vitem) {
+              vitem.childNodes[1].textContent = i + '.' + (y++);
+            });
+            item.update(i++);
+          });
+        }
+      });
+    }
+  },
+
+  _removeModulesForVariants : function(geneIndex) {
+    var _this = this;
+    var secondaryQuestionnaireContainer = $('posttest-questionnaire-secondary');
+    if (this._geneTable.up('div#secondary-wes-variants-all') &amp;&amp; secondaryQuestionnaireContainer) {
+      _this._geneTable.select('.variant-gene-' + geneIndex + ' td.variant.variant-default-input').each(function (item) {
+        var variantIdx = item.className.substring(item.className.lastIndexOf('-') + 1);
+        _this._removeModulesForVariant.bind(_this, secondaryQuestionnaireContainer, variantIdx)();
+      });
+    }
+  },
+
+  _removeModulesForVariant : function(container, variantIdx) {
+    var modules = container.select('div.care-pathways-modules-wrapper.with-variant-' + variantIdx);
+    if (modules.size() &gt; 0) {
+      modules.each(function(module) {
+        var containingTable = module.up('table.care-pathways-module-group-container');
+        module.remove();
+        !containingTable.down('div.care-pathways-modules-wrapper') &amp;&amp; containingTable.remove();
+      });
+    }
+  },
+
+  ajaxDeleteVariantData : function(event) {
+    event.stop();
+    var deleteTrigger = event.element();
+    if (deleteTrigger.disabled) { return; };
+    var geneClass = this.geneClassName;
+
+    var _this = this;
+    if (confirm("$!services.localization.render('phenotips.tableMacros.cpRowDeleteConfirmation')")) {
+      var req = jQuery.ajax(deleteTrigger.href, {
+        method: "GET",
+        beforeSend: function () { deleteTrigger.disabled = true; }
+      })
+      .always(function () { deleteTrigger.disabled = false; })
+      .done(function (data, textStatus, jqXHR) {
+        var dataRow = deleteTrigger.up('tr:not(.head-group)');
+        if (dataRow) {
+          var cdnaCol = dataRow.down('.variant.cdna');
+          var secondaryQuestionnaireContainer = $('posttest-questionnaire-secondary');
+          if (_this._geneTable.up('div#secondary-wes-variants-all') &amp;&amp; secondaryQuestionnaireContainer) {
+            var variantIdx = cdnaCol.className.substring(cdnaCol.className.lastIndexOf('-') + 1);
+            _this._removeModulesForVariant.bind(_this, secondaryQuestionnaireContainer, variantIdx)();
+          }
+          var cdnaInput = cdnaCol.down('input');
+          cdnaInput.__validation.destroy();
+          var className = dataRow.previous().className;
+          var geneIndex = parseInt(className.substring(className.lastIndexOf('-') + 1), 10);
+          //we are deleting the only variant in the gene: remove variant table header,
+          //  unlock the genesymbol input field
+          if (dataRow.previous().hasClassName('variant-title-row') &amp;&amp; dataRow.next(1).hasClassName('variant-footer')) {
+            _this._geneTable.select('.variant-gene-' + geneIndex + '.variant-title-row').each(function(item) {
+              item.remove();
+            });
+            _this._geneTable.select('[name="' + geneClass + '_' + geneIndex + '_symbol"]')[0].toggleClassName('v-collapsed', false);
+            _this._geneTable.select('.gene.col-label.gene-' + geneIndex + '.gene-input-label')[0].toggleClassName('v-collapsed', true);
+            dataRow.next().remove();
+            dataRow.remove();
+          } else {
+            //we are removing variant from the middle of the table-> updating table count
+            dataRow.next().remove();
+            dataRow.remove();
+            var element = deleteTrigger.up('tr').select('.variant-row-count.variant')[0];
+            // Get inner text in cross-browser manner
+            var innerText = element.textContent || element.innerText;
+            var geneCount = innerText.substring(0, innerText.indexOf('.'));
+            var i = 1;
+            _this._geneTable.select('.variant-hide-heading-' + geneIndex + ' .variant-row-count').each(function(item) {
+              item.childNodes[1].textContent = geneCount + '.' + (i++);
+            });
+            //-update variant table header count
+            var header = _this._geneTable.select('.variant.variant-title.gene-' + geneIndex)[0].firstChild;
+            var newHeaderText = header.textContent.replace(/(\().+?(\))/g, "$1" + (--i) + "$2");
+            header.textContent = newHeaderText;
+          }
+        }
+      });
+    }
+  }
+});</code>
+    </property>
+    <property>
+      <name>Gene and variant delete behavior customizations</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>0</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>f8ea519c-f079-4ce4-b9c9-c3710bbd196d</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content/>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.patientSheet.tab</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.patientSheet.tab.care-pathways-posttest</name>
+    </property>
+    <property>
+      <parameters>label=Care Pathways Post Test
+cssId=care-pathways-posttest-tab
+href=$doc.getURL("edit", "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;returnTo=$!{xcontext.action}")
+container=care-pathways-posttest-container
+order=1</parameters>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>1</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>23954e6b-2258-43bd-a096-576b077606c4</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content>{{include reference="PhenoTips.PatientSheetMacros" /}}
+
+{{include reference="PhenoTips.FormMacros" /}}
+
+{{include reference="PhenoTips.CarePathways" /}}
+
+{{include reference="PhenoTips.TabelarDataMacros" /}}
+
+{{velocity output="false"}}
+$xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
+$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
+$xwiki.jsx.use('PhenoTips.CarePathways')##
+$xwiki.ssx.use('PhenoTips.CarePathways')##
+$xwiki.ssx.use('PhenoTips.CarePathwaysPostTestSheet')##
+$xwiki.jsx.use('PhenoTips.CarePathwaysPostTestSheet')##
+$xwiki.jsx.use('PhenoTips.UIX_Field__gene-variants')##
+$xwiki.jsfx.use('uicomponents/widgets/extraGeneVariantData.js', true)##
+$xwiki.jsfx.use('uicomponents/widgets/geneVariantValidation.js', true)##
+$xwiki.ssfx.use('uicomponents/widgets/extraGeneVariantData.css', true)##
+$xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
+#template('geneVariantMacros.vm')##
+#template('carePathwaysMacros.vm')##
+##
+##
+#set ($type = "primary")
+#set ($section = "posttest")
+#set ($storageClass = "PhenoTips.PatientCarePostTestClass")
+#set ($moduleSpecs = {
+   "diagnostic":[
+      {
+         'question':'CPQ:7',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:7').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:10',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:10').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "partially-diagnostic":[
+      {
+         'question':'CPQ:8',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:8').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:11',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:11').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "non-diagnostic":[
+      {
+         'question':'CPQ:9',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:9').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'test',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      },
+      {
+         'question':'CPQ:12',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:12').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            }
+         ]
+      }
+   ]
+})##
+##
+##
+#macro (__displayPrimaryVariantsSection)
+  &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
+    &lt;table class="${section}-section module-analysis care-pathways-analysis-container"&gt;
+      &lt;tr class="care-pathways-section-label analysis"&gt;
+        &lt;td&gt;#__displayQuestionLabel("CPQ:4")&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="care-pathways-modules analysis"&gt;
+        &lt;td&gt;
+          &lt;div class="care-pathways-modules-wrapper"&gt;
+            #__displayPrimaryVariantList("CPQ:4")##
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;table class="${section}-section module-analysis care-pathways-analysis-container"&gt;
+      &lt;tr class="care-pathways-section-label analysis"&gt;
+        &lt;td&gt;#__displayQuestionLabel("CPQ:5")&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="care-pathways-modules analysis"&gt;
+        &lt;td&gt;
+          &lt;div class="care-pathways-modules-wrapper"&gt;
+            #__displayPrimaryVariantAnalysis("CPQ:5")##
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+#end
+##
+##
+#macro (__displayQuestionLabel $questionId)
+  &lt;input type="hidden" class="cp-question-id" value="$questionId"/&gt;
+  $!{services.vocabularies.care-pathways-questions.getTerm("$questionId").name}
+#end
+##
+##
+#macro (__displayPrimaryVariantList $question)
+  #set ($geneClassName = 'PhenoTips.GeneClass')
+  #set ($variantClassName = 'PhenoTips.GeneVariantClass')
+  #set ($cpGeneClassName = 'PhenoTips.CPGeneClass')
+  #set ($cpVariantClassName = 'PhenoTips.CPGeneVariantClass')
+  #set ($subject = 'proband')
+  #set ($clearPrimaryData = $doc.getURL("get", "sheet=$!{class.name}&amp;action=cpcleargenes&amp;geneclassname=PhenoTips.CPGeneClass&amp;variantclassname=PhenoTips.CPGeneVariantClass&amp;genestatus=confirmed&amp;variantstatus=primary&amp;subject=proband&amp;form_token=$!{services.csrf.getToken()}"))
+  &lt;div class="no-variants-container"&gt;
+  &lt;input type="hidden" id="clear-primary-data" value="$clearPrimaryData"/&gt;
+  {{/html}}##
+    #__form_field('noPrimaryVariants') #__form_label('noPrimaryVariants' '' 'no primary variants')##
+  {{html clean="false" wiki="false"}}##
+  &lt;/div&gt;
+  &lt;div id="primary-wes-variants-all" class="primary-variants-container variants-container"&gt;
+    &lt;div class="patient-form-variants hidden"&gt;
+      {{/html}}
+        #__gene_table($geneClassName, $variantClassName, {'tableIdPrefix' : 'patient-sheet__', 'tableClass' : 'patient-sheet', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation', 'zygosity'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+      {{html clean="false" wiki="false"}}
+    &lt;/div&gt;
+    &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
+      &lt;input class="question-id" type="hidden" value="$question"/&gt;
+      {{/html}}
+        #set ($geneStatus = 'confirmed')##
+        #set ($variantStatus = $type)##
+        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+      {{html clean="false" wiki="false"}}
+    &lt;/div&gt;
+  &lt;/div&gt;
+#end
+##
+##
+#macro (__displayPrimaryVariantAnalysis $question)
+&lt;div id="primary-variants-interpretation-container"&gt;
+{{/html}}##
+  #__form_field('primaryVariantAnalysis')
+{{html clean="false" wiki="false"}}##
+&lt;/div&gt;
+#end
+##
+##
+#macro (__displayQuestionTable $questionId $modules)
+  &lt;table id="modules-for-$!{questionId}" class="${section}-section care-pathways-module-group-container"&gt;
+    &lt;tr class="care-pathways-section-label"&gt;
+      &lt;td colspan="2"&gt;
+        &lt;input type="hidden" class="cp-question-id" value="$!{questionId}"/&gt;
+        $!{services.vocabularies.care-pathways-questions.getTerm($questionId).name}
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr class="care-pathways-modules"&gt;
+      &lt;td&gt;
+        &lt;div class="care-pathways-modules-wrapper no-variants"&gt;
+          #set ($lastIdx = $modules.size() - 1)##
+          #__displayModuleGroup($questionId, '', '', $modules, ${lastIdx}, $sheet, $storageClass, true)##
+        &lt;/div&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+#end
+##
+##
+#macro (__displayStoredPrimaryData)
+  #set ($sheet = "$!{class.name}")
+  #set ($primaryVariantAnalysis = "$!{obj.getProperty('primaryVariantAnalysis').value}")
+  #set ($specs = $moduleSpecs.get($primaryVariantAnalysis))
+  {{html clean="false" wiki="false"}}##
+  &lt;input type="hidden" id="diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('diagnostic')))"&gt;
+  &lt;input type="hidden" id="partially-diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('partially-diagnostic')))"/&gt;
+  &lt;input type="hidden" id="non-diagnostic-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.get('non-diagnostic')))"/&gt;
+  &lt;div id="${section}-questionnaire-${type}" class="care-pathways-questionnaire"&gt;
+    #if ($specs)##
+      #foreach ($spec in $specs)##
+        #__displayQuestionTable($spec.get('question'), $spec.get('modules'))##
+      #end##
+    #end##
+  &lt;/div&gt;
+  {{/html}}##
+#end
+##
+##
+{{/velocity}}
+
+{{velocity}}
+  {{html clean="false" wiki="false"}}
+    #set ($clearCategory = $doc.getURL("get", "sheet=$!{class.name}&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
+    #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
+    &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
+    &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
+    #__displayPrimaryVariantsSection()##
+  {{/html}}##
+  #__displayStoredPrimaryData()##
+{{/velocity}}</content>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.carePathways.posttest</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.carePathways.posttest.primary-variants</name>
+    </property>
+    <property>
+      <parameters>title=Primary variants analysis
+enabled=true
+required=
+order=1</parameters>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>2</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>6f2f6cb1-d5b1-454c-abd5-8fd901ffc876</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content>{{include reference="PhenoTips.PatientSheetMacros" /}}
+
+{{include reference="PhenoTips.FormMacros" /}}
+
+{{include reference="PhenoTips.CarePathways" /}}
+
+{{include reference="PhenoTips.TabelarDataMacros" /}}
+
+{{velocity output="false"}}
+$xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
+$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
+$xwiki.jsx.use('PhenoTips.CarePathways')##
+$xwiki.ssx.use('PhenoTips.CarePathways')##
+$xwiki.ssx.use('PhenoTips.CarePathwaysPostTestSheet')##
+$xwiki.jsx.use('PhenoTips.CarePathwaysPostTestSheet')##
+$xwiki.jsx.use('PhenoTips.UIX_Field__gene-variants')##
+$xwiki.jsfx.use('uicomponents/widgets/extraGeneVariantData.js', true)##
+$xwiki.jsfx.use('uicomponents/widgets/geneVariantValidation.js', true)##
+$xwiki.ssfx.use('uicomponents/widgets/extraGeneVariantData.css', true)##
+$xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
+#template('geneVariantMacros.vm')##
+#template('carePathwaysMacros.vm')##
+##
+##
+#set ($type = "secondary")
+#set ($section = "posttest")
+#set ($storageClass = "PhenoTips.PatientCarePostTestClass")
+#set ($moduleSpecs = {
+   "proband":[
+      {
+         'question':'CPQ:13',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:13').name}",
+         'modules':[
+            {
+               'pursuedDate':true,
+               'module':'care',
+               'submodule':'',
+               'subject':'proband',
+               'type':$type
+            },
+            {
+               'pursuedDate':true,
+               'module':'family',
+               'submodule':'',
+               'subject':'',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "mother":[
+      {
+         'question':'CPQ:14',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:14').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'care',
+               'submodule':'',
+               'subject':'mother',
+               'type':$type
+            }
+         ]
+      }
+   ],
+   "father":[
+      {
+         'question':'CPQ:15',
+         'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:15').name}",
+         'modules':[
+            {
+               'pursuedDate':false,
+               'module':'care',
+               'submodule':'',
+               'subject':'father',
+               'type':$type
+            }
+         ]
+      }
+   ]
+})##
+##
+##
+#macro (__displaySecondaryVariantsSection)
+  &lt;div id="${section}-analysis-${type}-variants" class="subsection-data"&gt;
+    &lt;table class="posttest-section module-analysis care-pathways-analysis-container"&gt;
+      &lt;tr class="care-pathways-section-label analysis"&gt;
+        &lt;td&gt;#__displayQuestionLabel("CPQ:6")&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="care-pathways-modules analysis"&gt;
+        &lt;td&gt;
+          &lt;div class="care-pathways-modules-wrapper"&gt;
+            #__displaySecondaryVariantAnalysis("CPQ:6")
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+#end
+##
+##
+#macro (__displayQuestionLabel $questionId)
+  &lt;input type="hidden" class="cp-question-id" value="$questionId"/&gt;
+  $!{services.vocabularies.care-pathways-questions.getTerm("$questionId").name}
+#end
+##
+##
+#macro (__displaySecondaryVariantAnalysis $question)
+  #set ($clearSecondaryData = $doc.getURL("get", "sheet=$!{class.name}&amp;associateddataclass=$storageClass&amp;action=cpcleargenes&amp;geneclassname=PhenoTips.CPGeneClass&amp;variantclassname=PhenoTips.CPGeneVariantClass&amp;genestatus=confirmed_secondary&amp;variantstatus=$type&amp;form_token=$!{services.csrf.getToken()}"))
+  &lt;div class="no-variants-container"&gt;
+  &lt;input type="hidden" id="clear-secondary-data" value="$clearSecondaryData"/&gt;
+  {{/html}}##
+    #__form_field('noSecondaryVariants') #__form_label('noSecondaryVariants' '' 'no secondary variants')##
+  {{html clean="false" wiki="false"}}##
+  &lt;/div&gt;
+  &lt;div id="secondary-wes-variants-all" class="secondary-variants-container"&gt;
+    &lt;input class="question-id" type="hidden" value="$question"/&gt;
+    #__displaySubjectBoxes('secondary-wes-variants')##
+  &lt;/div&gt;
+#end
+##
+##
+#macro (__displaySubjectBoxes $itemClass)
+  #set ($geneClassName = 'PhenoTips.CPGeneClass')
+  #set ($variantClassName = 'PhenoTips.CPGeneVariantClass')
+  #set ($geneStatus = 'confirmed_secondary')##
+  #set ($variantStatus = $type)##
+  &lt;ul&gt;
+    #set ($subject = 'proband')##
+    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
+      &lt;h2 class="subject-label group-label"&gt;Proband&lt;/h2&gt;
+      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
+        {{/html}}
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+        {{html clean="false" wiki="false"}}
+      &lt;/div&gt;
+    &lt;/li&gt;
+    #set ($subject = 'mother')##
+    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
+      &lt;h2 class="subject-label group-label"&gt;Mother&lt;/h2&gt;
+      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
+        {{/html}}
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'mother-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+        {{html clean="false" wiki="false"}}
+      &lt;/div&gt;
+    &lt;/li&gt;
+    #set ($subject = 'father')##
+    &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
+      &lt;h2 class="subject-label group-label"&gt;Father&lt;/h2&gt;
+      &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
+        {{/html}}
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'father-secondary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+        {{html clean="false" wiki="false"}}
+      &lt;/div&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+#end
+##
+##
+#macro (__displayQuestionTable $questionId $variantModules)
+  &lt;table id="modules-for-$!{questionId}" class="${section}-section care-pathways-module-group-container"&gt;
+    &lt;tr class="care-pathways-section-label"&gt;
+      &lt;td colspan="2"&gt;
+        &lt;input type="hidden" class="cp-question-id" value="$!{questionId}"/&gt;
+        $!{services.vocabularies.care-pathways-questions.getTerm($questionId).name}
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr class="care-pathways-modules"&gt;
+      &lt;td&gt;
+        #foreach($key in $variantModules.keySet())##
+          &lt;div class="care-pathways-modules-wrapper modules-for-secondary-variants with-variant-$!{key.number}"&gt;
+            #set ($modules = $variantModules.get($key))##
+            #set ($lastIdx = $modules.size() - 1)##
+            #set ($term = $services.vocabularies.hgnc.getTerm($!{key.getProperty('gene').value}))##
+            #__displayModuleGroup($questionId, $key.number, "$!{term.symbol} [$!{key.getProperty('cdna').value}]", $modules, ${lastIdx}, $sheet, $storageClass, true)##
+          &lt;/div&gt;
+        #end##
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+#end
+##
+##
+#macro (__displayStoredSecondaryData)
+  #set ($sheet = "$!{class.name}")
+  {{html clean="false" wiki="false"}}##
+  &lt;input type="hidden" id="proband-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.proband))"&gt;
+  &lt;input type="hidden" id="mother-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.mother))"/&gt;
+  &lt;input type="hidden" id="father-secondary-module-specs" value="$escapetool.xml($jsontool.serialize($moduleSpecs.father))"/&gt;
+  &lt;div id="${section}-questionnaire-${type}" class="care-pathways-questionnaire"&gt;
+  #foreach ($key in $moduleSpecs.keySet())##
+    #set ($specs = $moduleSpecs.get($key))##
+    #set ($variants = $doc.getObjects('PhenoTips.CPGeneVariantClass', 'subject', $key))##
+    ##If the subject is proband, then there is also the family members for the same variants.
+    #foreach ($spec in $specs)##
+      #set ($variantModules = {})##
+      #set ($question = $spec.question)##
+      #set ($modules = $spec.modules)##
+      #foreach ($variant in $variants)##
+        #if ($variant.getProperty('status').value == $type)##
+          #set ($discard = $variantModules.put($variant, $modules))##
+        #end##
+      #end##
+      #if ($variantModules.size() > 0)##
+        #__displayQuestionTable($question, $variantModules)##
+      #end##
+    #end##
+  #end##
+  &lt;/div&gt;
+  {{/html}}##
+#end
+##
+##
+{{/velocity}}
+
+{{velocity}}
+  {{html clean="false" wiki="false"}}
+    #__displaySecondaryVariantsSection()##
+  {{/html}}##
+  #__displayStoredSecondaryData()##
+{{/velocity}}</content>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.carePathways.posttest</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.carePathways.posttest.secondary-variants</name>
+    </property>
+    <property>
+      <parameters>title=Secondary variants analysis
+enabled=true
+required=
+order=2</parameters>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+</xwikidoc>

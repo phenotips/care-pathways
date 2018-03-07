@@ -36,8 +36,1736 @@
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
-  <hidden>false</hidden>
-  <content/>
+  <hidden>true</hidden>
+  <content>{{velocity output=false}}
+#macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData)
+#if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
+  &lt;h2 class="module-group-label group-label"&gt;
+    &lt;input type="hidden" class="variant-number" value="$!{variantNumber}"&gt;
+    #if($!{groupTitle.trim()} != '')
+      &lt;p&gt;${groupTitle}&lt;/p&gt;
+    #else
+      &lt;p&gt;${variantNumber}&lt;/p&gt;
+    #end
+  &lt;/h2&gt;
+#end##
+#foreach ($i in [0..${modulesLastIdx}])
+  #set($module = $modules.get($i))
+  #set ($storedValues = {})##
+  #set ($curSubject = $!{module.get('subject')})
+  #set ($moduleName = $!{module.get('module')})
+  #set ($curSubmodule = $!{module.get('submodule')})
+  #set ($curPursuedDate = $!{module.get('pursuedDate')})
+  #set ($associatedVariantType = $!{module.get('type')})
+  #if ($retrieveStoredData)
+    #__getStoredValues("$!{question}", "$!{curSubject}", "$!{moduleName}", "$!{associatedVariantType}", "$!{variantNumber}", $storedValues, $storageClass)##
+  #end
+  &lt;div class="care-pathways-module-container#if($curPursuedDate) with-mandatory-dates#{end}"&gt;
+    &lt;span class="selector-panel cp-categories"&gt;
+      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Browse categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+      &lt;div class="cp-categories-panel browse-categories-panel"&gt;
+        #__displayModule("$!{moduleName}", "$!{curSubmodule}", "$!{question}", "$!{variantNumber}", $storedValues)
+      &lt;/div&gt;
+    &lt;/span&gt;
+    &lt;span class="selector-panel cp-current-selection"&gt;
+      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Current selection&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+      &lt;div class="cp-current-selection-panel current-selection-panel" name="$!{question}"&gt;
+        &lt;input type="hidden" name="moduleType" value="$!{moduleName}"/&gt;
+        &lt;input type="hidden" class="associated-variant-type" value="$!{associatedVariantType}"/&gt;
+        &lt;input type="hidden" class="associated-variant-number" value="$!{variantNumber}"/&gt;
+        &lt;input type="hidden" class="cp-current-selection-subject" value="$!{curSubject}"/&gt;
+        &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedValues))}"/&gt;
+        &lt;table class="terms-data-table"&gt;&lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+#end##
+#end
+##
+##
+#macro (__getStoredValues $questionId $subject $module $type $variantNumber $categories $qualifierClassName)
+  #set ($qualifierObjects = $doc.getObjects($qualifierClassName, 'question', $questionId))
+  #if ($qualifierObjects)
+    #foreach ($q in $qualifierObjects)
+      #if (($subject == '' || $q.getProperty('subject').value == $subject) &amp;&amp; ($type == '' || $q.getProperty('type').value == $type) &amp;&amp; ($variantNumber == '' || "$!{q.getProperty('variant').value}" == "$!{variantNumber}") &amp;&amp; ($module == '' || $q.getProperty('module').value == $module))
+        #set ($storedDatum = {})
+        #set ($parent = "$!{q.getProperty('parent').value}")
+        #set ($isStandard = $!{services.vocabularies.care-pathways.getTerm($parent)})
+        #set ($label = "#if($isStandard)$stringtool.defaultIfBlank($!{isStandard.name}, $parent)#{else}Other#{end}")
+        #set ($discard = $categories.putIfAbsent($parent, {"id" : $parent, "label" : $label, "affected" : true, "qualifiers" : []}))
+        #set ($categoryItems = $categories.get($parent).get("qualifiers"))
+        #foreach($prop in $q.xWikiClass.properties)
+          #if ($prop.name != "date_pursued_fuzzy")
+            #set ($discard = $storedDatum.put($prop.name, "$!{q.getProperty($prop.name).value}"))
+          #else
+            #set ($discard = $storedDatum.put($prop.name, $jsontool.parseToJSONObject($stringtool.defaultIfBlank("$!{q.getProperty($prop.name).value}", "{}"))))
+          #end
+        #end
+        #set ($discard = $storedDatum.put("count", $q.number))
+        #set ($discard = $categoryItems.add($storedDatum))
+      #end
+    #end
+  #end
+#end
+##
+##
+#macro (__displayChildren $term $childrenList $question $storedValues)
+  #if ($childrenList.size() &gt; 0)
+    #set ($macro.accumulated = "")
+    #foreach($item in $childrenList)
+      #set ($childrenHtml = "#__displayChildren($item, $services.vocabularies.care-pathways.search({'is_a': $item.id}, {'sort': 'nameSort asc'}))")
+      #if ("$!{childrenHtml}" != "")
+        #set ($itemName = $stringtool.capitalize("$!{item.name}"))
+        #if ($stringtool.trim("$!{childrenHtml}") != "")
+          #set ($otherKey = $stringtool.join([$item.id, '_other'], ''))##
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${item.id}_other'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${item.id}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
+        #else
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${item.id}'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${item.id}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
+        #end
+      #end
+    #end
+    $macro.accumulated
+  #end
+#end
+##
+##
+#macro (__displayCategories $rootNode $rootChildren $question $storedValues)
+  #set ($otherId = $stringtool.join([$rootNode.id, '_other'], ''))##
+  &lt;ul&gt;
+    #__displayChildren($rootNode, $rootChildren, $question, $storedValues)
+    &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode.id}'&gt;&lt;label for='cp-add-tool-${question}${variantStub}-${rootNode.id}_other'&gt;&lt;input id='cp-add-tool-${question}${variantStub}-${rootNode.id}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+  &lt;ul&gt;
+#end
+##
+##
+#macro (__displayModule $module $submodule $question $variantNumber $storedValues)
+  #set ($test = "CP:01")
+  #set ($care = "CP:02")
+  #set ($genetic = "CP:11")
+  #set ($diagnostic = "CP:12")
+  #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
+  #if ($module == "test")
+    #set ($testNodes = [])
+    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $genetic}, {'sort': 'nameSort asc'}))
+    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnostic}, {'sort': 'nameSort asc'}))
+    #set ($discard = $testNodes.addAll($geneticNodes))
+    #set ($discard = $testNodes.addAll($diagnosticNodes))
+    #if ($submodule == "")
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($test), $testNodes, $question, $storedValues)
+    #elseif ($submodule == "genetic")
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($genetic), $geneticNodes, $question, $storedValues)
+    #elseif ($submodule == "diagnostic")
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnostic), $diagnosticNodes, $question, $storedValues)
+    #end
+  #elseif ($module == "care")
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #__displayCategories($rootNode, $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}), $question, $storedValues)
+  #end
+#end
+{{/velocity}}
+
+{{velocity filter="indent"}}
+#if ($xcontext.action == 'get')
+  #if ("$!{request.modules}" != '')##
+    {{html clean="false" wiki="false"}}##
+    #set($modulesObj = $jsontool.parseToJSONArray(${request.modules}))
+    #set ($lastIdx = $modulesObj.length() - 1)
+    #__displayModuleGroup("$!{request.question}", "$!{request.variantNumber}", "$!{request.groupTitle}", $modulesObj, ${lastIdx}, "$!{request.tab}", "$!{request.storageClass}", false)
+    {{/html}}
+  #end
+#end
+{{/velocity}}</content>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>e35d82ae-f12e-4fae-a07b-5d3c5935ef5b</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+  cp.CPDetailsDialog = Class.create(widgets.DetailsDialog, {
+    initialize : function($super, termID, dataName, parentContainer, qualifierCount, qualifierDataClass) {
+      $super(termID, dataName, parentContainer, qualifierCount, qualifierDataClass);
+    },
+
+    withHiddenDataElement : function(options) {
+      var spanElem = new Element('span');
+      var inputSourceClass = options ? options.inputSourceClass : "";
+      var hiName = (this._qualifierDataClass &amp;&amp; options.qualifierName)
+        ? this._qualifierDataClass + this._globalCount + "_" + options.qualifierName
+        : this._dataName + '_' + this._elementID + '_' + options.qualifierName;
+      var hiddenInput = new Element('input', {'type' : 'hidden', 'name' : hiName, 'class' : inputSourceClass});
+      hiddenInput.value = (options.hiddenDataValue != null &amp;&amp; options.hiddenDataValue != undefined) ? options.hiddenDataValue : "";
+      spanElem.insert(hiddenInput);
+      spanElem._getValue = function() { return hiddenInput.value; };
+      spanElem._setValue = function(value) { hiddenInput.value = value; };
+      spanElem._addValue = function(values) { options.qualifierName &amp;&amp; (values[options.qualifierName] = hiddenInput.value); };
+      return this.withSimpleDataElement(spanElem, options);
+    },
+
+    withTypeAhead : function (collapsible, options) {
+      options = options || {};
+      var inputSourceClass = options.inputSourceClass || "";
+      var data = options.data || {};
+      var spanElem = new Element('span', {'class': 'scrollable-typeahead'});
+      var inputElem = new Element('input', {'class' : inputSourceClass + ' ' + 'typeahead', 'type' : 'text', 'placeholder' : options.placeholder || ''});
+
+      spanElem.insert(inputElem);
+      var _this = this;
+      this._initTypeAhead(spanElem, inputElem, data, options);
+      options.inline = 'inline';
+      this._qualifierDataClass &amp;&amp; options.qualifierName
+        &amp;&amp; this._setPhenoTipsTypeAheadInputFormData(spanElem, inputElem, options.displayedToStoredMapper, this._qualifierDataClass + this._globalCount
+        + "_", options.qualifierName);
+      return this.withQualifierElement(spanElem, collapsible, options);
+    },
+
+    withSimpleDataElement : function(element, options) {
+      var defListItemClass = options.defListItemClass || "";
+      var qualifierLabel = options.qualifierLabel || "";
+      var qualifierName = options.qualifierName || "";
+      var dtElem = new Element('dt');
+      var ddElem = new Element('dd');
+      dtElem.addClassName(defListItemClass);
+      ddElem.addClassName(defListItemClass);
+      qualifierLabel &amp;&amp; dtElem.insert('&lt;label&gt;' + qualifierLabel + '&lt;/label&gt;');
+      ddElem.insert(element);
+      this._qualifierList.insert(dtElem).insert(ddElem);
+      qualifierName &amp;&amp; (this._qualifierMap[qualifierName] = element);
+      element._toggleSummarize = function() {};
+      return this;
+    },
+
+    _initTypeAhead : function(spanElem, inputElem, data, options) {
+      var _this = this;
+      var userEntered = options.remote ? new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          prefetch: options.remote + '',
+          remote: {
+            url: options.remote + '%QUERY',
+            wildcard: '%QUERY'
+          }
+      }) : [];
+      var typeaheadEl = jQuery(inputElem).typeahead(
+        {
+          minLength: options.minLength || 0,
+          highlight: true,
+          hint: true
+        },
+        {
+          name: 'presets',
+          source: _this._typeAheadMatcher(data),
+          limit: options.limit || 20
+        },
+        {
+          name: 'user-entered',
+          source: userEntered,
+          display: 'name',
+          limit: options.limit || 20,
+          templates: { header: '&lt;h3 class="user-entered-data"&gt;Custom options entered by other users&lt;/h3&gt;' }
+        }
+      );
+      spanElem._getValue = _this._defaultGetInputValueFx(typeaheadEl);
+      spanElem._setValue = _this._setInputValueFx(inputElem, options.storedToDisplayedMapper);
+      spanElem._addValue = _this._addInputValueFx(spanElem, options.qualifierName, options.displayedToStoredMapper);
+    },
+
+    /**
+     * A function for retrieving the input value from the element.
+     *
+     * @return {Function} a function for retrieving the input value
+     * @private
+     */
+    _defaultGetInputValueFx : function (inputEl) {
+      return function () {
+        var inputVal = inputEl.typeahead('val');
+        return inputVal ? inputVal : "";
+      };
+    },
+
+    _typeAheadMatcher : function(data) {
+      return function (query, sync) {
+        if (query === '') {
+          sync(data);
+        } else {
+          var matches, substrRegex;
+          // an array that will be populated with substring matches
+          matches = [];
+
+          // regex used to determine if a string contains the substring `query`
+          substrRegex = new RegExp(query, 'i');
+
+          // iterate through the pool of strings and for any string that
+          // contains the substring `query`, add it to the `matches` array
+          data.each(function(item) {
+            if (substrRegex.test(item)) {
+              matches.push(item);
+            }
+          });
+          sync(matches);
+        }
+      };
+    },
+
+    /**
+     * A function for setting an input element value.
+     *
+     * @param inputEl the input element
+     * @param valueMapperFx the custom value mapper function; null if value should be used as is
+     * @return {Function} a function for setting the provided value in for the input
+     * @private
+     */
+    _setInputValueFx : function (inputEl, valueMapperFx) {
+      return function (value) {
+        var mappedVal = valueMapperFx ? valueMapperFx(value) : value;
+        jQuery(inputEl).typeahead('val', mappedVal);
+        var parentEl = inputEl.up('span.scrollable-typeahead');
+        var hiddenInput = parentEl &amp;&amp; parentEl.down('input[type="hidden"].stored-string-input-val');
+        hiddenInput &amp;&amp; (hiddenInput.value = value);
+      };
+    },
+
+    /**
+     * A function for adding an input element value to the summary {Object}.
+     *
+     * @param element the parent element holding the input element
+     * @param qualifierName the user-provided qualifier name
+     * @param valueMapperFx the custom value mapper function; null if value should be used as is
+     * @return {Function} a function for adding the input element value to the summary {Object}
+     * @private
+     */
+    _addInputValueFx : function (element, qualifierName, valueMapperFx) {
+      return function (values) {
+        if (qualifierName) {
+          values[qualifierName] = valueMapperFx ? valueMapperFx(element._getValue()) : element._getValue();
+        }
+      };
+    },
+
+    _setPhenoTipsTypeAheadInputFormData : function(spanElem, inputElem, toStored, qualifierClass, qualifierName) {
+      var inputHiddenElem = new Element('input', {'class': 'stored-string-input-val', 'type': 'hidden'});
+      spanElem.insert(inputHiddenElem);
+      var formattedVal = function () { return toStored ? toStored(spanElem._getValue()) : spanElem._getValue(); };
+
+      this._setInput(inputHiddenElem, formattedVal(), qualifierClass + qualifierName);
+      var _this = this;
+      var typeaheadEl = jQuery(inputElem);
+      var menu = typeaheadEl.data('ttTypeahead').menu;
+
+      inputElem.observe('blur', function(event) {
+        // On blur, check if item is a selection (typeahead:selected event isn't triggered if user entered matching input and clicked away).
+        var suggestionElems = inputElem.next("div.tt-menu").select("div.tt-suggestion");
+        var enteredVal = typeaheadEl.typeahead('val');
+        var matched = false;
+        suggestionElems &amp;&amp; suggestionElems.each(function(elem) {
+          var item = menu.getSelectableData(jQuery(elem));
+          var suggestedVal = item.val;
+          if (suggestedVal &amp;&amp; (suggestedVal.toLowerCase() === (enteredVal &amp;&amp; enteredVal.toLowerCase()))) {
+            typeaheadEl.typeahead('val', suggestedVal);
+            matched = true;
+            throw $break;
+          }
+        });
+        _this._setInput(inputHiddenElem, formattedVal(), null);
+        Event.fire(_this._container, "cp:typeahead:" + (matched ? "selected" : "custom"), {'id' : _this._elementID, 'dialog' : _this._termDetails});
+      });
+    }
+  });
+
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Modified DetailsDialog widget</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>  
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>1</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>6ae5459b-6ff6-4199-bb41-79eca9bb4eb9</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+  cp.CPDetailsDialogGroup = Class.create(widgets.DetailsDialogGroup, {
+    _addDialog : function (count) {
+      var qualifierCount = (count != null &amp;&amp; count != undefined) ? count : this._qualifierNo;
+      var dialog = new PhenoTips.widgets.carePathways.CPDetailsDialog(this._termID, this._dataName, this._dialogHolder, qualifierCount, this._qualifierDataClass).attach();
+      // Count the number of qualifiers for current term, regardless.
+      this._qualifierNo++
+      return dialog;
+    },
+
+    dialogsAddTypeAhead : function (collapsible, options) {
+      var addTypeAhead = function (currentDialog) {
+        currentDialog.withTypeAhead(collapsible, options);
+      };
+      this._dialogOptions.push(addTypeAhead);
+      return this;
+    },
+
+    dialogsAddHiddenDataElement : function (options) {
+      var addHiddenDataElement = function (currentDialog) {
+        currentDialog.withHiddenDataElement(options);
+      };
+      this._dialogOptions.push(addHiddenDataElement);
+      return this;
+    },
+  });
+
+  // End PhenoTips augmentation.
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Modified DetailsDialogGroup widget</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>2</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>5651adc7-a499-42a1-b74c-1e45751b090d</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+
+  cp.ModuleNavigationPanel = Class.create({
+    initialize : function(container, options) {
+      if (!container) { return; }
+      this._container = container;
+      this._tooltip = options.tooltip || "";
+
+      this._buildModule();
+    },
+    
+    _buildModule : function() {
+      var trElem = this._container.up('table').down('tr.care-pathways-section-label');
+      var questionIdElement = trElem.down('input.cp-question-id');
+      this._questionId = questionIdElement &amp;&amp; questionIdElement.value;
+
+      this._navigationPanel = this._container.down('div.browse-categories-panel');
+
+      this._collapseCategories();
+      this._attachListeners();
+    },
+
+    _collapseCategories : function() {
+      // Collapse any lists that do not have checked items.
+      this._navigationPanel.select('span.expand-tool').each(function(item) {
+        var listItemEl = item.up('li.term-entry');
+        var innerList = listItemEl &amp;&amp; listItemEl.down('ul');
+        if (innerList) {
+          if (!innerList.down('input[type="checkbox"]:checked')) {
+            innerList.hide();
+          } else {
+            item.removeClassName("fa-caret-right");
+            item.addClassName("fa-caret-down");
+            item.addClassName("expanded");
+          }
+        }
+      });      
+    },
+
+    _attachListeners : function() {
+      this._attachCheckedListeners();
+      this._attachDeleteListeners();
+    },
+
+    _attachCheckedListeners : function() {
+        var _this = this;
+      this._navigationPanel.observe('click', function(event) {
+        var labelEl = event.findElement('label');
+        var actionEl = labelEl &amp;&amp; labelEl.down('span.expand-tool');
+        // The only click event we care about is the one on the expand tool. Any others can be stopped.
+        actionEl &amp;&amp; _this._toggleCollapsed(actionEl) || event.stopPropagation();
+      });
+
+      this._navigationPanel.observe('change', function(event) {
+        var labelEl = event.findElement('label');
+        var actionEl = labelEl &amp;&amp; labelEl.down('input.add-tool');
+        event.stop();
+        actionEl &amp;&amp; _this._toggleChecked(actionEl);
+      });
+    },
+
+    _attachDeleteListeners : function() {
+      var _this = this;
+      this._container.observe('cp-selection:category:cleared', function(event) {
+        var receivedMemo = event.memo;
+        if (receivedMemo) {
+          var module = receivedMemo.module;
+          var questionId = receivedMemo.questionId;
+          var deletedTerm = receivedMemo.id;
+          var variantNum = receivedMemo.variantNum;
+          var variantStub = (variantNum !== "") ? '-' + variantNum : '';
+          var checkbox = $('cp-add-tool-' + module + '-' + questionId + '-' + deletedTerm + variantStub);
+          checkbox &amp;&amp; checkbox.checked &amp;&amp; (checkbox.checked = false);
+        }
+      });
+    },
+
+    _toggleCollapsed : function(elem) {
+      var parentList = elem.up('li.term-entry');
+      var collapseList = parentList &amp;&amp; parentList.down('ul');
+      if (elem.hasClassName("expanded")) {
+        elem.removeClassName("fa-caret-down");
+        elem.addClassName("fa-caret-right");
+        elem.removeClassName("expanded");
+        collapseList &amp;&amp; collapseList.hide();
+      } else {
+        elem.removeClassName("fa-caret-right");
+        elem.addClassName("fa-caret-down");
+        elem.addClassName("expanded");
+        collapseList &amp;&amp; collapseList.show();
+      }
+      return true;
+    },
+
+    _toggleChecked : function(elem) {
+      var termNameEl = elem.next('span.term-name');
+      var termName = termNameEl ? termNameEl.innerHTML : "";
+      if (termName) {
+        var parentLi = elem.up('li.term-entry');
+        var memo = {"term_id" : elem.name, "term_name" : termName};
+        if (parentLi.hasClassName('custom')) {
+          var parentIdElem = parentLi.down('input.parent-id');
+          var parentId = parentIdElem &amp;&amp; parentIdElem.value;
+          parentId &amp;&amp; (memo["term_id"] = parentId + "_other");
+          memo["notmapped"] = true;
+        }
+        var event = (elem.checked 
+          &amp;&amp; Event.fire(this._container, "cp-navigation:category:checked", memo))
+          || this._uncheckAfterSuccessfulDelete(elem, "cp-navigation:category:unchecked", memo);
+      }
+    },
+
+    _uncheckAfterSuccessfulDelete : function(elem, eventName, memo) {
+      elem.checked = true;
+      Event.fire(this._container, eventName, memo);
+    }
+  });
+
+  // End PhenoTips augmentation.
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Care Pathways module navigation panel widget</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>3</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>ce0a1542-6ff2-481f-b0e6-6494513fbbbf</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+
+  cp.ModuleSelectionPanel = Class.create({
+    initialize : function(container, options) {
+      if (!container) { return; }
+      this._container = container;
+      this._tooltip = options.tooltip || "";
+
+      this._getChildrenUrl = options.localUrl;
+      this._typeaheadRemote = options.remoteUrl;
+      this._termCount = 0;
+      this._qualifierCount = 0;
+      this._getCount = options.getCount || function() { return this._qualifierCount; };
+      this._updateCount = options.updateCount || function(count) { this._qualifierCount = count; };
+      this._deleteQualifierAction = options.deleteQualifier;
+      this._clearCategoryAction = options.clearCategory;
+
+      this._qualifierDataMarker = options.qualifierDataMarker;
+
+      this._buildModule();
+    },
+
+    _buildModule : function() {
+      this._selectedSummary = this._container.down('div.current-selection-panel');
+      this._termsTable = this._selectedSummary.down('table.terms-data-table');
+
+      var moduleTypeElem = this._selectedSummary.down('input[name=moduleType]');
+      this._moduleType = moduleTypeElem &amp;&amp; moduleTypeElem.value;
+
+      var variantTypeElem = this._selectedSummary.down('input.associated-variant-type');
+      this._variantType = variantTypeElem &amp;&amp; variantTypeElem.value;
+
+      var variantNumber = this._selectedSummary.down('input.associated-variant-number');
+      this._variantNumber = variantNumber &amp;&amp; variantNumber.value;
+
+      var trQuestionElem = this._container.up('table').down('tr.care-pathways-section-label');
+      var questionIdElement = trQuestionElem.down('input.cp-question-id');
+      this._questionId = questionIdElement &amp;&amp; questionIdElement.value;
+
+      var subjectElement = this._selectedSummary.down('input.cp-current-selection-subject');
+      this._subject = subjectElement &amp;&amp; subjectElement.value;
+
+      this._retrieveStoredData();
+      this._attachListeners();
+    },
+
+    _retrieveStoredData : function() {
+      var storedDataElem = this._selectedSummary.down('input.cp-current-selection-stored-data');
+      var storedData = storedDataElem &amp;&amp; storedDataElem.value || null;
+      storedDataElem.remove();
+      var json = storedData &amp;&amp; JSON.parse(storedData);
+      if (json) {
+        var _this = this;
+        var promises = [];
+        $H(json).each(function(pair) {
+          var data = pair.value;
+          var request = data.id &amp;&amp; data.label &amp;&amp; _this._buildNewTermElement.bind(_this, data.id, data.label, _this._tooltip, data)();
+          promises.push(request);
+        });
+        // Do one by one.
+        jQuery.when.apply(null, promises);
+      }
+    },
+
+    _attachListeners : function() {
+      var _this = this;
+      this._container.observe("cp-navigation:category:checked", function(event) {
+        var termId, termName;
+        if (event.memo) {
+          termId = event.memo.term_id;
+          termName = event.memo.term_name || termId;
+          termId &amp;&amp; termName &amp;&amp; _this._buildNewTermElement.bind(_this, termId, termName || termId, _this._tooltip, undefined)();
+        }
+      });
+
+      this._container.observe("cp-navigation:category:unchecked", function(event) {
+        var termId, termName;
+        if (event.memo) {
+          termId = event.memo.term_id;
+          var deleteAction = termId &amp;&amp; $('delete_term_' + termId) || null;
+          deleteAction &amp;&amp; deleteAction.click();
+        }
+      });
+
+      this._container.observe("cp:typeahead:custom", function(event) {
+        var dialog = event.memo.dialog;
+        var dt = dialog &amp;&amp; dialog.down("dt.comments");
+        var dd = dialog &amp;&amp; dialog.down("dd.comments");
+        dt &amp;&amp; dt.removeClassName("hidden");
+        dd &amp;&amp; dd.removeClassName("hidden");
+      });
+
+      this._container.observe("cp:typeahead:selected", function(event) {
+        var dialog = event.memo.dialog;
+        var dt = dialog &amp;&amp; dialog.down("dt.comments");
+        var dd = dialog &amp;&amp; dialog.down("dd.comments");
+        dt &amp;&amp; dt.addClassName("hidden");
+        dd &amp;&amp; dd.addClassName("hidden");
+        //TODO: Clear notes??
+      });
+    },
+
+    _setUnmappedIconTitle : function(qualifiers) {
+
+    },
+
+    _observeQualifierEvents : function(qualifiers) {
+      var parent = qualifiers.up('tr.' + this._moduleType + '_field') || qualifiers.up('tr.' + this._moduleType + '_field');
+      var _this = this;
+      qualifiers.observe('parent:term:deleted', function(event) {
+        var memo = {"id" : event.memo.id, "module" : _this._moduleType, "variantNum" : _this._variantNumber, "questionId" : _this._questionId};
+        Event.fire(_this._container, 'cp-selection:category:cleared', memo);
+        parent &amp;&amp; parent.remove();
+      })
+    },
+
+    _buildNewTermElement : function(termId, termName, tooltip, values) {
+      var termDeleteStr = this._clearCategoryAction
+        .replace(/([&amp;?]category=)(xXx__CATEGORY_TEMPLATE__xXx)([&amp;$])/, "$1" + termId + "$3")
+        .replace(/([&amp;?]question=)(xXx__QUESTION_TEMPLATE__xXx)([&amp;$])/, "$1" + this._questionId + "$3");
+      var options = {'allowMultiDialogs': true, 'disableTermDelete': false, 'termDeleteAction' : termDeleteStr};
+      this._doDoneDataResponse(this._constructDataRequest(termId), termId, termName, tooltip, options, values);
+    },
+
+    _constructDataRequest : function(termId) {
+      var url = this._getChildrenUrl + "input=" + encodeURIComponent(termId);
+      var parameters = {};
+      parameters.customFilter = "is_a:" + termId.replace(/:/g, "\\:");
+      var _this = this;
+
+      return jQuery.ajax(url, {
+        method: "GET",
+        data: parameters
+      });
+    },
+
+    _doDoneDataResponse : function(req, termId, termName, tooltip, options, values) {
+      req
+        .done(this._buildNewTermElementFromResponse.bind(this, termId, termName, tooltip, options, values))
+        .fail(function(jqXHR, textStatus, errorThrown) {
+        // TODO: Construct dialog with no typeahead options on failure??
+        });
+    },
+
+    _buildNewTermElementFromResponse : function(termId, termName, tooltip, options, values, response) {
+      var json = response &amp;&amp; response.rows;
+      if (json) {
+        var tableCol = new Element('td');
+        var tableRow = new Element('tr', {'class': this._moduleType + '_field'} )
+        var qualifiersWidget = this._buildDetailsDialog(termId, termName, tooltip, options, json);
+        var qualifiers = qualifiersWidget.get();
+        // Set values silently, or initialize as affected, non-silently. If values are provided, then we're displaying
+        // stored tests. If no values are provided, then we're adding a new test/care item with a qualifier dialog.
+        if (values) {
+          qualifiersWidget.setValues(values);
+        } else {
+          qualifiersWidget.initAffected(false);
+        }
+        qualifiers._widget = qualifiersWidget;
+        'notmapped' === tooltip &amp;&amp; this._setUnmappedIconTitle(qualifiers);
+        tableRow.insert(tableCol.insert(qualifiers));
+        this._observeQualifierEvents(qualifiers);
+        this._termsTable.insert(tableRow);
+      }
+    },
+
+    _buildDetailsDialog : function(termId, termName, tooltip, options, json) {
+      var qualifiersWidget = new PhenoTips.widgets.carePathways.CPDetailsDialogGroup("parent", options)
+        .withGlobalQualifierCount(this._getCount, this._updateCount)
+        .withQualifierDataMarker(this._qualifierDataMarker + "_")
+        .withLabel(termName, termId, tooltip, true)
+        .dialogsAddDeleteAction(this._deleteQualifierAction)
+        .dialogsAddTypeAhead(false, {
+          'remote' : this._typeaheadRemote + "&amp;parent=" + termId + "&amp;input=" ,
+          'data': json.map(function(x) { return x.name; }),
+          'placeholder': 'Begin typing or click to show options',
+          'defListItemClass': this._moduleType,
+          'inputSourceClass': this._moduleType + '_typeahead',
+          'qualifierLabel': "",
+          'qualifierName': 'datum',
+          'displayedToStoredMapper': this._getToStoredTypeAheadFx(json),
+          'storedToDisplayedMapper': this._getToDisplayedTypeAheadFx(json)})
+
+      this._container.hasClassName('with-mandatory-dates') &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
+        'defListItemClass': 'date_pursued',
+        'qualifierLabel': 'Completed on:',
+        'qualifierName': 'date_pursued_fuzzy',
+        'approxQualifierName' : 'date_pursued'
+      });
+
+      this._variantType &amp;&amp; qualifiersWidget.dialogsAddHiddenDataElement({
+        'defListItemClass': 'type hidden',
+        'inputSourceClass': this._moduleType + '_type',
+        'qualifierName': 'type',
+        'hiddenDataValue': this._variantType
+      });
+
+      this._variantNumber &amp;&amp; qualifiersWidget.dialogsAddHiddenDataElement({
+        'defListItemClass': 'variant hidden',
+        'inputSourceClass': this._moduleType + '_variant',
+        'qualifierName': 'variant',
+        'hiddenDataValue': parseInt(this._variantNumber)
+      });
+
+      return qualifiersWidget
+        .dialogsAddTextBox(false, {
+          'defListItemClass': 'comments hidden',
+          'inputSourceClass': this._moduleType + '_notes',
+          'qualifierLabel': 'Additional information:',
+          'qualifierName': 'notes'})
+        .dialogsAddHiddenDataElement({
+          'defListItemClass': 'question hidden',
+          'inputSourceClass': this._moduleType + '_question',
+          'qualifierName': 'question',
+          'hiddenDataValue': this._questionId})
+        .dialogsAddHiddenDataElement({
+          'defListItemClass': 'subject hidden',
+          'inputSourceClass': this._moduleType + '_subject',
+          'qualifierName': 'subject',
+          'hiddenDataValue': this._subject})
+        .dialogsAddHiddenDataElement({
+          'defListItemClass': 'date_entered hidden',
+          'inputSourceClass': this._moduleType + '_date_entered',
+          'qualifierName': 'date_entered',
+          'hiddenDataValue': ''})
+        .dialogsAddHiddenDataElement({
+          'defListItemClass': 'module hidden',
+          'inputSourceClass': this._moduleType + '_module',
+          'qualifierName': 'module',
+          'hiddenDataValue': this._moduleType});
+    },
+
+    _getToStoredTypeAheadFx : function(json) {
+      var mapped = new Map(json.map(function(x) { return [x.name, x.id]; }));
+      return function(item) {
+        return mapped.get(item) || item;
+      };
+    },
+
+    _getToDisplayedTypeAheadFx : function(json) {
+      var mapped = new Map(json.map(function(x) { return [x.id, x.name]; }));
+      return function(item) {
+        return mapped.get(item) || item;
+      };
+    }
+  });
+
+  // End PhenoTips augmentation.
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Care Pathways current module selection widget</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>4</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>0afd552f-ff87-4908-a916-6ecb387e20a6</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var qualifierCount = 0;
+var getCount = function() {
+  return qualifierCount;
+};
+
+var incrementCount = function() {
+  qualifierCount++;
+};
+
+var updateCount = function(count) {
+  qualifierCount = count;
+};
+// Cannot use typeahead.bundle.min.js, need to define typeahead and bloodhound separately.
+require.config({
+  paths: {
+    'typeahead': "$services.webjars.url('org.webjars.npm:corejs-typeahead', 'dist/typeahead.jquery.min.js')",
+    'bloodhound': "$services.webjars.url('org.webjars.npm:corejs-typeahead', 'dist/bloodhound.min.js')"
+  },
+  shim: {
+    'typeahead': {
+      deps: ['jquery']
+    },
+    'bloodhound': {
+      deps: ['jquery'],
+      exports: 'Bloodhound'
+    }
+  }
+});
+var initNavAndSelMods = function(modules) {
+  require(["jquery", "bloodhound", "typeahead"], function(jquery, Bloodhound, typeahead) {
+    modules &amp;&amp; modules.length &gt; 0 &amp;&amp; modules.each(function(module) {
+      var localUrl = XWiki.contextPath + "/rest/vocabularies/care-pathways/suggest?sort=nameSort%20asc&amp;maxResults=10000&amp;";
+      var dataStorageEl = $("data-storage-class");
+      var dataStorage = dataStorageEl &amp;&amp; dataStorageEl.value;
+      var remoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
+      var clearCategoryEl = $('clear-category-action');
+      var deleteQualifierEl = $('delete-qualifier-action');
+      //TODO: fix me!!
+      var options = {"tooltip" : "", "localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage};
+      new PhenoTips.widgets.carePathways.ModuleSelectionPanel(module, options);
+      new PhenoTips.widgets.carePathways.ModuleNavigationPanel(module, options);
+    });
+    return true;
+  });
+};
+
+var init = function(event) {
+  var modules = event.memo &amp;&amp; event.memo.element &amp;&amp; event.memo.element.select(".care-pathways-module-container") || $$(".care-pathways-module-container");
+  return initNavAndSelMods(modules);
+};
+
+(XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", function(event) {
+  init(event);
+  document.observe('cp:navmodules:added', init);
+});</code>
+    </property>
+    <property>
+      <name>Selection and navigation module initializer</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>5</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>34b8353b-483f-47a0-b61b-cb6935b684a2</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var PhenoTips = (function(PhenoTips) {
+  var widgets = PhenoTips.widgets = PhenoTips.widgets || {};
+  // Care Pathways.
+  var cp = widgets.carePathways = widgets.carePathways || {};
+
+  cp.VariantAnalysisModule = Class.create({
+    initialize : function(container, options) {
+      this._container = container;
+
+      this._sheet = "PhenoTips.CarePathwaysPostTestSheet";
+      this._dataStorage = "PhenoTips.PatientCarePostTestClass";
+      this._section = options.section || "";
+      this._questionsClearUrl = options.questionsClearUrl;
+      this._questionDeleteUrl = options.questionDeleteUrl;
+      this._buildModulesUrl = options.buildModulesUrl;
+
+      this._primaryQuestionnaireContainer = $(this._section + '-questionnaire-primary');
+      this._secondaryQuestionnaireContainer = $(this._section + '-questionnaire-secondary');
+
+      this._buildModule();
+      this._attachGeneOrVariantAddedListener();
+    },
+
+    _buildModule : function() {
+      this._buildPrimaryVariantsDataAnalysis();
+      this._buildPrimaryVariantsInterpretation();
+      this._buildSecondaryVariantsDataAnalysis();
+    },
+
+    _buildPrimaryVariantsDataAnalysis : function() {
+      var clearPrimaryDataObj = $('clear-primary-data');
+      this._clearPrimaryDataUrl = clearPrimaryDataObj &amp;&amp; clearPrimaryDataObj.value || "";
+
+      this._primaryVariantsList = $('primary-wes-variants-proband');
+      // No primary variants checkbox.
+      this._noPrimaryVariants = $(this._sheet + '_0_noPrimaryVariants');
+      this._noPrimaryVariants &amp;&amp; this._noPrimaryVariants.checked &amp;&amp; this._primaryVariantsList.addClassName('hidden');
+      this._attachNoPrimaryVariantsClickListener();
+    },
+
+    _buildPrimaryVariantsInterpretation : function() {
+      this._primaryVariantsInterpretation = $('primary-variants-interpretation-container');
+      // Store the checked interpretation in case the selection is not confirmed.
+      this._currentInterpretationEl = this._primaryVariantsInterpretation.down('input[checked="checked"]');
+      this._attachPrimaryInterpretationClickListener();
+    },
+
+    _attachPrimaryInterpretationClickListener : function() {
+      this._primaryVariantsInterpretation.observe('click', function(event) {
+        event.stopPropagation();
+      });
+
+      var _this = this;
+      this._primaryVariantsInterpretation.observe('change', function(event) {
+        event.stop();
+        var targetElement = event.findElement('input');
+        if (targetElement) {
+          var targetElementVal = targetElement.value;
+          var moduleSpecsEl = $(targetElementVal + '-module-specs');
+          var moduleSpecs = moduleSpecsEl &amp;&amp; moduleSpecsEl.value;
+          if (moduleSpecs) {
+            _this._generateQuestionsForPrimaryVariants.bind(_this, targetElement, moduleSpecs, _this._primaryQuestionnaireContainer)();
+          }
+        }
+      });
+    },
+
+    _generateQuestionsForPrimaryVariants : function(targetElement, moduleSpecs, questionnaireContainer) {
+      if (!this._currentInterpretationEl || this._currentInterpretationEl == targetElement || !this._userRecordedData(this._primaryQuestionnaireContainer)) {
+        this._currentInterpretationEl = targetElement;
+        this._ajaxRequestNewQuestions(this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants');
+      } else {
+        if (confirm("$!services.localization.render('phenotips.carePathways.postTest.cpmodulesDeleteConfirmation')")) {
+          var req = this._clearQuestionData(this._questionsClearUrl, this._currentlyDisplayedPrimaryQuestions(), questionnaireContainer);
+          var _this = this;
+          // Proceed only after stored question data has been deleted.
+          jQuery.when(req).then(function(r1) {
+            _this._currentInterpretationEl = targetElement;
+            _this._ajaxRequestNewQuestions.bind(_this, _this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants')();
+          });
+        } else {
+          targetElement.checked = "";
+          this._currentInterpretationEl.checked = "checked";
+        }
+      }
+    },
+
+    _clearQuestionData : function(url, questions, questionnaireContainer) {
+      var questionData = '&amp;question=' + questions.join('&amp;question=');
+      return jQuery.ajax(url + questionData, {
+        method : "GET",
+      }).success(function(data, textStatus, jqXHR) {
+        questionnaireContainer.innerHTML = '';
+      });
+    },
+
+    _currentlyDisplayedPrimaryQuestions : function() {
+      var currentVal = this._currentInterpretationEl.value;
+      var oldSpecsEl = $(currentVal + '-module-specs');
+      var oldSpecs = oldSpecsEl &amp;&amp; oldSpecsEl.value;
+      return JSON.parse(oldSpecs).map(function(questionData) {
+        return questionData.question;
+      });
+    },
+
+    _userRecordedData : function(questionnaireContainer) {
+      var hasData;
+      questionnaireContainer.select('div.cp-current-selection-panel table.terms-data-table').each(function(dataTable) {
+        if (dataTable.innerHTML.trim() !== '') {
+          hasData = true;
+          throw $break;
+        }
+      });
+      !hasData &amp;&amp; (questionnaireContainer.innerHTML = '');
+      return hasData;
+    },
+
+    _ajaxRequestDataModules : function(questionContainer, question, cDnaEl, variantIndex, modules, containerCssClass) {
+      var _this = this;
+      var cDnaInput;
+      var params = {'question' : question, 'modules' : JSON.stringify(modules), 'tab' : encodeURIComponent(_this._sheet), 'storageClass' : encodeURIComponent(_this._dataStorage)};
+      if (cDnaEl) {
+        cDnaInput = cDnaEl.down('input[type="text"]');
+        params['groupTitle'] = this._getModuleGroupTitle(cDnaEl, cDnaInput);
+      }
+      variantIndex &amp;&amp; (params['variantNumber'] = variantIndex);
+      var req = jQuery.ajax(this._buildModulesUrl, {
+        method : "GET",
+        data : params
+      });
+      var container = new Element("div", {"class" : "care-pathways-modules-wrapper " + containerCssClass});
+      return req.success(function(data, textStatus, jqXHR) {
+        questionContainer.insert(container.insert(data));
+        var titleEl = container.down('h2.module-group-label p');
+        cDnaInput &amp;&amp; titleEl &amp;&amp; _this._updateModuleGroupTitleOnDoneTyping.bind(_this, titleEl, cDnaEl, cDnaInput)();
+        Event.fire(document, 'cp:navmodules:added', {'element' : container});
+      });
+    },
+
+    _updateModuleGroupTitleOnDoneTyping : function(titleEl, cDnaEl, cDnaInput) {
+      var typingTimer;
+      var doneTypingInterval = 500;
+      var _this = this;
+      var doneTyping = function() {
+        titleEl.innerHTML = _this._getModuleGroupTitle(cDnaEl, cDnaInput);
+      };
+      cDnaInput.observe('keyup', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+      });
+      cDnaInput.observe('keydown', function() {
+        clearTimeout(typingTimer);
+      });
+    },
+
+    _getModuleGroupTitle : function(cDnaEl, cDnaInput) {
+      var cdna = cDnaInput.value;
+      var gene = this._getGeneForVariant(cDnaEl);
+      return gene + " [" + cdna + "]";
+    },
+
+    _ajaxRequestNewQuestions : function(questionnaireContainer, moduleSpecs, variantIndex, containerCssClass) {
+      var specsJson = JSON.parse(moduleSpecs);
+      var _this = this;
+      var promises = [];
+      specsJson.each(function(questionSpecs) {
+        var request = _this._ajaxRequestNewQuestion.bind(_this, questionnaireContainer, questionSpecs, null, variantIndex, containerCssClass)();
+        promises.push(request);
+      });
+      jQuery.when.apply(null, promises);
+    },
+
+    _ajaxRequestNewQuestion : function(questionnaireContainer, questionSpecs, cDnaEl, variantIndex, containerCssClass) {
+      var questionContainer = this._buildQuestionContainer(questionnaireContainer, questionSpecs.question, questionSpecs.questionLabel);
+      return this._ajaxRequestDataModules(questionContainer, questionSpecs.question, cDnaEl, variantIndex, questionSpecs.modules, containerCssClass);
+    },
+
+    _buildQuestionContainer : function(questionnaireContainer, questionId, questionLabel) {
+      var tableId = 'modules-for-' + questionId;
+      var modulesContainer = new Element('td');
+      var questionTable = new Element("table", {"id" : tableId, "class" : this._section + "-section care-pathways-module-group-container"});
+      questionTable.insert(new Element("tr", {"class" : "care-pathways-section-label"})
+        .insert(new Element("td", {"colspan" : "2"})
+          .insert(new Element("input", {"type" : "hidden", "class" : "cp-question-id", "value" : questionId}))
+          .insert(questionLabel || questionId)))
+      .insert(new Element("tr", {"class" : "care-pathways-modules"})
+        .insert(modulesContainer));
+      questionnaireContainer.insert(questionTable);
+      return modulesContainer;
+    },
+
+    _buildSecondaryVariantsDataAnalysis : function() {
+      var clearSecondaryDataObj = $('clear-secondary-data');
+      this._clearSecondaryDataUrl = clearSecondaryDataObj &amp;&amp; clearSecondaryDataObj.value || "";
+      this._secondaryVariantsList = $('secondary-wes-variants-all');
+      // No secondary variants checkbox.
+      this._noSecondaryVariants = $(this._sheet + '_0_noSecondaryVariants');;
+      this._noSecondaryVariants.checked &amp;&amp; this._secondaryVariantsList.addClassName('hidden');
+      this._attachNoSecondaryVariantsClickListener();
+    },
+
+    _attachGeneOrVariantAddedListener : function() {
+      var _this = this;
+      document.observe("xwiki:dom:updated", function(event) {
+        var elem = event.memo &amp;&amp; event.memo.elements &amp;&amp; event.memo.elements[0];
+        var statusCol = elem &amp;&amp; elem.down('td.Status.gene');
+        if (statusCol) {
+          // This is a gene.
+          var savedStatus = statusCol.down('input.gene-status-value');
+          var defaultStatus = statusCol.down('input.default-gene-status-value');
+          // The extraGeneVariantData sets the value to "candidate" by default. That's not what we want.
+          savedStatus &amp;&amp; defaultStatus &amp;&amp; (savedStatus.value = defaultStatus.value);
+        } else {
+          // This is a variant.
+          var parentContainer = elem.up('div.subject-variants-container');
+          var parentContainerId = parentContainer &amp;&amp; parentContainer.id;
+          var type = parentContainerId &amp;&amp; parentContainerId.substring(0, parentContainerId.indexOf('-wes-variants'));
+          if (type === 'secondary') {
+            // This is a secondary variant.
+            _this._generateQuestionForSecondaryVariant(elem, parentContainerId.substring(parentContainerId.lastIndexOf('-') + 1));
+          }
+        }
+      });
+    },
+
+    _generateQuestionForSecondaryVariant : function(addedElem, subject) {
+      var variantCdnaEl = addedElem.down('td.variant.cdna');
+      if (variantCdnaEl) {
+        var variantCdnaClass = variantCdnaEl.className;
+        var variantIndex = variantCdnaClass.substring(variantCdnaClass.lastIndexOf('-') + 1);
+        var moduleSpecsEl = $(subject + '-secondary-module-specs');
+        var moduleSpecs = moduleSpecsEl &amp;&amp; moduleSpecsEl.value;
+        var _this = this;
+        var promises = [];
+        var containerCssClass = 'modules-for-secondary-variants with-variant-' + variantIndex;
+        moduleSpecs &amp;&amp; JSON.parse(moduleSpecs).each(function(questionSpecs) {
+          var questionId = questionSpecs.question;
+          var questionTable = $('modules-for-' + questionId);
+          if (questionTable) {
+            var questionContainer = questionTable.down('tr.care-pathways-modules td');
+            questionContainer &amp;&amp; _this._ajaxRequestDataModules(questionContainer, questionSpecs.question, variantCdnaEl, variantIndex, questionSpecs.modules, containerCssClass);
+          } else {
+            var request = _this._ajaxRequestNewQuestion.bind(_this, _this._secondaryQuestionnaireContainer, questionSpecs, variantCdnaEl, variantIndex, containerCssClass)();
+            promises.push(request);
+          }
+        });
+        jQuery.when.apply(null, promises);
+      }
+    },
+
+    _getGeneForVariant : function(cDnaEl) {
+      var containingRow = cDnaEl.up('tr');
+      var rowClass = containingRow.className;
+      var geneIndex = rowClass.substring(rowClass.lastIndexOf('-') + 1);
+      var geneTable = containingRow.up('table.gene-table');
+      var symbolEl = geneTable.down('p.gene.gene-input-label.gene-' + geneIndex);
+      return symbolEl &amp;&amp; symbolEl.innerHTML || "";
+    },
+
+    _attachNoPrimaryVariantsClickListener : function() {
+      var _this = this;
+      this._noPrimaryVariants.observe('click', function(event) {
+        event.stopPropagation();
+      });
+
+      this._noPrimaryVariants.observe('change', function(event) {
+        event.stop();
+        if (this.checked) {
+          var genesTable = _this._primaryVariantsList.down('table.gene-table.cp-variants.extradata-list');
+          genesTable &amp;&amp; (genesTable.__inputs = genesTable.select('input.gene-id'));
+          if (!genesTable || !genesTable.__inputs || genesTable.__inputs.size() == 0) {
+            // There is no variant data.
+            _this._primaryVariantsList.addClassName('hidden');
+          } else {
+            // There is variant data. Do a confirmed ajax request and uncheck only on success.
+            this.checked = false
+            _this._ajaxClearGenes.bind(_this, _this._clearPrimaryDataUrl, this, [genesTable], _this._primaryVariantsList, null)();
+          }
+        } else {
+          _this._primaryVariantsList.removeClassName('hidden');
+        }
+      });
+    },
+
+    _ajaxClearGenes : function(url, checkbox, genesTables, variantsContainer, clearRelatedDataFx) {
+      var _this = this;
+      if (checkbox.disabled) { return; }
+      if (confirm("$!services.localization.render('phenotips.carePathways.postTest.cpNoVariantsConfirmation')")) {
+        var req = jQuery.ajax(url, {
+          method: "GET",
+          beforeSend: function () { checkbox.disabled = true; }
+        })
+        .always(function () { checkbox.disabled = false; })
+        .done(function (data, textStatus, jqXHR) {
+          checkbox.checked = true;
+          genesTables.each(function(genesTable) {
+            _this._clearDisplayedGeneData.bind(_this, genesTable, genesTable.__inputs)();
+          });
+          variantsContainer.addClassName('hidden');
+          clearRelatedDataFx &amp;&amp; clearRelatedDataFx();
+        });
+      }
+    },
+
+    _clearDisplayedGeneData : function(genesTable, geneIdInputs) {
+      geneIdInputs.each(function(geneIdInput) {
+        var geneId = geneIdInput.value;
+        var className = geneIdInput.up('td').className;
+        var geneIndex = parseInt(className.substring(className.lastIndexOf('-') + 1), 10);
+        var dataRow = geneIdInput.up('tr');
+        geneIdInput.remove();
+        var geneNameInput = dataRow.down('input.gene-name');
+        geneNameInput.__validation.destroy();
+        $$('.variant-gene-' + geneIndex).each(function(item) {
+          item.remove();
+        });
+        dataRow.remove()
+
+        var i = 1;
+        genesTable.select('td.row-count').each(function(item) {
+          var geneRowIndex = item.next().className.substring(item.next().className.lastIndexOf('-') + 1);
+          var y = 1;
+          $$('.variant-hide-heading-' + geneRowIndex + ' .variant-row-count').each(function(vitem) {
+            vitem.childNodes[1].textContent = i + '.' + (y++);
+          });
+          item.update(i++);
+        });
+      });
+    },
+
+    _attachNoSecondaryVariantsClickListener : function() {
+      var _this = this;
+      this._noSecondaryVariants.observe('click', function(event) {
+        event.stopPropagation();
+      });
+
+      this._noSecondaryVariants.observe('change', function(event) {
+        event.stop();
+        if (this.checked) {
+          var genesTables = _this._secondaryVariantsList.select('table.gene-table.cp-variants.extradata-list');
+          var tables = [];
+          genesTables.each(function(genesTable) {
+            var inputs = genesTable.select('input.gene-id');
+            if (inputs &amp;&amp; inputs.size() &gt; 0) {
+              genesTable.__inputs = inputs;
+              tables.push(genesTable);
+            }
+          });
+          if (tables.size() == 0) {
+            // There is no variant data.
+            _this._secondaryVariantsList.addClassName('hidden');
+          } else {
+            // There is variant data. Do a confirmed ajax request and check only on success.
+            this.checked = false
+            _this._ajaxClearGenes.bind(_this, _this._clearSecondaryDataUrl, this, tables, _this._secondaryVariantsList, function() { _this._secondaryQuestionnaireContainer.innerHTML = '' })();
+          }
+        } else {
+          _this._secondaryVariantsList.removeClassName('hidden');
+        }
+      });
+    }
+  });
+
+  var init = function() {
+    var analysisModules = $$('.care-pathways-analysis');
+    analysisModules &amp;&amp; analysisModules.each(function(module) {
+      var options = {};
+      var moduleId = module.id;
+      var section = moduleId &amp;&amp; moduleId.substring(0, moduleId.lastIndexOf('-')) || "";
+      options.section = section;
+      var questionsClearUrlEl = $('clear-questions-data');
+      options.questionsClearUrl = questionsClearUrlEl &amp;&amp; questionsClearUrlEl.value;
+      var questionDeleteUrlEl = $('delete-question-data');
+      options.questionDeleteUrl = questionDeleteUrlEl &amp;&amp; questionDeleteUrlEl.value;
+      options.buildModulesUrl = new XWiki.Document('CarePathways', 'PhenoTips').getURL('get');
+      new PhenoTips.widgets.carePathways.VariantAnalysisModule(module, options);
+    });
+  };
+
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe('xwiki:dom:loaded', init);
+
+  // End PhenoTips augmentation.
+  return PhenoTips;
+}(PhenoTips || {}));</code>
+    </property>
+    <property>
+      <name>Care Pathways variant analysis module widget</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
   <object>
     <name>PhenoTips.CarePathways</name>
     <number>0</number>
@@ -140,22 +1868,241 @@
  * Survey css.
  */
 
-table.care-pathways-questionnaire {
+table.care-pathways-module-group-container,
+table.care-pathways-analysis-container {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 2.5px;
+  background-color: $theme.borderColor;
   width: 100%;
+  margin: 0;
+}
+tr.care-pathways-modules div.care-pathways-modules-wrapper {
+  display: table;
+  width: 100%;
+}
+tr.care-pathways-modules div.care-pathways-module-container {
+  display: table-row;
+}
+tr.care-pathways-modules span.selector-panel {
+  display: table-cell;
+  background-color: $theme.pageContentBackgroundColor;
+  padding: 0;
+}
+tr.care-pathways-modules span.cp-categories {
+  vertical-align: top;
+  width: 30%;
+  min-width: 400px;
+}
+tr.care-pathways-modules span.cp-categories div.cp-categories-panel li.term-entry span.expand-tool {
+  margin: 0.5em;
+  font-size: inherit;
+}
+tr.care-pathways-modules span.cp-current-selection {
+  vertical-align: top;
+}
+tr.care-pathways-modules span.cp-current-selection div.current-selection-panel {
+  padding-left: 15px;
+}
+tr.care-pathways-section-label {
+  display: table-row;
+  background-color: $theme.highlightColor;
+  height: 2.0em;
+}
+tr.care-pathways-section-label td {
+  display: table-cell;
+  padding: 10px;
+}
+tr.care-pathways-modules span > h3 {
+  font-size: 0.8em !important;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 !important;
+  padding: 5px 20px 5px 15px !important;
+  text-align: left;
+  text-transform: uppercase;
+  background-color: $theme.fieldGradientColor;
+  color: $theme.panelHeaderTextColor;
+  text-shadow: 0 1px 0 $theme.panelHeaderGradientColor;
+}
+/**********************************************************************************************
+ * Qualifiers css.
+ */
+
+table.summary-group {
+  width: 90%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+table.terms-data-table {
+  max-width: 700px;
+  width: 100%;
+  margin: 0;
+}
+table.terms-data-table tr td {
   border: none;
+}
+table.summary-group td.add-button-holder span.patient-details-add {
+  float: left;
+  margin-left: 2em;
+  font-size: 87.5%;
+}
+table.summary-group span.action-done {
+  float: right;
+}
+table.summary-group div.summary-item {
+  background-color: $theme.panelCollapsedBackgroundColor;
+  background-position: left center;
+  background-repeat: no-repeat;
+  border-radius: 0 .5em .5em .5em;
+  border: 1px solid #FFF;
+  color: $theme.textColor;
+  font-size: 87.5%;
+  margin-left: 20px;
+  padding: .5em 20px;
+  position: relative;
+}
+table.summary-group div.summary-item.blurred {
+  cursor: pointer;
+}
+div.summary-item div.clearfloats {
+  margin: 0;
+}
+table.summary-group div.summary-item span.parent-dialog-delete,
+table.summary-group tr.term-holder span.patient-term-delete {
+  color: $theme.notificationErrorColor;
+}
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dl,
+div.care-pathways-module-container-view table.summary-group div.summary-item dl {
+  display: inline-block;
+  margin: .2em;
+  vertical-align: middle;
+}
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
+div.care-pathways-module-container-view table.summary-group div.summary-item dt {
+  margin: 0 0 0 .5em;
+}
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dl:first-child,
+div.care-pathways-module-container-view table.summary-group div.summary-item dl:first-child {
+  margin-left: 0;
+}
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
+div.care-pathways-module-container-view table.summary-group div.summary-item dd {
+  margin: 0;
+}
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
+div.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
+div.care-pathways-module-container-view table.summary-group div.summary-item dt,
+div.care-pathways-module-container-view table.summary-group div.summary-item dd {
+  display: inline-block;
+  background-color: $theme.pageContentBackgroundColor;
+  float: left;
+  padding: .2em;
+  clear: none;
+}
+div.care-pathways-module-container table.summary-group div.summary-item dt,
+div.care-pathways-module-container table.summary-group div.summary-item dd {
+  margin-top: .5em;
+  margin-bottom: .5em;
+}
+div.care-pathways-module-container table.summary-group div.summary-item dt {
+  float: left;
+  clear: left;
+}
+table.summary-group div.summary-item.focused dt.collapsible span.selected-value {
+  font-weight: normal;
+  margin-left: .5em;
+}
+table.summary-group div.summary-item.focused dt.collapsible span.collapse-button {
+  margin-right: .5em;
+}
+table.summary-group div.summary-item.focused dd.comments textarea {
+  min-height: 50px;
+}
+table.summary-group div.summary-item.focused dt.inline {
+  margin-right: .5em;
+}
+table.summary-group div.summary-item.blurred dd,
+table.summary-group div.summary-item.focused dd.inline {
+  float: left;
+}
+table.summary-group div.summary-item.focused dd.inline select {
+  padding: 0;
+}
+table.summary-group div.summary-item ul {
+  list-style-type: none;
+  padding-left: 1em;
+  margin-left: 0;
+}
+.test_field .clickable:hover,
+.care_field .clickable:hover {
+  cursor: pointer;
+}
+.test_field label.clickable.disabled,
+.care_field label.clickable.disabled {
+  color: #CCC;
+  cursor: default;
+}
+table.summary-group td.add-button-holder span.patient-details-add {
+  cursor: pointer;
+}
+/**********************************************************************************************
+ * Typeahead css.
+ */
+
+table.summary-group div.summary-item.focused dd.inline.test,
+table.summary-group div.summary-item.focused dd.inline.care {
+  width: 60%;
+}
+span.scrollable-typeahead {
+  width: 100%;
+}
+span.twitter-typeahead {
+  width: 100%;
+}
+span.scrollable-typeahead div.tt-menu {
+  max-height: 100px;
+  overflow-y: auto;
+  width: 100%;
+  background-color: $theme.pageContentBackgroundColor;
+  border: solid 1px $theme.backgroundSecondaryColor;
+  border-radius: 5px;
+}
+span.scrollable-typeahead div.tt-menu div.tt-suggestion {
+  padding: 2.5px 10px;
+  cursor: pointer;
+}
+span.scrollable-typeahead div.tt-menu h3.user-entered-data {
+  color: $theme.panelHeaderTextColor;
+  margin: 0;
+  padding: 0 10px;
+  font-size: inherit;
+  background-color: $theme.highlightColor;
+}
+
+/**********************************************************************************************
+* Selects validation css.
+*/
+select.LV_invalid_field {
+  background-color: $theme.highlightColor;
+  border: 1px solid $theme.notificationErrorColor;
+  color: $theme.textColor !important;
+}
+select + .LV_validation_message {
+  float: right;
 }</code>
     </property>
     <property>
       <contentType>CSS</contentType>
     </property>
     <property>
-      <name/>
+      <name>Care Pathways survey styles</name>
     </property>
     <property>
       <parse>1</parse>
     </property>
     <property>
-      <use>always</use>
+      <use>onDemand</use>
     </property>
   </object>
 </xwikidoc>
