@@ -38,6 +38,11 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output=false}}
+#set ($testTerm = "CP:01")
+#set ($careTerm = "CP:02")
+#set ($familyCareTerm = "CP:03")
+#set ($geneticTerm = "CP:11")
+#set ($diagnosticTerm = "CP:12")
 #macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
 #if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
   &lt;tr class="table-row variant-label-row"&gt;
@@ -66,7 +71,7 @@
 ##
 #macro(__buildFamilyModule $module $question $variantNumber $storageClass $retrieveStoredData)
   #set ($subjects = ['mother', 'father', 'sister', 'brother', 'aunt', 'uncle'])
-  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': 'CP:3'}, {'sort': 'nameSort asc'}))
+  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': $familyCareTerm}, {'sort': 'nameSort asc'}))
   #foreach ($familyTest in $!{familyTesting})
     #set ($testId = $familyTest.id)
     #set ($testName = $familyTest.name)
@@ -296,29 +301,25 @@
 ##
 ##
 #macro (__displayModule $module $submodule $question $variantNumber $storedValues)
-  #set ($test = "CP:01")
-  #set ($care = "CP:02")
-  #set ($genetic = "CP:11")
-  #set ($diagnostic = "CP:12")
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
   #if ($module == "test")
     #set ($testNodes = [])
-    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $genetic}, {'sort': 'nameSort asc'}))
-    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnostic}, {'sort': 'nameSort asc'}))
+    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc'}))
+    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnosticTerm}, {'sort': 'nameSort asc'}))
     #set ($discard = $testNodes.addAll($geneticNodes))
     #set ($discard = $testNodes.addAll($diagnosticNodes))
     #if ($submodule == "")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($test), $testNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($testTerm), $testNodes, $question, $storedValues)
     #elseif ($submodule == "genetic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($genetic), $geneticNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($geneticTerm), $geneticNodes, $question, $storedValues)
     #elseif ($submodule == "diagnostic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnostic), $diagnosticNodes, $question, $storedValues)
+      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnosticTerm), $diagnosticNodes, $question, $storedValues)
     #end
   #elseif ($module == "care")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
     #__displayCategories($rootNode, $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}), $question, $storedValues)
   #elseif ($module == "family")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($care))
+    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
     #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}))
     #set ($careSubset = [])
     #foreach ($item in $allCare)
