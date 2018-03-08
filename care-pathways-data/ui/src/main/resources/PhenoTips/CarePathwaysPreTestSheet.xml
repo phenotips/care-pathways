@@ -43,11 +43,12 @@
 
 {{include reference="PhenoTips.CarePathways" /}}
 
+{{include reference="PhenoTips.CarePathwaysDataDeleteServices" /}}
+
 {{velocity output=false}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
-#template('carePathwaysMacros.vm')##
 ##
 ##
 #set ($displayDocExtra = false)

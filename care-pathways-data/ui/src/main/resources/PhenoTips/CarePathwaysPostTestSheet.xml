@@ -1111,6 +1111,8 @@ order=1</parameters>
 
 {{include reference="PhenoTips.TabelarDataMacros" /}}
 
+{{include reference="PhenoTips.CarePathwaysDataDeleteServices" /}}
+
 {{velocity output="false"}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
 $xwiki.jsx.use('PhenoTips.PatientSheetCode')##
@@ -1124,9 +1126,11 @@ $xwiki.jsfx.use('uicomponents/widgets/geneVariantValidation.js', true)##
 $xwiki.ssfx.use('uicomponents/widgets/extraGeneVariantData.css', true)##
 $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #template('geneVariantMacros.vm')##
-#template('carePathwaysMacros.vm')##
-##
-##
+{{/velocity}}
+
+{{include reference="PhenoTips.CarePathwaysGeneTableMacros" /}}##
+
+{{velocity output="false"}}
 #set ($geneStatus = 'confirmed')##
 #set ($variantStatus = "primary")##
 #set ($section = "posttest")
@@ -1469,6 +1473,8 @@ order=1</parameters>
 
 {{include reference="PhenoTips.TabelarDataMacros" /}}
 
+{{include reference="PhenoTips.CarePathwaysDataDeleteServices" /}}
+
 {{velocity output="false"}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
 $xwiki.jsx.use('PhenoTips.PatientSheetCode')##
@@ -1482,9 +1488,11 @@ $xwiki.jsfx.use('uicomponents/widgets/geneVariantValidation.js', true)##
 $xwiki.ssfx.use('uicomponents/widgets/extraGeneVariantData.css', true)##
 $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #template('geneVariantMacros.vm')##
-#template('carePathwaysMacros.vm')##
-##
-##
+{{/velocity}}
+
+{{include reference="PhenoTips.CarePathwaysGeneTableMacros" /}}##
+
+{{velocity output="false"}}
 #set ($geneStatus = 'confirmed_secondary')##
 #set ($variantStatus = "secondary")##
 #set ($section = "posttest")

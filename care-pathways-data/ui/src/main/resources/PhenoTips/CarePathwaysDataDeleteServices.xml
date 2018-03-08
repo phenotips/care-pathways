@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.1">
+  <web>PhenoTips</web>
+  <name>CarePathwaysDataDeleteServices</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1520523032000</creationDate>
+  <parent>PhenoTips.PatientClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1520523916000</date>
+  <contentUpdateDate>1520523916000</contentUpdateDate>
+  <version>1.1</version>
+  <title>CarePathwaysDeleteServices</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity output="false"}}
+## =====================================================================
+##
+## Care pathways macros
+##
+##
+#macro(__remove_gene $gene $subject $variantStatus $variantClass $associatedDataClass)
+  #set ($geneId = "$!{gene.getProperty('gene').value}")
+  #set ($variantObjects = $doc.getObjects($variantClass, 'gene', $geneId))
+  ## delete gene
+  $doc.removeObject($gene)
+  ## delete variants
+  #foreach ($variant in $variantObjects)
+    #if (($subject == "" || "$!{variant.getProperty('subject').value}" == $subject) &amp;&amp; ($variantStatus == "" || "$!{variant.getProperty('status').value}" == $variantStatus))
+      #if ("$!{associatedDataClass}" != "")
+        #set ($associatedDataObjs = $doc.getObjects($associatedDataClass, "variant", $variant.number))
+        #__clear_objects($associatedDataObjs)
+      #end
+      $doc.removeObject($variant)
+    #end
+  #end
+#end
+##
+##
+#macro(__clear_genes $subject $geneStatus $geneClass $variantStatus $variantClass $associatedDataClass)
+  #if ($geneStatus == "")
+    #set ($genes = $doc.getObjects($geneClass))
+  #else
+    #set ($genes = $doc.getObjects($geneClass, 'status', $geneStatus))
+  #end
+  #foreach($gene in $genes)
+    #if ($subject == "" || "$!{gene.getProperty('subject').value}" == $subject)
+      #__remove_gene($gene $subject $variantStatus $variantClass $associatedDataClass)##
+    #end
+  #end
+#end
+##
+##
+#macro(__clear_objects $objects)
+  #foreach ($obj in $objects)
+    $doc.removeObject($obj)
+  #end
+#end
+##
+##
+## =====================================================================
+##
+## Clear care-pathways category data script service with bulk qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' &amp;&amp; $request.action == 'clearcategory' &amp;&amp; "$!{request.cpclassname}" != '' &amp;&amp; "$!{request.category}" != '' &amp;&amp; "$!{request.question}" != '' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($qualifierObjects = $doc.getObjects($request.cpclassname, 'question', $request.question))
+  ## delete qualifiers
+  #if ($qualifierObjects)
+    #set ($requestedValue = $request.category)
+    #set ($parentProp = 'parent')
+    #foreach ($q in $qualifierObjects)
+      #set ($storedValue = $q.getProperty($parentProp).value)
+      #if ($storedValue == $requestedValue)
+        $doc.removeObject($q)
+      #end
+    #end
+  #end
+  ## save document
+  $doc.save("Deleted care pathways question qualifiers and category data")
+#end
+
+## =====================================================================
+##
+## Clear care-pathways genes data script service with bulk gene and qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' &amp;&amp; $request.action == 'cpcleargenes' &amp;&amp; "$!{request.geneclassname}" != '' &amp;&amp; "$!{request.variantclassname}" != '' &amp;&amp; "$!{request.genestatus}" != '' &amp;&amp; "$!{request.variantstatus}" != '' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
+  #__clear_genes("$!{request.subject}" $request.genestatus $request.geneclassname $request.variantstatus $request.variantclassname $request.associateddataclass)
+  ## save document
+  $doc.save("Deleted care pathways genes with $request.genestatus and associated $request.variantstatus for $request.subject")
+#end
+
+## =====================================================================
+##
+## Clear care-pathways questions data script service with bulk question delete
+##
+##
+#if ($xcontext.action == 'get' &amp;&amp; $request.action == 'cpclearquestions' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
+  #foreach ($question in $!{request.getParameterValues('question')})
+    #set ($dataObjs = $doc.getObjects($!{request.classname}, 'question', $question))
+    #__clear_objects($dataObjs)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways survey question data")
+#end
+
+## =====================================================================
+##
+## Delete care-pathways gene data script service with bulk qualifiers delete
+##
+##
+#if ($xcontext.action == 'get' &amp;&amp; $request.action == 'cpdeletegene' &amp;&amp; "$!{request.objnumber}" != '' &amp;&amp; "$!{request.geneclassname}" != '' &amp;&amp; "$!{request.variantclassname}" != '' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($geneNum = $mathtool.toInteger($request.objnumber))
+  #set ($geneObject = $doc.getObject($request.geneclassname, $geneNum))
+  #set ($subject = "$!{geneObject.getProperty('subject').value}")
+  #set ($geneStatus = "$!{geneObject.getProperty('status').value}")
+  #set ($variantStatus = "#if ($geneStatus == 'confirmed')primary#{else}secondary#{end}")
+  #if ($!{geneObject})
+    #__remove_gene($geneObject $subject $variantStatus $request.variantclassname $request.associateddataclass)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways gene and associated variants")
+#end
+
+## =====================================================================
+##
+## Delete care-pathways variant data script service
+##
+##
+#if ($xcontext.action == 'get' &amp;&amp; $request.action == 'cpdeletevariant' &amp;&amp; "$!{request.classid}" != '' &amp;&amp; "$!{request.classname}" != '' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
+  #set ($variantObject = $doc.getObject($request.classname, $request.classid))
+  #if ("$!{request.associateddataclass}" != "")
+    #set ($associatedDataObjs = $doc.getObjects($associatedDataClass, "variant", $variantObject.number))
+    #__clear_objects($associatedDataObjs)
+  #end
+  #if ($!{variantObject})
+    $doc.removeObject($variantObject)
+  #end
+  ## save document
+  $doc.save("Deleted care pathways variant and associated question data")
+#end
+{{/velocity}}</content>
+</xwikidoc>
