@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.1">
+  <web>PhenoTips</web>
+  <name>CarePathwaysGeneTableMacros</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1520523177000</creationDate>
+  <parent>PhenoTips.PatientClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1520524360000</date>
+  <contentUpdateDate>1520523641000</contentUpdateDate>
+  <version>1.1</version>
+  <title>CarePathwaysGeneTableMacros</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity output="false"}}
+## =====================================================================
+##
+## geneVariantMacros overrides
+##
+##
+#macro (__gene__deleteWithVariants__tool $geneObj $variantClassName)
+{{html clean="false"}}&lt;span class="buttonwrapper actions"&gt;&lt;a class="action delete-gene button secondary" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;amp;geneclassname=${geneObj.xWikiClass.name}&amp;amp;variantclassname=$variantClassName&amp;amp;form_token=$!{services.csrf.getToken()}&amp;amp;action=cpdeletegene&amp;amp;associateddataclass=PhenoTips.PatientCarePostTestClass&amp;amp;objnumber=$geneObj.number&amp;amp;gene=")" title="$escapetool.xml($services.localization.render('phenotips.tableMacros.delete'))"&gt;✖&lt;/a&gt;&lt;/span&gt;{{/html}}##
+#end
+##
+##
+#macro (__variant__deleteTool $object)
+{{html clean="false"}}&lt;span class="buttonwrapper"&gt;&lt;a class="action delete-variant button secondary" style="margin-top : 0" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;amp;classname=${object.xWikiClass.name}&amp;amp;classid=${object.number}&amp;amp;form_token=$!{services.csrf.getToken()}&amp;amp;action=cpdeletevariant&amp;amp;associateddataclass=PhenoTips.PatientCarePostTestClass")" title="$escapetool.xml($services.localization.render('phenotips.tableMacros.delete'))"&gt;✖&lt;/a&gt;&lt;/span&gt;{{/html}}##
+#end
+##
+##
+#macro (__variant_row_empty $variantClassName $geneObjNumber $options)##
+#set($fakeObj = $doc.newObject($variantClassName))
+#set($variantIndex = 'ZZVARIANT_INDEX_PLACEHOLDERZZ')
+#set($geneObjNumber = 'ZZGENE_INDEX_PLACEHOLDERZZ')
+#set($count = 'ZZVRCOUNT_PLACEHOLDERZZ')
+|(% class="v-collapsed" %) $doc.display('gene', $options.mode, $fakeObj)##
+|(% class="pseudoindent" %) ##
+|(% class="variant-row-count variant-${variantIndex} variant" %)$count##
+#foreach($propName in $options.defaultProperties)
+|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)$doc.display($propName, $options.mode, $fakeObj)##
+#end
+#set($colspan = $!{options.defaultProperties.size()})
+#__variant__deleteTool($variantObj)\\
+(% class="variant-gene-$geneObjNumber variant-moreinfo-row v-collapsed variant-hide-heading-$geneObjNumber" %)##
+|(% class="pseudoindent" %)##
+|(% class = "variant" %)##
+|(% colspan="$colspan" class="variant moreinfo" %)(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)(((##
+#foreach ($prop in $fakeObj.xWikiClass.properties)
+#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()))
+
+#set ($isInputString = $options.inputStrings.contains($prop.getName()))
+#set($rawValue = "")
+|(% class="variant-moreinfo variant-property-name-$variantIndex %)**${prop.translatedPrettyName}**##
+| (% class="variant-property-value ${prop.getName()}-$variantIndex variant-label-$variantIndex" %) ##
+#if($isInputString)
+$rawValue ##
+#else
+$doc.display($prop.getName(), 'view', $fakeObj )##
+#end ##
+(%%) (% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $fakeObj )##
+#end
+#end
+))) (% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)\\
+#end
+##
+##
+#macro (__variant_row $variantObj $count $variantIndex $geneObjNumber $options)
+#if ($options.mode == 'edit')
+|(% class="v-collapsed" %) $doc.display('gene', $options.mode, $variantObj)##
+#end
+|(% class="pseudoindent" %) |(% class="variant-row-count variant-${variantIndex} variant" %)$count##
+#foreach($propName in $options.defaultProperties)
+#set ($isInputString = $options.inputStrings.contains($propName))
+|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)#if ($xcontext.action == 'edit')$doc.display($propName, 'edit', $variantObj)#elseif($isInputString)$!{services.rendering.escape($variantObj.getValue($propName), $doc.syntax)}#else$doc.display($propName, 'view', $variantObj)#end##
+#end
+#set($colspan = $!{options.defaultProperties.size()})
+#if ($options.mode == 'edit')#__variant__deleteTool($variantObj)#end\\
+(% class="variant-gene-$geneObjNumber variant-moreinfo-row v-collapsed variant-hide-heading-$geneObjNumber" %)##
+|(% class="pseudoindent" %)|(% class = "variant" %)|(% colspan="$colspan" class="variant moreinfo" %)##
+#if ($options.mode == 'edit')(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)#end(((##
+#foreach ($prop in $variantObj.xWikiClass.properties)
+#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()))
+#set($rawValue = $variantObj.getValue($prop.getName()))
+#set($isValueEmpty = "$!{rawValue}" == '' || $rawValue == 'NA' || $rawValue == [])
+#if ($options.mode == 'edit' || ($options.mode != 'edit' &amp;&amp; !$isValueEmpty))
+(% class="variant-moreinfo-table" %)
+#set ($isInputString = $options.inputStrings.contains($prop.getName()))
+|(% class="variant-moreinfo variant-property-name-$variantIndex %)**${prop.translatedPrettyName}**##
+| (% class="variant-property-value ${prop.getName()}-$variantIndex ##
+#if ($options.mode == 'edit') variant-label-$variantIndex #end"%)#if($isInputString)$!{services.rendering.escape($rawValue, $doc.syntax)}#else $doc.display($prop.getName(), 'view', $variantObj )#end
+ (%%)#if ($options.mode == 'edit')(% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $variantObj )#end#end##
+#end#end
+))) #if ($options.mode == 'edit')(% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)#end\\
+#end
+##
+##
+{{/velocity}}</content>
+</xwikidoc>
