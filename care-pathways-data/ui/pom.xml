@@ -58,13 +58,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>vocabulary-care-pathways-api</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vocabulary-care-pathways-questions-api</artifactId>
+      <artifactId>care-pathways-vocabularies</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>

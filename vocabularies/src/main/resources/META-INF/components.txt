@@ -1,0 +1,2 @@
+org.phenotips.vocabulary.internal.solr.CarePathwaysOntology
+org.phenotips.vocabulary.internal.solr.CarePathwaysQuestionOntology

@@ -62,8 +62,7 @@
   </repositories>
 
   <modules>
-    <module>vocabulary-care-pathways</module>
-    <module>vocabulary-care-pathways-questions</module>
+    <module>vocabularies</module>
     <module>widgets</module>
     <module>resources</module>
     <module>care-pathways-data</module>
