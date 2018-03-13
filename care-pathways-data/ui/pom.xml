@@ -64,7 +64,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>care-pathways-widgets-ui</artifactId>
+      <artifactId>care-pathways-widgets</artifactId>
       <version>${project.version}</version>
       <type>xar</type>
       <scope>runtime</scope>
