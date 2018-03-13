@@ -73,8 +73,6 @@ public class CarePathwaysQuestionOntologyTest
 
     private static final String NAME = "Care pathways survey questions";
 
-    private static final String CORE_NAME = IDENTIFIER;
-
     private static final String TERM_PREFIX = "CPQ";
 
     private static final String COLON = ":";
@@ -123,10 +121,10 @@ public class CarePathwaysQuestionOntologyTest
         this.logger = this.mocker.getMockedLogger();
 
         final SolrVocabularyResourceManager externalServicesAccess =
-                this.mocker.getInstance(SolrVocabularyResourceManager.class);
-        when(externalServicesAccess.getTermCache(CORE_NAME)).thenReturn(this.cache);
-        when(externalServicesAccess.getReplacementSolrConnection(CORE_NAME)).thenReturn(this.solrClient);
-        when(externalServicesAccess.getSolrConnection(CORE_NAME)).thenReturn(this.solrClient);
+            this.mocker.getInstance(SolrVocabularyResourceManager.class);
+        when(externalServicesAccess.getTermCache(this.component)).thenReturn(this.cache);
+        when(externalServicesAccess.getReplacementSolrConnection(this.component)).thenReturn(this.solrClient);
+        when(externalServicesAccess.getSolrConnection(this.component)).thenReturn(this.solrClient);
 
         when(this.solrClient.query(any(SolrQuery.class))).thenReturn(this.response);
         when(this.response.getResults()).thenReturn(this.termList);
@@ -194,13 +192,6 @@ public class CarePathwaysQuestionOntologyTest
     {
         Assert.assertTrue(StringUtils.EMPTY.equals(this.component.getCitation()));
     }
-
-    @Test
-    public void getCoreNameReturnsCorrectVocabularyCoreName()
-    {
-        Assert.assertTrue(CORE_NAME.equals(this.component.getCoreName()));
-    }
-
 
     @Test
     public void getSolrDocsPerBatchReturnsCorrectNumber()

@@ -89,12 +89,6 @@ public class CarePathwaysQuestionOntology extends AbstractCSVSolrVocabulary
     }
 
     @Override
-    protected String getCoreName()
-    {
-        return getIdentifier();
-    }
-
-    @Override
     public String getIdentifier()
     {
         return "care-pathways-questions";
@@ -124,7 +118,7 @@ public class CarePathwaysQuestionOntology extends AbstractCSVSolrVocabulary
     @Override
     public String getDefaultSourceLocation()
     {
-        final URL url = ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysQuestions.tsv");
+        final URL url = getClass().getResource("/source/CarePathwaysQuestions.tsv");
         return url == null ? StringUtils.EMPTY : url.toString();
     }
 

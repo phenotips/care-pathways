@@ -140,7 +140,7 @@ public class CarePathwaysOntology extends AbstractCSVSolrVocabulary
     @Override
     public String getDefaultSourceLocation()
     {
-        final URL url = ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
+        final URL url = getClass().getResource("/source/CarePathwaysOrderedTestsAndCare.tsv");
         return url == null ? StringUtils.EMPTY : url.toString();
     }
 
@@ -160,12 +160,6 @@ public class CarePathwaysOntology extends AbstractCSVSolrVocabulary
     private InputStream getInputStream(@Nonnull final URL url) throws IOException
     {
         return url.openConnection().getInputStream();
-    }
-
-    @Override
-    protected String getCoreName()
-    {
-        return getIdentifier();
     }
 
     @Override
