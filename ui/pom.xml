@@ -26,14 +26,14 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>care-pathways-ui</artifactId>
-  <name>PhenoTips - Care Pathways - User Interface Components</name>
+  <name>PhenoTips - Care Pathways - Installable extension</name>
   <packaging>xar</packaging>
 
   <properties>
     <!-- Don't run CLIRR here since there's no Java code. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
     <!-- Name to display by the Extension Manager -->
-    <xwiki.extension.name>Care pathways UI</xwiki.extension.name>
+    <xwiki.extension.name>Care Pathways - A survey for analyzing the usefulnes of genome sequencing</xwiki.extension.name>
   </properties>
 
   <dependencies>
