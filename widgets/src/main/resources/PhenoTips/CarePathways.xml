@@ -2136,6 +2136,9 @@ var init = function(event) {
     _attachClickListeners : function() {
       var _this = this;
       this._container.observe('click', function(event) {
+        if (event.target.type !== "checkbox") {
+          event.stop();
+        }
         var target = event.findElement('span.term-picker');
         if (target) {
           _this._toggleSelected.bind(_this, target)();
