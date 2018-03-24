@@ -2178,9 +2178,17 @@ var init = function(event) {
         var url = this._deleteQualifierAction.replace(/([&amp;?]classid=)(xXx__COUNT_TEMPLATE__xXx)([&amp;$])/, "$1" + elCount.value + "$3");
         jQuery.ajax(url, {
           method: "GET", 
-          beforeSend: function () { target.disabled = true; }
+          beforeSend: function () {
+            target.disabled = true;
+            target.down('label').hide();
+            target.insert(new Element('span', {'class' : "fa fa-lg fa-spinner fa-spin fa-fw"}));
+          }
         })
-        .always(function () { target.disabled = false; })
+        .always(function () {
+          target.down('.fa-spinner').remove();
+          target.down('label').show();
+          target.disabled = false;
+        })
         .done(function (data, textStatus, jqXHR) {
           target.select('input[type="hidden"]').each(function(hiddenEl) {
             hiddenEl.remove();
