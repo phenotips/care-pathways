@@ -1142,7 +1142,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:7').name}",
          'modules':[
             {
-               'pursuedDate':false,
                'module':'test',
                'submodule':'',
                'subject':'proband',
@@ -1155,14 +1154,32 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:10').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'care',
                'submodule':'',
                'subject':'proband',
                'type':$variantStatus
             },
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'family',
                'submodule':'',
                'subject':'',
@@ -1177,7 +1194,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:8').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'test',
                'submodule':'',
                'subject':'proband',
@@ -1190,14 +1216,32 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:11').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'care',
                'submodule':'',
                'subject':'proband',
                'type':$variantStatus
             },
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'family',
                'submodule':'',
                'subject':'',
@@ -1212,7 +1256,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:9').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'test',
                'submodule':'',
                'subject':'proband',
@@ -1225,7 +1278,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:12').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'care',
                'submodule':'',
                'subject':'proband',
@@ -1504,14 +1566,32 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:13').name}",
          'modules':[
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.care.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'care',
                'submodule':'',
                'subject':'proband',
                'type':$variantStatus
             },
             {
-               'pursuedDate':true,
+               'dates':[
+                 {
+                   "name":"date_recommended",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_recommended.title'))"
+                 },
+                 {
+                   "name":"date_pursued",
+                   "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.family.detailsDialog.datePicker.date_pursued.title'))"
+                 }
+               ],
                'module':'family',
                'submodule':'',
                'subject':'',
@@ -1526,7 +1606,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:14').name}",
          'modules':[
             {
-               'pursuedDate':false,
                'module':'care',
                'submodule':'',
                'subject':'mother',
@@ -1541,7 +1620,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:15').name}",
          'modules':[
             {
-               'pursuedDate':false,
                'module':'care',
                'submodule':'',
                'subject':'father',

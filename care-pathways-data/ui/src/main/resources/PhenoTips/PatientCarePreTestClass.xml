@@ -46,32 +46,21 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <datum>
+    <date_entered>
       <customDisplay/>
+      <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
-      <name>datum</name>
-      <number>1</number>
-      <picker>0</picker>
-      <prettyName>Test or care</prettyName>
-      <size>30</size>
+      <emptyIsToday>1</emptyIsToday>
+      <name>date_entered</name>
+      <number>5</number>
+      <picker>1</picker>
+      <prettyName>Date entered</prettyName>
+      <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </datum>
-    <subject>
-      <customDisplay/>
-      <disabled>0</disabled>
-      <name>subject</name>
-      <number>2</number>
-      <picker>0</picker>
-      <prettyName>Subject</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </subject>
+      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+    </date_entered>
     <date_pursued>
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>
@@ -100,21 +89,60 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </date_pursued_fuzzy>
-    <date_entered>
+    <date_recommended>
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>1</emptyIsToday>
-      <name>date_entered</name>
-      <number>5</number>
+      <name>date_recommended</name>
+      <number>10</number>
       <picker>1</picker>
-      <prettyName>Date entered</prettyName>
+      <prettyName>Date ordered</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </date_entered>
+    </date_recommended>
+    <date_recommended_fuzzy>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>date_recommended_fuzzy</name>
+      <number>11</number>
+      <picker>0</picker>
+      <prettyName>Date ordered</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </date_recommended_fuzzy>
+    <datum>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>datum</name>
+      <number>1</number>
+      <picker>0</picker>
+      <prettyName>Test or care</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </datum>
+    <module>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>module</name>
+      <number>9</number>
+      <picker>0</picker>
+      <prettyName>Module</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </module>
     <notes>
       <contenttype>PureText</contenttype>
       <customDisplay/>
@@ -131,19 +159,6 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
     </notes>
-    <question>
-      <customDisplay/>
-      <disabled>0</disabled>
-      <name>question</name>
-      <number>7</number>
-      <picker>0</picker>
-      <prettyName>Question</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </question>
     <parent>
       <customDisplay/>
       <disabled>0</disabled>
@@ -157,18 +172,31 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </parent>
-    <module>
+    <question>
       <customDisplay/>
       <disabled>0</disabled>
-      <name>module</name>
-      <number>9</number>
+      <name>question</name>
+      <number>7</number>
       <picker>0</picker>
-      <prettyName>Module</prettyName>
+      <prettyName>Question</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </module>
+    </question>
+    <subject>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>subject</name>
+      <number>2</number>
+      <picker>0</picker>
+      <prettyName>Subject</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </subject>
   </class>
 </xwikidoc>
