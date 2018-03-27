@@ -71,7 +71,7 @@
 |(% class = "variant" %)##
 |(% colspan="$colspan" class="variant moreinfo" %)(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)(((##
 #foreach ($prop in $fakeObj.xWikiClass.properties)
-#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()))
+#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()) &amp;&amp; (!$!{options.displayedProperties} || $options.displayedProperties.contains($prop.getName())))
 
 #set ($isInputString = $options.inputStrings.contains($prop.getName()))
 #set($rawValue = "")
@@ -104,7 +104,7 @@ $doc.display($prop.getName(), 'view', $fakeObj )##
 |(% class="pseudoindent" %)|(% class = "variant" %)|(% colspan="$colspan" class="variant moreinfo" %)##
 #if ($options.mode == 'edit')(% class="variant-moreinfo-editbutton-row variant-$variantIndex" %)#end(((##
 #foreach ($prop in $variantObj.xWikiClass.properties)
-#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()))
+#if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()) &amp;&amp; (!$!{options.displayedProperties} || $options.displayedProperties.contains($prop.getName())))
 #set($rawValue = $variantObj.getValue($prop.getName()))
 #set($isValueEmpty = "$!{rawValue}" == '' || $rawValue == 'NA' || $rawValue == [])
 #if ($options.mode == 'edit' || ($options.mode != 'edit' &amp;&amp; !$isValueEmpty))
