@@ -79,8 +79,6 @@
 | (% class="variant-property-value ${prop.getName()}-$variantIndex variant-label-$variantIndex" %) ##
 #if($isInputString)
 $rawValue ##
-#else
-$doc.display($prop.getName(), 'view', $fakeObj )##
 #end ##
 (%%) (% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $fakeObj )##
 #end
@@ -106,7 +104,7 @@ $doc.display($prop.getName(), 'view', $fakeObj )##
 #foreach ($prop in $variantObj.xWikiClass.properties)
 #if ($prop.getName() != 'gene' &amp;&amp; !$options.defaultProperties.contains($prop.getName()) &amp;&amp; (!$!{options.displayedProperties} || $options.displayedProperties.contains($prop.getName())))
 #set($rawValue = $variantObj.getValue($prop.getName()))
-#set($isValueEmpty = "$!{rawValue}" == '' || $rawValue == 'NA' || $rawValue == [])
+#set($isValueEmpty = "$!{rawValue}" == '' || $rawValue == 'NA' || $rawValue == [] || $rawValue == {})
 #if ($options.mode == 'edit' || ($options.mode != 'edit' &amp;&amp; !$isValueEmpty))
 (% class="variant-moreinfo-table" %)
 #set ($isInputString = $options.inputStrings.contains($prop.getName()))
