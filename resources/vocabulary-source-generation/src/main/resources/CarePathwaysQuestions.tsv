@@ -1,5 +1,5 @@
 pre test	What genetic tests has your patient had to date?	CPQ:0
-pre test	What other diagnostic tests has your patient had in the past 1 year?	CPQ:1
+pre test	What other diagnostic tests has your patient had in the past?	CPQ:1
 pre test	If WES was not available for your patient today, what diagnostic tests would you order at this point in time?	CPQ:2
 pre test	What types of specialists and activities are involved in your patient's routine care?	CPQ:3
 post test	My patient's analysis of primary variants revealed:	CPQ:4
