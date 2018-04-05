@@ -39,6 +39,7 @@
   <hidden>true</hidden>
   <content>{{velocity output=false}}
 #set ($testTerm = "CP:01")
+#set ($metabolicTerm = "CP:1114")
 #set ($careTerm = "CP:02")
 #set ($familyCareTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
@@ -293,19 +294,24 @@
 #end##
 ##
 ##
-#macro (__displayChildren $term $childrenList $question $storedValues)
-  #if ($childrenList.size() &gt; 0)
+#macro (__displayChildren $term $childrenList $question $storedValues $justCategories)
+  #set($allChildren = $services.vocabularies.care-pathways.search({'term_category': $term}, {'sort': 'nameSort asc'}))
+  #set($macro.numChildren = $childrenList.size())
+  #set($macro.expectedNumChildren = $allChildren.size())
+  #if ($macro.numChildren &gt; 0)
     #set ($macro.accumulated = "")
     #foreach($item in $childrenList)
-      #set ($childrenHtml = "#__displayChildren($item, $services.vocabularies.care-pathways.search({'is_a': $item.id}, {'sort': 'nameSort asc'}))")
+      #set ($childrenHtml = "#__displayChildren($item.id, $services.vocabularies.care-pathways.search({'is_a': $item.id}, {'sort': 'nameSort asc'}), $question, $storedValues, $justCategories)")
       #if ("$!{childrenHtml}" != "")
-        #set ($itemName = $stringtool.capitalize("$!{item.name}"))
+        #set ($itemName = "$!{item.name}")
         #if ($stringtool.trim("$!{childrenHtml}") != "")
           #set ($otherKey = $stringtool.join([$item.id, '_other'], ''))##
           #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
         #else
           #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
         #end
+      #elseif ("$!{childrenHtml}" == "" &amp;&amp; ($macro.expectedNumChildren &gt; $macro.numChildren || $justCategories))
+        #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;span class='term-name'&gt;$!{item.name}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
       #end
     #end
     $macro.accumulated
@@ -313,11 +319,11 @@
 #end
 ##
 ##
-#macro (__displayCategories $rootNode $rootChildren $question $storedValues)
-  #set ($otherId = $stringtool.join([$rootNode.id, '_other'], ''))##
+#macro (__displayCategories $rootNode $rootChildren $question $storedValues $justCategories)
+  #set ($otherId = $stringtool.join([$rootNode, '_other'], ''))##
   &lt;ul&gt;
-    #__displayChildren($rootNode, $rootChildren, $question, $storedValues)
-    &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${rootNode.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${rootNode.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+    #__displayChildren($rootNode, $rootChildren, $question, $storedValues, $justCategories)
+  &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
   &lt;ul&gt;
 #end
 ##
@@ -326,30 +332,39 @@
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
   #if ($module == "test")
     #set ($testNodes = [])
-    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc'}))
+    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc', 'fq': "NOT id:${metabolicTerm.replaceAll(':', '\\:')}"}))
+    #set ($metabolicNodes = [$services.vocabularies.care-pathways.getTerm($metabolicTerm)])
     #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnosticTerm}, {'sort': 'nameSort asc'}))
     #set ($discard = $testNodes.addAll($geneticNodes))
     #set ($discard = $testNodes.addAll($diagnosticNodes))
     #if ($submodule == "")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($testTerm), $testNodes, $question, $storedValues)
+      #set ($otherId = $stringtool.join([$testTerm, '_other'], ''))##
+      &lt;ul&gt;
+      #__displayChildren($geneticTerm, $geneticNodes, $question, $storedValues, true)
+      #__displayChildren($metabolicTerm, $metabolicNodes, $question, $storedValues, false)
+      #__displayChildren($diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
+      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$testTerm'&gt;&lt;label for='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+      &lt;ul&gt;
     #elseif ($submodule == "genetic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($geneticTerm), $geneticNodes, $question, $storedValues)
+      &lt;ul&gt;
+      #__displayChildren($geneticTerm, $geneticNodes, $question, $storedValues, true)
+      #__displayChildren($metabolicTerm, $metabolicNodes, $question, $storedValues, false)
+      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$geneticTerm'&gt;&lt;label for='cp-add-tool-${module}-${question}-${geneticTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${geneticTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+      &lt;ul&gt;
     #elseif ($submodule == "diagnostic")
-      #__displayCategories($services.vocabularies.care-pathways.getTerm($diagnosticTerm), $diagnosticNodes, $question, $storedValues)
+      #__displayCategories($diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
     #end
   #elseif ($module == "care")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
-    #__displayCategories($rootNode, $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}), $question, $storedValues)
+    #__displayCategories($careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, false)
   #elseif ($module == "family")
-    #set ($rootNode = $services.vocabularies.care-pathways.getTerm($careTerm))
-    #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $rootNode.id}, {'sort': 'nameSort asc'}))
+    #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}))
     #set ($careSubset = [])
     #foreach ($item in $allCare)
       #if ($stringtool.containsIgnoreCase("$!{item.name}", "care") || $stringtool.containsIgnoreCase("$!{item.name}", "surveillance"))
         #set($discard = $careSubset.add($item))
       #end
     #end
-    #__displayCategories($rootNode, $careSubset, $question, $storedValues)
+    #__displayCategories($careTerm, $careSubset, $question, $storedValues, false)
   #end
 #end
 {{/velocity}}
@@ -865,7 +880,6 @@
     initialize : function(container, options) {
       if (!container) { return; }
       this._container = container;
-      this._tooltip = options.tooltip || "";
       this._showPath = options.showPath;
 
       this._buildModule();
@@ -1094,7 +1108,6 @@
     initialize : function(container, options) {
       if (!container) { return; }
       this._container = container;
-      this._tooltip = options.tooltip || "";
 
       this._getChildrenUrl = options.localUrl;
       this._typeaheadRemote = options.remoteUrl;
@@ -1148,7 +1161,7 @@
         $H(json).each(function(pair) {
           var data = pair.value;
           if (data.id &amp;&amp; data.label) {
-            var request = _this._buildNewTermElement.bind(_this, data.id, data.label, _this._tooltip, data)();
+            var request = _this._buildNewTermElement.bind(_this, data.id, data.label, data)();
             promises.push(request);
           }
         });
@@ -1168,7 +1181,7 @@
         if (event.memo) {
           termId = event.memo.term_id;
           termName = event.memo.term_name || termId;
-          termId &amp;&amp; termName &amp;&amp; _this._buildNewTermElement.bind(_this, termId, termName || termId, _this._tooltip, undefined)();
+          termId &amp;&amp; termName &amp;&amp; _this._buildNewTermElement.bind(_this, termId, termName || termId, undefined)();
         }
       });
 
@@ -1192,12 +1205,12 @@
       })
     },
 
-    _buildNewTermElement : function(termId, termName, tooltip, values) {
+    _buildNewTermElement : function(termId, termName, values) {
       var termDeleteStr = this._clearCategoryAction
         .replace(/([&amp;?]category=)(xXx__CATEGORY_TEMPLATE__xXx)([&amp;$])/, "$1" + termId + "$3")
         .replace(/([&amp;?]question=)(xXx__QUESTION_TEMPLATE__xXx)([&amp;$])/, "$1" + this._questionId + "$3");
       var options = {'allowMultiDialogs': true, 'disableTermDelete': false, 'termDeleteAction' : termDeleteStr};
-      return this._doDoneDataResponse(this._constructDataRequest(termId), termId, termName, tooltip, options, values);
+      return this._doDoneDataResponse(this._constructDataRequest(termId), termId, termName, options, values);
     },
 
     _constructDataRequest : function(termId) {
@@ -1212,20 +1225,20 @@
       });
     },
 
-    _doDoneDataResponse : function(req, termId, termName, tooltip, options, values) {
+    _doDoneDataResponse : function(req, termId, termName, options, values) {
       return req
-        .done(this._buildNewTermElementFromResponse.bind(this, termId, termName, tooltip, options, values))
+        .done(this._buildNewTermElementFromResponse.bind(this, termId, termName, options, values))
         .fail(function(jqXHR, textStatus, errorThrown) {
         // TODO: Construct dialog with no typeahead options on failure??
         });
     },
 
-    _buildNewTermElementFromResponse : function(termId, termName, tooltip, options, values, response) {
+    _buildNewTermElementFromResponse : function(termId, termName, options, values, response) {
       var json = response &amp;&amp; response.rows;
       if (json) {
         var tableCol = new Element('td');
         var tableRow = new Element('tr', {'class': this._moduleType + '_field category-data'} )
-        var qualifiersWidget = this._buildDetailsDialog(termId, termName, tooltip, options, json);
+        var qualifiersWidget = this._buildDetailsDialog(termId, termName, options, json);
         var qualifiers = qualifiersWidget.get();
         // Set values silently, or initialize as affected, non-silently. If values are provided, then we're displaying
         // stored tests. If no values are provided, then we're adding a new test/care item with a qualifier dialog.
@@ -1235,18 +1248,17 @@
           qualifiersWidget.initAffected(false);
         }
         qualifiers._widget = qualifiersWidget;
-        'notmapped' === tooltip &amp;&amp; this._setUnmappedIconTitle(qualifiers);
         tableRow.insert(tableCol.insert(qualifiers));
         this._observeQualifierEvents(qualifiers);
         this._termsTable.insert(tableRow);
       }
     },
 
-    _buildDetailsDialog : function(termId, termName, tooltip, options, json) {
+    _buildDetailsDialog : function(termId, termName, options, json) {
       var qualifiersWidget = new PhenoTips.widgets.carePathways.CPDetailsDialogGroup("parent", options)
         .withGlobalQualifierCount(this._getCount, this._updateCount)
         .withQualifierDataMarker(this._qualifierDataMarker + "_")
-        .withLabel(termName, termId, tooltip, true)
+        .withLabel(termName, termId, null, true)
         .dialogsAddDeleteAction(this._deleteQualifierAction)
         .dialogsAddTypeAhead(false, {
           'remote' : this._typeaheadRemote + "&amp;parent=" + termId + "&amp;input=" ,
@@ -1474,7 +1486,7 @@ var initNavAndSelMods = function(modules) {
       var remoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
       var clearCategoryEl = $('clear-category-action');
       var deleteQualifierEl = $('delete-qualifier-action');
-      var options = {"tooltip" : "", "localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
+      var options = {"localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
       new PhenoTips.widgets.carePathways.ModuleSelectionPanel(module, options);
       new PhenoTips.widgets.carePathways.ModuleNavigationPanel(module, options);
     });
