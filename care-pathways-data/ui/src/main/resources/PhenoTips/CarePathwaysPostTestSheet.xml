@@ -310,17 +310,11 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
   background-color: $theme.pageContentBackgroundColor;
   padding-left: 2.5em;
 }
-#care-pathways-posttest-container .gene-table td.variant-default-input select {
-  width: 170px;
-}
 #care-pathways-posttest-container p &gt; span.displayed-value {
   display: none;
 }
 #care-pathways-posttest-container .chapter &gt; h2 {
   margin: -1.5em 0 0;
-}
-#care-pathways-posttest-container .gene-table td.variant .buttonwrapper {
-  width: 100%;
 }
 #care-pathways-posttest-container .gene-table td.variant .buttonwrapper input.secondary,
 #care-pathways-posttest-container .gene-table td.variant .buttonwrapper button.secondary,
@@ -330,6 +324,12 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
 #care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.secondary:active {
   margin-left: 9px;
 }
+#care-pathways-posttest-container .gene-table td.variant-default-input select {
+  width: 170px;
+}
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper {
+  width: 100%;
+}
 #care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.button.delete-variant {
   position: relative;
   right: 0;
@@ -337,6 +337,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
 #care-pathways-posttest-container .gene-table td.variant,
 #care-pathways-posttest-container .gene-table th.variant {
   background: $theme.backgroundSecondaryColor;
+  min-width: 50px;
 }
 #care-pathways-posttest-container .gene-table .variant-title {
   background-color: $theme.panelCollapsedBackgroundColor !important;
