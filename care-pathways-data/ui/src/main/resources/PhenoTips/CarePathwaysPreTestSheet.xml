@@ -63,7 +63,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:0",
       "modules" : [{
-        'dates':[
+        "dates":[
           {
             "name":"date_pursued",
             "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
@@ -77,7 +77,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:1",
       "modules" : [{
-        'dates':[
+        "dates":[
           {
             "name":"date_pursued",
             "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
@@ -91,6 +91,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:2",
       "modules" : [{
+        "dates":[],
         "module" : "test",
         "subject" : "proband"
       }]
@@ -98,6 +99,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:3",
       "modules" : [{
+        "dates":[],
         "module" : "care",
         "subject" : "proband"
       }]

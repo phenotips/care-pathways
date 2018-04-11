@@ -1142,6 +1142,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:7').name}",
          'modules':[
             {
+               'dates':[],
                'module':'test',
                'submodule':'',
                'subject':'proband',
@@ -1606,6 +1607,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:14').name}",
          'modules':[
             {
+               'dates':[],
                'module':'care',
                'submodule':'',
                'subject':'mother',
@@ -1620,6 +1622,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'questionLabel':"$!{services.vocabularies.care-pathways-questions.getTerm('CPQ:15').name}",
          'modules':[
             {
+               'dates':[],
                'module':'care',
                'submodule':'',
                'subject':'father',
