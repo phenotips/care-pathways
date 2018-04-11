@@ -46,6 +46,21 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
+    <date_amended>
+      <customDisplay/>
+      <dateFormat>yyyy-MM-dd</dateFormat>
+      <disabled>0</disabled>
+      <emptyIsToday>1</emptyIsToday>
+      <name>date_amended</name>
+      <number>13</number>
+      <picker>1</picker>
+      <prettyName>Date amended</prettyName>
+      <size>20</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+    </date_amended>
     <date_entered>
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>

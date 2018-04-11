@@ -761,6 +761,13 @@
       return dialog;
     },
 
+    addDialog: function($super, silent, count) {
+      var dialog = $super(silent, count);
+      // An event just for a DetailsDialogGroup object.
+      get().fire('detailsDialogGroup:dialog:added', {'element' : dialog.getDialog()});
+      return dialog;
+    },
+
     dialogsAddTypeAhead : function (collapsible, options) {
       var addTypeAhead = function (currentDialog) {
         currentDialog.withTypeAhead(collapsible, options);
@@ -1338,7 +1345,7 @@
         'hiddenDataValue': parseInt(this._variantNumber)
       });
 
-      return qualifiersWidget.dialogsAddHiddenDataElement({
+      qualifiersWidget.dialogsAddHiddenDataElement({
           'defListItemClass': 'question hidden',
           'inputSourceClass': this._moduleType + '_question',
           'qualifierName': 'question',
@@ -1349,10 +1356,26 @@
           'qualifierName': 'date_entered',
           'hiddenDataValue': ''})
         .dialogsAddHiddenDataElement({
+          'defListItemClass': 'date_amended hidden',
+          'inputSourceClass': this._moduleType + '_date_amended',
+          'qualifierName': 'date_amended',
+          'hiddenDataValue': ''})
+        .dialogsAddHiddenDataElement({
           'defListItemClass': 'module hidden',
           'inputSourceClass': this._moduleType + '_module',
           'qualifierName': 'module',
           'hiddenDataValue': this._moduleType});
+
+        qualifiersWidget.observe("detailsDialogGroup:dialog:added", this._onDialogChangeListener.bind(this));
+        return qualifiersWidget;
+    },
+
+    _onDialogChangeListener : function(event) {
+      var dialog = event.memo &amp;&amp; event.memo.element;
+      var dateAmendedInput = dialog.down('input.' + _this._moduleType + '_date_amended');
+      dateAmendedInput &amp;&amp; dialog.observe('change', function(event) {
+        dateAmendedInput.value = "";
+      });
     },
 
     _getToStoredTypeAheadFx : function(json) {
@@ -1492,6 +1515,7 @@ require.config({
     }
   }
 });
+
 var initNavAndSelMods = function(modules) {
     modules &amp;&amp; modules.length &gt; 0 &amp;&amp; modules.each(function(module) {
       var localUrl = XWiki.contextPath + "/rest/vocabularies/care-pathways/suggest?sort=nameSort%20asc&amp;maxResults=10000&amp;";
@@ -1527,7 +1551,7 @@ var initFamilyMods = function(modules) {
     var typeEl = module.down('input.associated-variant-type');
 
     var storedDataEl = module.down('input.cp-current-selection-stored-data');
-    var dataElements = {"question" : questionEl &amp;&amp; questionEl.value, "variant" : variantEl &amp;&amp; variantEl.value, "datum" : datumEl &amp;&amp; datumEl.value, "type" : typeEl &amp;&amp; typeEl.value};
+    var dataElements = {"question" : questionEl &amp;&amp; questionEl.value, "variant" : variantEl &amp;&amp; variantEl.value, "datum" : datumEl &amp;&amp; datumEl.value, "type" : typeEl &amp;&amp; typeEl.value, "date_entered" : "", "date_amended" : ""};
     var options = {"getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "dataName" : "subject", "dataElements" : dataElements, "storedDataEl" : storedDataEl};
     new PhenoTips.widgets.carePathways.MultiPicker(module, options);
   });
