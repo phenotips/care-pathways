@@ -347,7 +347,7 @@
         #set ($itemName = "$!{item.name}")
         #if ($stringtool.trim("$!{childrenHtml}") != "")
           #set ($otherKey = $stringtool.join([$item.id, '_other'], ''))##
-          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${item.id}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
         #else
           #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
         #end
@@ -1546,10 +1546,11 @@ var getToDisplayedTypeAheadFx = function(json) {
 
 var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, submoduleType, dataStorage) {
   // TODO: This will be different for a gene panel/single gene.
-  var remoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
+  var detailsRemoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
+  var labRemoteUrl = new XWiki.Document('CarePathwaysLaboratorySearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
 
   qualifiersWidget.dialogsAddTypeAhead(false, {
-    'remote' : remoteUrl + "&amp;parent=" + termId + "&amp;input=" ,
+    'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
     'data': json.map(function(x) { return x.name; }),
     'placeholder': 'Begin typing or click to show options',
     'defListItemClass': moduleType + ' datum' + ((json.size() || termId.endsWith('_other') || termId === 'CP:1110' || termId === 'CP:1111') ? ' mandatory' : ''),
@@ -1560,7 +1561,7 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'storedToDisplayedMapper': getToDisplayedTypeAheadFx(json)});
 
   submoduleType == "genetic" &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
-    'remote' : remoteUrl + "&amp;parent=" + termId + "&amp;input=" ,
+    'remote' : labRemoteUrl + "&amp;input=",
     'data': [],
     'placeholder': 'Begin typing or click to show options',
     'defListItemClass': moduleType + ' laboratory mandatory',
