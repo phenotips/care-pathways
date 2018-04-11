@@ -80,7 +80,13 @@
     #set ($storedAffectedMembers = [])
     #foreach ($obj in ${familyTestObjs})
       #if ($obj.getProperty('question').value == $question &amp;&amp; "$!{variantNumber}" == "$!{obj.getProperty('variant').value}")
-        #set ($datum = {"subject" : "$!{obj.getProperty('subject').value}", "count" : $obj.number})
+        #set ($datum = {"count" : $obj.number})
+        #foreach ($prop in $obj.xWikiClass.properties)
+          #set ($propValue = "$!{obj.getProperty($prop.name).value}")
+          #if ($propValue != "")
+            #set($discard = $datum.put($prop.name, $propValue))
+          #end
+        #end
         #set ($discard = $storedAffectedMembers.add($datum))
       #end
     #end
@@ -107,7 +113,7 @@
       &lt;td class="table-cell subject-group"&gt;
       #foreach ($subject in $subjects)##
         &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
+          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/span&gt;&lt;/label&gt;
         &lt;/span&gt;
       #end##
       &lt;/td&gt;
@@ -123,7 +129,7 @@
               &lt;span class="affected-family-member"&gt;None&lt;/span&gt;
             #else##
               #foreach($person in $storedAffectedMembers)##
-                &lt;span class="affected-family-member"&gt;$stringtool.capitalize("$!{person.subject}")&lt;/span&gt;
+                &lt;span class="affected-family-member"&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${person.subject}"))&lt;/span&gt;
               #end##
             #end##
             &lt;/td&gt;
@@ -764,7 +770,7 @@
     addDialog: function($super, silent, count) {
       var dialog = $super(silent, count);
       // An event just for a DetailsDialogGroup object.
-      get().fire('detailsDialogGroup:dialog:added', {'element' : dialog.getDialog()});
+      this.get().fire('detailsDialogGroup:dialog:added', {'element' : dialog.getDialog()});
       return dialog;
     },
 
@@ -1366,13 +1372,13 @@
           'qualifierName': 'module',
           'hiddenDataValue': this._moduleType});
 
-        qualifiersWidget.observe("detailsDialogGroup:dialog:added", this._onDialogChangeListener.bind(this));
+        qualifiersWidget.get().observe("detailsDialogGroup:dialog:added", this._onDialogChangeListener.bind(this));
         return qualifiersWidget;
     },
 
     _onDialogChangeListener : function(event) {
       var dialog = event.memo &amp;&amp; event.memo.element;
-      var dateAmendedInput = dialog.down('input.' + _this._moduleType + '_date_amended');
+      var dateAmendedInput = dialog.down('input.' + this._moduleType + '_date_amended');
       dateAmendedInput &amp;&amp; dialog.observe('change', function(event) {
         dateAmendedInput.value = "";
       });
@@ -2193,7 +2199,7 @@ var init = function(event) {
           var term = elem[_this._dataName];
           var target = _this._container.down('span.term-picker.' + term);
           var checkbox = target &amp;&amp; target.down('input[type="checkbox"]');
-          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox)();
+          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox, elem)();
         });
         // Importing already saved data.
         Event.fire(document, "xwiki:document:saved");
@@ -2219,16 +2225,16 @@ var init = function(event) {
         this._deleteElData(target, checkbox);
       } else {
         var pickedEl = target.down('span');
-        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox);
+        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox, {});
       }
     },
 
-    _insertDataElements : function(pickedElVal, count, target, checkbox) {
+    _insertDataElements : function(pickedElVal, count, target, checkbox, storedData) {
       var _this = this;
       if (target.disabled) { return; }
       $H(this._dataElements).each(function(pair) {
         var propName = pair.key;
-        var propValue = pair.value;
+        var propValue = storedData[propName] || pair.value;
         if (propValue !== undefined &amp;&amp; propValue !== null) {
           var dataEl = new Element('input', {'type' : 'hidden', 'class' : propName + '-stored-value', 'name' : _this._qualifierDataMarker + '_' + count + '_' + propName, 'value' : propValue});
           target.insert(dataEl);
