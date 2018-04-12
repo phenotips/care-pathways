@@ -44,6 +44,11 @@
 #set ($familyCareTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
 #set ($diagnosticTerm = "CP:12")
+#macro (__displayDate $fuzzyDate)
+  #if($!{fuzzyDate.opt('year')})$!{fuzzyDate.opt('year')}#{end}#if($!{fuzzyDate.opt('month')})-${stringtool.leftPad($fuzzyDate.opt('month'), 2, '0')}#{end}#if($!{fuzzyDate.opt('day')})-${stringtool.leftPad($fuzzyDate.opt('day'), 2, '0')}#{end}
+#end
+##
+##
 #macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
 #if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
   &lt;tr class="table-row variant-label-row"&gt;
@@ -203,7 +208,32 @@
         #foreach($key in $qualifier.keySet())##
           #set ($keyValue = $qualifier.get($key))##
           #set ($keyLabel = "$!{services.vocabularies.care-pathways.getTerm($keyValue).name}")
-          #set ($displayedData = {"datum" : {"displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.datum.title")), "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"}, "date_pursued_fuzzy" : {"displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_pursued.title")), "displayedValue" : "#if($!{keyValue.opt('year')})$!{keyValue.opt('year')}#{end}#if($!{keyValue.opt('month')})-${stringtool.leftPad($keyValue.opt('month'), 2, '0')}#{end}#if($!{keyValue.opt('day')})-${stringtool.leftPad($keyValue.opt('day'), 2, '0')}#{end}"}, "date_recommended_fuzzy" : {"displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_recommended.title")), "displayedValue" : "#if($!{keyValue.opt('year')})$!{keyValue.opt('year')}#{end}#if($!{keyValue.opt('month')})-${stringtool.leftPad($keyValue.opt('month'), 2, '0')}#{end}#if($!{keyValue.opt('day')})-${stringtool.leftPad($keyValue.opt('day'), 2, '0')}#{end}"}, "notes" : {"displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.notes.title"))}, "subject" : {"displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.subject.title")), "displayedValue" : "#if($keyValue != 'proband')$!{keyValue}#{end}"}})##
+          #set ($displayedData = {
+            "datum" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.datum.title")),
+                "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"
+              },
+            "date_pursued_fuzzy" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_pursued.title")),
+                "displayedValue" : "#__displayDate($keyValue)"
+              },
+            "date_recommended_fuzzy" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_recommended.title")),
+                "displayedValue" : "#__displayDate($keyValue)"
+              },
+            "notes" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.notes.title"))
+              },
+            "subject" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.subject.title")),
+                "displayedValue" : "#if($keyValue != 'proband')$!{keyValue}#{end}"
+              }
+          })##
           #set ($itemSettings = $displayedData.get($key))
           #if ($itemSettings)##
             #set ($mappedVal = $!{itemSettings.displayedValue})
