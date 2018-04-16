@@ -325,7 +325,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
   margin-left: 9px;
 }
 #care-pathways-posttest-container .gene-table td.variant-default-input select {
-  width: 170px;
+  width: 180px;
 }
 #care-pathways-posttest-container .gene-table td.variant .buttonwrapper {
   width: 100%;
@@ -515,14 +515,37 @@ var XWiki = (function(XWiki) {
   var validateOptionSelected = function (value) {
     return (value === '' || value === 'NA' || value === null || value === undefined) ? false : true;
   };
+
+  var addFuzzyDateValidator = function(element) {
+    if (!element.__validation) {
+      element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+    }
+    element.__validation.add(Validate.Presence, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
+
+    var fuzzyDiv = element.previous('div.fuzzy-date-picker');
+    element.value = element.value === "{}" ? "" : element.value;
+    if (fuzzyDiv) {
+      fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
+      element.observe("xwiki:date:changed", function(event) {
+        fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
+      });
+    }
+  };
+
   var init = function(event) {
-    ((event &amp;&amp; event.memo.elements) || [$('body')]).each(function(element) {
-      element.select(".variant.mandatory select").each(function(element) {
+    ((event &amp;&amp; event.memo.elements) || [$('body')]).each(function(varElement) {
+      varElement.select(".variant.mandatory select").each(function(element) {
         if (!element.__validation) {
           element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
         }
         element.__validation.add(Validate.Custom, {against: validateOptionSelected, failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
       });
+      var variantDates = varElement.next(".variant-moreinfo-row");
+      (variantDates ? variantDates.select(".mandatory-date input.fuzzy-date") : varElement.select(".variant-moreinfo-row .mandatory-date input.fuzzy-date")).each(function(element) {
+        addFuzzyDateValidator(element);
+      });
+      // This is done so that scrollValidation will keep track of the fuzzy date picker elements.
+      variantDates &amp;&amp; Event.fire(document, "xwiki:dom:updated", {"elements" : [variantDates]});
     });
     return true;
   };
@@ -651,7 +674,7 @@ var XWiki = (function(XWiki) {
           _this._removeModulesForVariants.bind(_this, geneIndex)();
 
           _this._geneTable.select('.variant-gene-' + geneIndex).each(function (item) {
-            item.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+            item.select('td.mandatory :input:not([type="hidden"])', '.mandatory-date input.fuzzy-date').each(function(validatedElem) {
               validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
             });
             item.remove();
@@ -719,6 +742,10 @@ var XWiki = (function(XWiki) {
           }
           var cdnaInput = cdnaCol.down('input');
           dataRow.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+            validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
+          });
+          var moreInfoRow = dataRow.next('tr.variant-moreinfo-row');
+          moreInfoRow &amp;&amp; moreInfoRow.select('.mandatory-date input.fuzzy-date').each(function(validatedElem) {
             validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
           });
           var className = dataRow.previous().className;
@@ -1097,6 +1124,13 @@ document.observe("xwiki:dom:updated", function(event) {
       pickerEditDone(moreInfoRow, fuzzyDates);
       fuzzyDates.each(function(dateInput) {
         !dateInput.__datePicker &amp;&amp; (dateInput.__datePicker = new PhenoTips.widgets.FuzzyDatePicker(dateInput));
+        var fuzzyDiv = dateInput.previous('div.fuzzy-date-picker');
+        if (fuzzyDiv &amp;&amp; dateInput.__validation) {
+          fuzzyDiv.toggleClassName("invalid", !dateInput.__validation.validate());
+          dateInput.observe("xwiki:date:changed", function(event) {
+            fuzzyDiv.toggleClassName("invalid", !dateInput.__validation.validate());
+          });
+        }
       });
     }
   });
@@ -1283,7 +1317,6 @@ order=1</parameters>
 
 {{velocity output="false"}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathwaysPostTestSheet')##
@@ -1708,7 +1741,6 @@ order=1</parameters>
 
 {{velocity output="false"}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathwaysPostTestSheet')##
@@ -1864,7 +1896,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 #macro (__displaySecondaryVariantsForSubject $subject $itemClass $geneClassName $variantClassName)
   &lt;li id="variant-subject-${subject}" class="term-entry variants-container"&gt;
-    &lt;h3 class="subject-label group-label"&gt;&lt;span&gt;&lt;strong&gt;$stringtool.capitalize("$!{subject}")&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+    &lt;h3 class="subject-label group-label"&gt;&lt;span&gt;&lt;strong&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
     &lt;div id="${itemClass}-${subject}" class="subject-variants-container"&gt;
       {{/html}}
 

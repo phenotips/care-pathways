@@ -43,6 +43,8 @@
 ## geneVariantMacros overrides
 ##
 ##
+#set($mandatoryItems = ['cdna', 'onset', 'interpretation'])
+#set($mandatoryDates = ['date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered'])
 #macro (__gene__deleteWithVariants__tool $geneObj $variantClassName)
 {{html clean="false"}}&lt;span class="buttonwrapper actions"&gt;&lt;a class="action delete-gene button secondary" href="$doc.getURL('get', "sheet=PhenoTips.CarePathwaysPostTestSheet&amp;amp;geneclassname=${geneObj.xWikiClass.name}&amp;amp;variantclassname=$variantClassName&amp;amp;form_token=$!{services.csrf.getToken()}&amp;amp;action=cpdeletegene&amp;amp;associateddataclass=PhenoTips.PatientCarePostTestClass&amp;amp;objnumber=$geneObj.number&amp;amp;gene=")" title="$escapetool.xml($services.localization.render('phenotips.tableMacros.delete'))"&gt;✖&lt;/a&gt;&lt;/span&gt;{{/html}}##
 #end
@@ -62,7 +64,7 @@
 |(% class="pseudoindent" %) ##
 |(% class="variant-row-count variant-${variantIndex} variant" %)$count##
 #foreach($propName in $options.defaultProperties)
-|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)$doc.display($propName, $options.mode, $fakeObj)##
+|(% class="variant variant-default-input $propName #if ($mandatoryItems.contains($propName))mandatory#end variant-$variantIndex" %)$doc.display($propName, $options.mode, $fakeObj)##
 #end
 #set($colspan = $!{options.defaultProperties.size()})
 #__variant__deleteTool($variantObj)\\
@@ -80,7 +82,7 @@
 #if($isInputString)
 $rawValue ##
 #end ##
-(%%) (% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $fakeObj )##
+(%%) (% class="v-collapsed variant-input-$variantIndex#if($mandatoryDates.contains(${prop.getName()})) mandatory-date#{end}" %)$doc.display($prop.getName(), $options.mode, $fakeObj )##
 #end
 #end
 ))) (% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)\\
@@ -94,7 +96,7 @@ $rawValue ##
 |(% class="pseudoindent" %) |(% class="variant-row-count variant-${variantIndex} variant" %)$count##
 #foreach($propName in $options.defaultProperties)
 #set ($isInputString = $options.inputStrings.contains($propName))
-|(% class="variant variant-default-input $propName #if ($propName == 'cdna' || $propName == 'onset' || $propName == 'interpretation')mandatory#end variant-$variantIndex" %)#if ($xcontext.action == 'edit')$doc.display($propName, 'edit', $variantObj)#elseif($isInputString)$!{services.rendering.escape($variantObj.getValue($propName), $doc.syntax)}#else$doc.display($propName, 'view', $variantObj)#end##
+|(% class="variant variant-default-input $propName #if ($mandatoryItems.contains($propName))mandatory#end variant-$variantIndex" %)#if ($xcontext.action == 'edit')$doc.display($propName, 'edit', $variantObj)#elseif($isInputString)$!{services.rendering.escape($variantObj.getValue($propName), $doc.syntax)}#else$doc.display($propName, 'view', $variantObj)#end##
 #end
 #set($colspan = $!{options.defaultProperties.size()})
 #if ($options.mode == 'edit')#__variant__deleteTool($variantObj)#end\\
@@ -111,7 +113,7 @@ $rawValue ##
 |(% class="variant-moreinfo variant-property-name-$variantIndex %)**${prop.translatedPrettyName}**##
 | (% class="variant-property-value ${prop.getName()}-$variantIndex ##
 #if ($options.mode == 'edit') variant-label-$variantIndex #end"%)#if($isInputString)$!{services.rendering.escape($rawValue, $doc.syntax)}#else $doc.display($prop.getName(), 'view', $variantObj )#end
- (%%)#if ($options.mode == 'edit')(% class="v-collapsed variant-input-$variantIndex" %)$doc.display($prop.getName(), $options.mode, $variantObj )#end#end##
+ (%%)#if ($options.mode == 'edit')(% class="v-collapsed variant-input-$variantIndex#if($mandatoryDates.contains(${prop.getName()})) mandatory-date#{end}" %)$doc.display($prop.getName(), $options.mode, $variantObj )#end#end##
 #end#end
 ))) #if ($options.mode == 'edit')(% class="variant-moreinfo-editdonebutton-row variant-$variantIndex" %)#end\\
 #end

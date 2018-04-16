@@ -47,9 +47,9 @@
 
 {{velocity output=false}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
+$xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #set ($displayDocExtra = false)
@@ -119,7 +119,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
   &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
   &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
   #foreach ($question in $pretestQuestions)
-    &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container"&gt;
+    &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container chapter"&gt;
       &lt;tr class="table-row care-pathways-section-label"&gt;
         &lt;td class="table-cell" colspan="2"&gt;
           &lt;input type="hidden" class="cp-question-id" value="$!{question.question}"/&gt;
