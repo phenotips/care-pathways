@@ -540,12 +540,18 @@ var XWiki = (function(XWiki) {
         }
         element.__validation.add(Validate.Custom, {against: validateOptionSelected, failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
       });
-      var variantDates = varElement.next(".variant-moreinfo-row");
-      (variantDates ? variantDates.select(".mandatory-date input.fuzzy-date") : varElement.select(".variant-moreinfo-row .mandatory-date input.fuzzy-date")).each(function(element) {
-        addFuzzyDateValidator(element);
+      var moreInfoRow = varElement.next(".variant-moreinfo-row");
+      (moreInfoRow ? [moreInfoRow] : varElement.select(".variant-moreinfo-row")).each(function(moreInfoRow) {
+        moreInfoRow.select(".mandatory-date input.fuzzy-date").each(function(element) {
+          addFuzzyDateValidator(element);
+        });
+        if (moreInfoRow.down(".LV_invalid_field")) {
+          moreInfoRow.down("a.action-edit").click();
+          moreInfoRow.previous().down('.show-moreinfo-button').click();
+        }
       });
       // This is done so that scrollValidation will keep track of the fuzzy date picker elements.
-      variantDates &amp;&amp; Event.fire(document, "xwiki:dom:updated", {"elements" : [variantDates]});
+      moreInfoRow &amp;&amp; Event.fire(document, "xwiki:dom:updated", {"elements" : [moreInfoRow]});
     });
     return true;
   };
@@ -647,7 +653,22 @@ var XWiki = (function(XWiki) {
       <cache>long</cache>
     </property>
     <property>
-      <code>ExtraGeneVariantData.tools.Editor.addMethods({
+      <code>var $editDoneData = ExtraGeneVariantData.tools.Editor.prototype.editDoneData;
+var $areaEditData = ExtraGeneVariantData.tools.Editor.prototype.areaEditData;
+ExtraGeneVariantData.tools.Editor.addMethods({
+  editDoneData: function(event) {
+    event.stop();
+    var moreInfoRow = event.element().up("tr.variant-moreinfo-row");
+    var valid = !moreInfoRow || !moreInfoRow.down(".LV_invalid_field");
+    valid &amp;&amp; $editDoneData.bind(this)(event);
+  },
+
+  areaEditData: function(event) {
+    var moreInfoRow = event.element().up("tr.variant-moreinfo-row");
+    var valid = !moreInfoRow || !moreInfoRow.down(".LV_invalid_field");
+    valid &amp;&amp; $areaEditData.bind(this)(event);
+  },
+
   ajaxDeleteGeneData: function(event) {
     event.stop();
     var deleteTrigger = event.element();
@@ -1073,7 +1094,7 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
       <code>var pickerEditDone = function(moreInfoRow, fuzzyDates) {
   var editDone = moreInfoRow.down('a.variant-edit-done');
   editDone &amp;&amp; editDone.observe('click', function(event) {
-    generateDisplayedDates(fuzzyDates);
+    !moreInfoRow.down(".LV_invalid_field") &amp;&amp; generateDisplayedDates(fuzzyDates);
   });
 }
 
@@ -1111,7 +1132,7 @@ document.observe("xwiki:dom:loaded", function(event) {
   $('body').select('tr.variant-moreinfo-row').each(function(moreInfoRow) {
     var fuzzyDates = moreInfoRow.select(".fuzzy-date");
     pickerEditDone(moreInfoRow, fuzzyDates);
-    generateDisplayedDates(fuzzyDates);
+    !moreInfoRow.down(".LV_invalid_field") &amp;&amp; generateDisplayedDates(fuzzyDates);
   });
 });
 
