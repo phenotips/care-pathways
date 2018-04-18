@@ -150,10 +150,9 @@
   #set ($storedValues = {})##
   #set ($curSubject = $!{module.get('subject')})
   #set ($moduleName = $!{module.get('module')})
-  #set ($curSubmodule = $!{module.get('submodule')})
   #set ($associatedVariantType = $!{module.get('type')})
   #if ($retrieveStoredData || !$editable)
-    #__getStoredValues("$!{question}", "$!{curSubject}", "$!{moduleName}", "$!{curSubmodule}", "$!{associatedVariantType}", "$!{variantNumber}", $storedValues, $storageClass)##
+    #__getStoredValues("$!{question}", "$!{curSubject}", "$!{moduleName}", "$!{associatedVariantType}", "$!{variantNumber}", $storedValues, $storageClass)##
   #end
   #if ($editable)##
     #__buildCategoryModuleEditMode($module, $question, $variantNumber, $storedValues)
@@ -287,7 +286,7 @@
 #end
 ##
 ##
-#macro(__getStoredValues $questionId $subject $module $submodule $type $variantNumber $categories $qualifierClassName)
+#macro(__getStoredValues $questionId $subject $module $type $variantNumber $categories $qualifierClassName)
   #set ($qualifierObjects = $doc.getObjects($qualifierClassName, 'question', $questionId))
   #if ($qualifierObjects)
     #foreach ($q in $qualifierObjects)
@@ -295,7 +294,7 @@
         #set ($storedDatum = {})
         #set ($parent = "$!{q.getProperty('parent').value}")
         #set ($label = "#__buildLabelPath($parent)")
-        #set ($discard = $categories.putIfAbsent($parent, {"id" : $parent, "label" : $label, "submodule" : $submodule, "affected" : true, "qualifiers" : []}))
+        #set ($discard = $categories.putIfAbsent($parent, {"id" : $parent, "label" : $label, "affected" : true, "qualifiers" : []}))
         #set ($categoryItems = $categories.get($parent).get("qualifiers"))
         #foreach($prop in $q.xWikiClass.properties)
           #if ($prop.name != "date_pursued_fuzzy" &amp;&amp; $prop.name != "date_recommended_fuzzy")
@@ -1183,7 +1182,7 @@
       this._variantType = variantTypeElem &amp;&amp; variantTypeElem.value;
 
       var variantNumber = this._selectedSummary.down('input.associated-variant-number');
-      this._variantNumber = variantNumber &amp;&amp; variantNumber.value;
+      this._variantNumber = variantNumber &amp;&amp; variantNumber.value || null;
 
       var trQuestionElem = this._container.up('table.care-pathways-module-group-container').down('tr.care-pathways-section-label');
       var questionIdElement = trQuestionElem.down('input.cp-question-id');
@@ -1217,7 +1216,11 @@
         $H(json).each(function(pair) {
           var data = pair.value;
           if (data.id &amp;&amp; data.label) {
-            var request = _this._buildNewTermElement.bind(_this, data.submodule, data.id, data.label, data)();
+            var matchingCheck = "cp-add-tool-" + _this._moduleType + "-" + _this._questionId + "-" + data.id + ((_this._variantNumber == 0 || _this._variantNumber) ? "-" + _this._variantNumber : "");
+            var matchingCheckEl = $(matchingCheck);
+            var submoduleEl = matchingCheckEl &amp;&amp; matchingCheckEl.next("input.submodule-name");
+            var submodule = submoduleEl &amp;&amp; submoduleEl.value || "";
+            var request = _this._buildNewTermElement.bind(_this, submodule, data.id, data.label, data)();
             promises.push(request);
           }
         });
