@@ -1955,7 +1955,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
             #set ($lastIdx = $modules.size() - 1)##
             #set ($term = $services.vocabularies.hgnc.getTerm($!{key.getProperty('gene').value}))##
             #set ($editable = ($xcontext.action == "edit"))##
-            #__displayModuleGroup($questionId, $key.number, "$!{term.symbol} [$!{key.getProperty('cdna').value}]", $modules, ${lastIdx}, $sheet, $storageClass, true, $editable)##
+            #__displayModuleGroup($questionId, $key.number, "$!{term.symbol} [$escapetool.xml($!{key.getProperty('cdna').value})]", $modules, ${lastIdx}, $sheet, $storageClass, true, $editable)##
           &lt;/table&gt;
         #end##
       &lt;/td&gt;

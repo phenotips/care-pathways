@@ -153,7 +153,8 @@
 ##
 ##
 #if ($xcontext.action == 'get' &amp;&amp; $request.action == 'cpdeletevariant' &amp;&amp; "$!{request.classid}" != '' &amp;&amp; "$!{request.classname}" != '' &amp;&amp; $services.csrf.isTokenValid("$!{request.form_token}"))
-  #set ($variantObject = $doc.getObject($request.classname, $request.classid))
+  #set ($variantNum = $mathtool.toInteger($request.classid))
+  #set ($variantObject = $doc.getObject($request.classname, $variantNum))
   #if ("$!{request.associateddataclass}" != "")
     #set ($associatedDataObjs = $doc.getObjects($associatedDataClass, "variant", $variantObject.number))
     #__clear_objects($associatedDataObjs)
