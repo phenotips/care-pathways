@@ -1,11 +1,11 @@
 pre test	What genetic tests has your patient had to date?	CPQ:0
-pre test	What other diagnostic tests has your patient had in the past 1 year?	CPQ:1
+pre test	What other diagnostic tests has your patient had in the past?	CPQ:1
 pre test	If WES was not available for your patient today, what diagnostic tests would you order at this point in time?	CPQ:2
 pre test	What types of specialists and activities are involved in your patient's routine care?	CPQ:3
 post test	My patient's analysis of primary variants revealed:	CPQ:4
 post test	Overall, the interpretation of my patient's primary sequencing results is:	CPQ:5
 post test	My patient's analysis of secondary variants revealed:	CPQ:6
-post test	Based on my patient's diagnostic sequencing results, I did not need to order the following diagnostic investigations:	CPQ:7
+post test	Based on my patient's diagnostic sequencing results, I did NOT need to order the following diagnostic investigations:	CPQ:7
 post test	Based on my patient's partially-diagnostic sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis:	CPQ:8
 post test	Based on my patient's non-diagnostic sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis:	CPQ:9
 post test	Based on my patient's diagnostic sequencing result, I recommended the following care plan for my patient:	CPQ:10
