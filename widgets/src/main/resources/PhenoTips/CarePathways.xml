@@ -1039,8 +1039,8 @@
           var module = receivedMemo.module;
           var questionId = receivedMemo.questionId;
           var deletedTerm = receivedMemo.id;
-          var variantNum = receivedMemo.variantNum;
-          var variantStub = (variantNum !== "") ? '-' + variantNum : '';
+          var variantNum = receivedMemo.variantNum || null;
+          var variantStub = variantNum ? '-' + variantNum : '';
           var checkbox = $('cp-add-tool-' + module + '-' + questionId + '-' + deletedTerm + variantStub);
           checkbox &amp;&amp; checkbox.checked &amp;&amp; (checkbox.checked = false);
         }
@@ -1980,9 +1980,9 @@ var init = function(event) {
     },
 
     _getModuleGroupTitle : function(cDnaEl, cDnaInput) {
-      var cdna = cDnaInput.value;
+      var cdna = cDnaInput.value || "";
       var gene = this._getGeneForVariant(cDnaEl);
-      return gene + " [" + cdna + "]";
+      return gene + " [" + cdna.escapeHTML() + "]";
     },
 
     _ajaxRequestNewQuestions : function(questionnaireContainer, moduleSpecs, variantIndex, containerCssClass) {
@@ -2414,7 +2414,7 @@ var init = function(event) {
           target.disabled = false;
         })
         .done(function (data, textStatus, jqXHR) {
-          target.select('input[type="hidden"]').each(function(hiddenEl) {
+          target.select('input[type="hidden"]:not(".selected-item-id")').each(function(hiddenEl) {
             hiddenEl.remove();
           });
           target.removeClassName('selected');
@@ -3172,7 +3172,8 @@ table.summary-group td.add-button-holder span.patient-details-add {
   margin-left: 2em;
   font-size: 87.5%;
 }
-table.summary-group span.action-done {
+table.summary-group span.action-done,
+table.summary-group span.action-edit {
   float: right;
 }
 table.summary-group div.summary-item {
