@@ -45,10 +45,11 @@
 
 {{velocity output=false}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
-$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathwaysTimelineSheet')##
+$xwiki.jsx.use('PhenoTips.CarePathwaysTimelineSheet')##
+$xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #set ($displayDocExtra = false)
@@ -74,7 +75,8 @@ $xwiki.ssx.use('PhenoTips.CarePathwaysTimelineSheet')##
       #if($xcontext.action == "edit")
         #__display($subProp)
       #else
-        {{html clean="false" wiki="false"}}&lt;span class="selected-sub-property"&gt;{{/html}}($doc.display($subProp)){{html clean="false" wiki="false"}}&lt;/span&gt;{{/html}}
+        #set($subPropVal = $doc.display($subProp))
+        {{html clean="false" wiki="false"}}&lt;span class="selected-sub-property"&gt;{{/html}}#if("$!{subPropVal}" != "")($subPropVal)#{end}{{html clean="false" wiki="false"}}&lt;/span&gt;{{/html}}
       #end
     #end
     {{html clean="false" wiki="false"}}##
@@ -116,7 +118,7 @@ $xwiki.ssx.use('PhenoTips.CarePathwaysTimelineSheet')##
   #set ($sheet = "$!{class.name}")##
   {{html clean="false" wiki="false"}}##
   &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire"&gt;
-    &lt;table class="date-items-table"&gt;
+    &lt;table class="date-items-table chapter"&gt;
     #set ($class = $psClass)##
     #__displayDobRow("date_of_birth", true)##
     #set ($class = $thisClass)##
@@ -721,7 +723,9 @@ $xwiki.ssx.use('PhenoTips.CarePathwaysTimelineSheet')##
 {{/html}}##
 #else
 {{html clean="false" wiki="false"}}
+#if ("$!{value}" != "")
 $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineSheet_type_of_sequencing_bloodwork_${value}"))
+#end
 {{/html}}##
 #end
 {{/velocity}}</customDisplay>
@@ -744,6 +748,127 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </type_of_sequencing_bloodwork>
   </class>
+  <object>
+    <name>PhenoTips.CarePathwaysTimelineSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>54c33c3a-e5c3-4838-8533-13ee69825f4a</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var XWiki = (function(XWiki) {
+  var addFuzzyDateValidator = function(element) {
+    if (!element.__validation) {
+      element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+    }
+    element.__validation.add(Validate.Presence, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
+
+    var fuzzyDiv = element.previous('div.fuzzy-date-picker');
+    element.value = element.value === "{}" ? "" : element.value;
+    if (fuzzyDiv) {
+      fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
+      element.observe("xwiki:date:changed", function(event) {
+        fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
+      });
+    }
+  };
+
+  var init = function(event) {
+    $('body').select(".mandatory-date input.fuzzy-date").each(function(element) {
+      addFuzzyDateValidator(element);
+    });
+    return true;
+  };
+
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+  document.observe("xwiki:dom:updated", init);
+
+  // End XWiki augmentation.
+  return XWiki;
+}(XWiki || {}));</code>
+    </property>
+    <property>
+      <name>Initialize validators</name>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
   <object>
     <name>PhenoTips.CarePathwaysTimelineSheet</name>
     <number>0</number>
@@ -846,8 +971,8 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
 }
 
 #care-pathways-timeline-container td &gt; * {
-  margin-bottom: 0;
-  margin-top: 0;
+  margin-bottom: .4em;
+  margin-top: .4em;
 }
 
 #care-pathways-timeline-container td:first-child &gt; *{

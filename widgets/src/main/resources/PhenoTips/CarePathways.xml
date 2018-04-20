@@ -121,7 +121,7 @@
       &lt;td class="table-cell subject-group"&gt;
       #foreach ($subject in $subjects)##
         &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/span&gt;&lt;/label&gt;
+          &lt;label&gt;&lt;input type="hidden" class="selected-item-id" value="$!{subject}"/&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/span&gt;&lt;/label&gt;
         &lt;/span&gt;
       #end##
       &lt;/td&gt;
@@ -504,6 +504,7 @@
   cp.CPDetailsDialog = Class.create(widgets.DetailsDialog, {
     initialize : function($super, termID, dataName, parentContainer, qualifierCount, qualifierDataClass) {
       $super(termID, dataName, parentContainer, qualifierCount, qualifierDataClass);
+      this.getDialog().__validate = this._validate.bind(this);
     },
 
     withHiddenDataElement : function(options) {
@@ -552,6 +553,45 @@
       qualifierName &amp;&amp; (this._qualifierMap[qualifierName] = element);
       element._toggleSummarize = function() {};
       return this;
+    },
+
+    blur : function($super) {
+      this._isValid() &amp;&amp; $super();
+    },
+
+    _validate : function() {
+      var valid = this._isValid();
+      !valid &amp;&amp; this.focus();
+      return valid;
+    },
+
+    _isValid : function(dialog) {
+      var dialog = this.getDialog();
+      var valid = true;
+      if (dialog.__validated_Elems) {
+        var valid = LiveValidation.massValidate(dialog.__validated_Elems.map(function(x) { return x.__validation; }));
+      }
+      return valid;
+    },
+
+    _attachOnDeleteListener : function ($super, deleteAction, ajaxDeleteAction) {
+      var _this = this;
+      var deleteElements = function() {
+        _this._termDetails.select('.mandatory :input:not([type="hidden"])', '.mandatory-date input.fuzzy-date').each(function(validatedElem) {
+          validatedElem.__validation.destroy();
+        });
+        _this._termDetails.remove();
+        _this._qualifierMap = {};
+        Event.fire(_this._container, _this._dataName + ':dialog:deleted', {'id' : _this._elementID});
+      };
+      deleteAction.observe('click', function () {
+        if (ajaxDeleteAction) {
+        var url =  ajaxDeleteAction.replace(/([&amp;?]classid=)(xXx__COUNT_TEMPLATE__xXx)([&amp;$])/, "$1" + _this._globalCount + "$3");
+        _this._sendRemoveRequest(deleteAction, url, deleteElements);
+        } else {
+          deleteElements();
+        }
+      });
     },
 
     _initTypeAhead : function(spanElem, inputElem, data, options) {
@@ -797,13 +837,6 @@
       return dialog;
     },
 
-    addDialog: function($super, silent, count) {
-      var dialog = $super(silent, count);
-      // An event just for a DetailsDialogGroup object.
-      this.get().fire('detailsDialogGroup:dialog:added', {'element' : dialog.getDialog()});
-      return dialog;
-    },
-
     dialogsAddTypeAhead : function (collapsible, options) {
       var addTypeAhead = function (currentDialog) {
         currentDialog.withTypeAhead(collapsible, options);
@@ -819,6 +852,25 @@
       this._dialogOptions.push(addHiddenDataElement);
       return this;
     },
+
+    _clearDetails: function($super) {
+      this._dialogHolder.select('.mandatory :input:not([type="hidden"])', '.mandatory-date input.fuzzy-date').each(function(validatedElem) {
+        validatedElem.__validation.destroy();
+      });
+      $super();
+    },
+
+    _setQualifiers : function ($super, qualifiers, silent) {
+      var _this = this;
+      var elements = [];
+      qualifiers.forEach(function (qualifier) {
+        var dialog = _this.addDialog(silent, qualifier.count).setValues(qualifier);
+        dialog.blur();
+        elements.push(dialog.getDialog());
+      });
+      this._allowMultiDialogs &amp;&amp; this._addDetailsClickListener();
+      elements.size() &amp;&amp; this.get().fire("detailsDialogGroup:dialogs:added", {"elements" : elements});
+    }
   });
 
   // End PhenoTips augmentation.
@@ -1299,15 +1351,15 @@
         var qualifiers = qualifiersWidget.get();
         // Set values silently, or initialize as affected, non-silently. If values are provided, then we're displaying
         // stored tests. If no values are provided, then we're adding a new test/care item with a qualifier dialog.
+        qualifiers._widget = qualifiersWidget;
+        tableRow.insert(tableCol.insert(qualifiers));
+        this._observeQualifierEvents(qualifiers);
+        this._termsTable.insert(tableRow);
         if (values) {
           qualifiersWidget.setValues(values);
         } else {
           qualifiersWidget.initAffected(false);
         }
-        qualifiers._widget = qualifiersWidget;
-        tableRow.insert(tableCol.insert(qualifiers));
-        this._observeQualifierEvents(qualifiers);
-        this._termsTable.insert(tableRow);
       }
     },
 
@@ -1351,7 +1403,7 @@
         var label = date.label;
         name &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
           'trackLastEnteredDate' : true,
-          'defListItemClass': name + ' date-element',
+          'defListItemClass': name + ' date-element mandatory-date',
           'qualifierLabel': label,
           'qualifierName': name + '_fuzzy',
           'approxQualifierName' : name});
@@ -1394,12 +1446,28 @@
           'qualifierName': 'module',
           'hiddenDataValue': this._moduleType});
 
-        qualifiersWidget.get().observe("detailsDialogGroup:dialog:added", this._onDialogChangeListener.bind(this));
+        var widgetElem = qualifiersWidget.get();
+        widgetElem.observe("parent:dialog:added", this._onDialogAddedListener.bind(this));
+        widgetElem.observe("detailsDialogGroup:dialogs:added", this._onDialogAddedListener.bind(this));
+
         return qualifiersWidget;
     },
 
-    _onDialogChangeListener : function(event) {
-      var dialog = event.memo &amp;&amp; event.memo.element;
+    _onDialogAddedListener : function(event) {
+      if (!event.memo) { return; }
+      var _this = this;
+      var elements = [];
+      if (event.memo.elements) {
+        elements = event.memo.elements;
+        elements.each(_this._attachDialogChangedListener.bind(_this));
+      } else if (event.memo.element) {
+        elements.push(event.memo.element);
+        this._attachDialogChangedListener(event.memo.element);
+      }
+      elements.size() &amp;&amp; Event.fire(document, "xwiki:dom:updated", {"elements" : elements});
+    },
+
+    _attachDialogChangedListener : function(dialog) {
       var dateAmendedInput = dialog.down('input.' + this._moduleType + '_date_amended');
       dateAmendedInput &amp;&amp; dialog.observe('change', function(event) {
         dateAmendedInput.value = "";
@@ -2084,7 +2152,7 @@ var init = function(event) {
         var geneNameInput = dataRow.down('input.gene-name');
         geneNameInput.__validation.destroy();
         $$('.variant-gene-' + geneIndex).each(function(item) {
-          item.select('td.mandatory :input:not([type="hidden"])').each(function(validatedElem) {
+          item.select('td.mandatory :input:not([type="hidden"])', '.mandatory-date input.fuzzy-date').each(function(validatedElem) {
             validatedElem.__validation &amp;&amp; validatedElem.__validation.destroy();
           });
           item.remove();
@@ -2279,8 +2347,7 @@ var init = function(event) {
         storedJson.each(function(elem) {
           var term = elem[_this._dataName];
           var target = _this._container.down('span.term-picker.' + term);
-          var checkbox = target &amp;&amp; target.down('input[type="checkbox"]');
-          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox, elem)();
+          target &amp;&amp; _this._insertDataElements.bind(_this, term, elem.count, target, target.down('input[type="checkbox"]'), elem)();
         });
         // Importing already saved data.
         Event.fire(document, "xwiki:document:saved");
@@ -2305,8 +2372,8 @@ var init = function(event) {
       if (target.hasClassName('selected')) {
         this._deleteElData(target, checkbox);
       } else {
-        var pickedEl = target.down('span');
-        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox, {});
+        var pickedEl = target.down('input.selected-item-id');
+        this._insertDataElements(pickedEl.value, this._getCount(), target, checkbox, {});
       }
     },
 
@@ -2821,33 +2888,74 @@ var init = function(event) {
       <cache>long</cache>
     </property>
     <property>
-      <code>document.observe("cp:typeahead:selected", function(event) {
-  var dialog = event.memo &amp;&amp; event.memo.dialog;
-  if (dialog) {
-    var commentsDt = dialog.down('dt.comments');
-    var selectedId = event.memo.selected;
-    if (selectedId === "CP:1111") {
-      commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
-    } else {
-      // If we select something that is not a gene panel, want to make sure to remove the warning message, since it doesn't apply to anything else.
-      var msg = commentsDt &amp;&amp; commentsDt.down('p.cp-hideable-warningmessage');
-      msg &amp;&amp; msg.remove();
+      <code>var XWiki = (function(XWiki) {
+  var addInputValidator = function(element) {
+    if (!element.__validation) {
+      element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
     }
-  }
-});
+    element.__validation.add(Validate.Presence, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureEnterValue'))"});
+  };
 
-document.observe("cp-selection:data:loaded", function(event) {
-  // Get all gene panel entries.
-  var panelItems = $$('div.term-details dd.datum input.stored-string-input-val[value="CP:1111"]');
-  // Add the warning message for all of them.
-  panelItems.each(function(item) {
-    var commentsDt = item.up('dd.datum').next('dt.comments');
-    commentsDt &amp;&amp; !commentsDt.down('p.cp-hideable-warningmessage') &amp;&amp; commentsDt.insert(new Element('p', {'class' : 'box warningmessage cp-hideable-warningmessage'}).insert("$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.genePanelWarningMessage'))"));
-  });
-});</code>
+  var addFuzzyDateValidator = function(element) {
+    if (!element.__validation) {
+      element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+    }
+    element.__validation.add(Validate.Presence, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
+
+    var fuzzyDiv = element.previous('div.fuzzy-date-picker');
+    element.value = element.value === "{}" ? "" : element.value;
+    if (fuzzyDiv) {
+      fuzzyDiv.toggleClassName("invalid", element.value === "");
+      element.observe("xwiki:date:changed", function(event) {
+        fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
+        element.__validation.validate();
+      });
+    }
+  };
+
+  var init = function(event) {
+    ((event &amp;&amp; event.memo.elements) || [$('body')]).each(function(item) {
+      if (item.hasClassName("summary-item")) {
+        item.__validated_Elems = [];
+        item.select(".mandatory input.tt-input").each(function(element) {
+          addInputValidator(element);
+          item.__validated_Elems.push(element);
+        });
+        // A bit of a hack. If this is not done, scrollValidation will encounter an exception (typeahead has multiple inputs).
+        item.select(".mandatory input.tt-hint").each(function(element) {
+          if (!element.__validation) {
+            element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+          }
+        });
+        item.select(".mandatory-date input.fuzzy-date").each(function(element) {
+          addFuzzyDateValidator(element);
+          item.__validated_Elems.push(element);
+        });
+        item.select(".mandatory select").each(function(element) {
+          if (!element.__validation) {
+            element.__validation = new LiveValidation(element, {validMessage: '', wait : 500});
+          }
+          element.__validation.add(Validate.Presence, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))"});
+        });
+        item.__validate();
+      } else {
+        item.select(".mandatory input[type='text']").each(function(element) {
+          addInputValidator(element);
+        });
+      }
+    });
+    return true;
+  };
+
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+  document.observe("xwiki:dom:updated", init);
+
+  // End XWiki augmentation.
+  return XWiki;
+}(XWiki || {}));</code>
     </property>
     <property>
-      <name>Care pathways gene panel modification</name>
+      <name>Initialize validators</name>
     </property>
     <property>
       <parse>1</parse>
@@ -3149,8 +3257,8 @@ tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
 }
 tr.care-pathways-module-container table.summary-group div.summary-item dt,
 tr.care-pathways-module-container table.summary-group div.summary-item dd {
-  margin-top: .2em;
-  margin-bottom: .2em;
+  margin-top: .4em;
+  margin-bottom: .4em;
 }
 tr.care-pathways-module-container table.summary-group div.summary-item dt {
   float: left;
@@ -3277,13 +3385,17 @@ span.scrollable-typeahead div.tt-menu h3.user-entered-data {
 /**********************************************************************************************
 * Selects validation css.
 */
-select.LV_invalid_field {
-  background-color: $theme.highlightColor;
+select.LV_invalid_field,
+div.fuzzy-date-picker.invalid {
+  background-color: $theme.highlightColor !important;
   border: 1px solid $theme.notificationErrorColor;
   color: $theme.textColor !important;
 }
 select + .LV_validation_message {
   float: right;
+}
+.LV_validation_message {
+  line-height: 1em;
 }</code>
     </property>
     <property>
