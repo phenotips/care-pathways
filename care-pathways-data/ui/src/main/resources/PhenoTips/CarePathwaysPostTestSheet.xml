@@ -310,18 +310,34 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
   background-color: $theme.pageContentBackgroundColor;
   padding-left: 2.5em;
 }
-#care-pathways-posttest-container .gene-table td.variant-default-input select {
-  width: 170px;
-}
 #care-pathways-posttest-container p &gt; span.displayed-value {
   display: none;
 }
 #care-pathways-posttest-container .chapter &gt; h2 {
   margin: -1.5em 0 0;
 }
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper input.secondary,
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper button.secondary,
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.secondary,
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.secondary:link,
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.secondary:visited,
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.secondary:active {
+  margin-left: 9px;
+}
+#care-pathways-posttest-container .gene-table td.variant-default-input select {
+  width: 170px;
+}
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper {
+  width: 100%;
+}
+#care-pathways-posttest-container .gene-table td.variant .buttonwrapper a.button.delete-variant {
+  position: relative;
+  right: 0;
+}
 #care-pathways-posttest-container .gene-table td.variant,
 #care-pathways-posttest-container .gene-table th.variant {
   background: $theme.backgroundSecondaryColor;
+  min-width: 50px;
 }
 #care-pathways-posttest-container .gene-table .variant-title {
   background-color: $theme.panelCollapsedBackgroundColor !important;
@@ -337,6 +353,9 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
 #care-pathways-posttest-container .variant .add-data-button:before {
   top: .40em !important;
   left: .6em;
+}
+#care-pathways-posttest-container .gene-table td.variant.moreinfo {
+  min-width: 350px;
 }
 </code>
     </property>
@@ -946,6 +965,155 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
   </object>
   <object>
     <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>3</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>83860bad-215e-49e8-b080-f7fa04a8b574</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var pickerEditDone = function(moreInfoRow, fuzzyDates) {
+  var editDone = moreInfoRow.down('a.variant-edit-done');
+  editDone &amp;&amp; editDone.observe('click', function(event) {
+    generateDisplayedDates(fuzzyDates);
+  });
+}
+
+var generateDisplayedDates = function(fuzzyDates) {
+  fuzzyDates.each(function(dateInput) {
+    if (dateInput.__datePicker) {
+      var dateCol = dateInput.up('td');
+      var viewVal = dateCol &amp;&amp; dateCol.down('span.variant-property-value');
+      var dateStr = generateFormattedDateStr(dateInput.__datePicker.yearSelector, dateInput.__datePicker.monthSelector, dateInput.__datePicker.daySelector, dateInput.__datePicker.getZeroPaddedValue);
+      if (viewVal) {
+        viewVal.update(dateStr);
+        viewVal.toggleClassName('v-collapsed', dateStr == '');
+        var itemRow = dateInput.up('tr.moreinfo-view');
+        itemRow &amp;&amp; itemRow.toggleClassName('v-collapsed', dateStr == '');
+      }
+    }
+  });
+}
+
+var generateFormattedDateStr = function(yearSelector, monthSelector, daySelector, getZeroPaddedVal) {
+  var month, day, dateStr;
+  dateStr = yearSelector &amp;&amp; yearSelector.getSelectedValue() || "";
+  if (dateStr) {
+    month = monthSelector &amp;&amp; monthSelector.getSelectedValue();
+    if (month) {
+      dateStr += "-" + getZeroPaddedVal(month);
+        day = daySelector &amp;&amp; daySelector.getSelectedValue();
+        day &amp;&amp; (dateStr += "-" + getZeroPaddedVal(day));
+    }
+  }
+  return dateStr;
+}
+
+document.observe("xwiki:dom:loaded", function(event) {
+  $('body').select('tr.variant-moreinfo-row').each(function(moreInfoRow) {
+    var fuzzyDates = moreInfoRow.select(".fuzzy-date");
+    pickerEditDone(moreInfoRow, fuzzyDates);
+    generateDisplayedDates(fuzzyDates);
+  });
+});
+
+document.observe("xwiki:dom:updated", function(event) {
+  // When a variant is added, an event is fired with the updated element. However, the one we're interested in is the next sibling.
+  event &amp;&amp; event.memo &amp;&amp; event.memo.elements.each(function(element) {
+    var moreInfoRow = element.next('tr.variant-moreinfo-row');
+    if (moreInfoRow) {
+      var fuzzyDates = moreInfoRow.select(".fuzzy-date");
+      pickerEditDone(moreInfoRow, fuzzyDates);
+      fuzzyDates.each(function(dateInput) {
+        !dateInput.__datePicker &amp;&amp; (dateInput.__datePicker = new PhenoTips.widgets.FuzzyDatePicker(dateInput));
+      });
+    }
+  });
+});</code>
+    </property>
+    <property>
+      <name>Variants date picker customizations</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
     <number>0</number>
     <className>XWiki.UIExtensionClass</className>
     <guid>f8ea519c-f079-4ce4-b9c9-c3710bbd196d</guid>
@@ -1359,7 +1527,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
       &lt;input class="question-id" type="hidden" value="$question"/&gt;
       {{/html}}
-        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered']})
       {{html clean="false" wiki="false"}}
     &lt;/div&gt;
     #else
@@ -1374,7 +1542,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
 #macro (__displayPrimaryVariantAnalysis $question)
-&lt;div id="primary-variants-interpretation-container" class="mandatory"&gt;
+&lt;div id="primary-variants-interpretation-container"&gt;
 {{/html}}##
   #set ($primaryAnalysisProp = 'primaryVariantAnalysis')
   #if ($xcontext.action == "edit" || "$!{obj.getProperty($primaryAnalysisProp).value}" != '')##
@@ -1708,7 +1876,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
           #end
         #end
         #if ($xcontext.action == 'edit' || $hasData)
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${subject}-${variantStatus}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position']})
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${subject}-${variantStatus}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered']})
         #else
           No variant data entered
         #end

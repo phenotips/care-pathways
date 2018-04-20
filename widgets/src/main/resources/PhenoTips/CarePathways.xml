@@ -3180,6 +3180,49 @@ span.scrollable-typeahead div.tt-menu h3.user-entered-data {
 }
 
 /**********************************************************************************************
+* Fuzzy date picker css.
+*/
+.fuzzy-date-picker select {
+  font-family: Arial,Verdana,sans-serif;
+}
+.fuzzy-date-picker .year {
+  font-size: 14px;
+  max-width: 68px;
+}
+.fuzzy-date-picker .month {
+  font-size: 14px;
+  max-width: 48px;
+}
+.fuzzy-date-picker .day {
+  font-size: 14px;
+  max-width: 48px;
+}
+.fuzzy-date-picker .empty {
+  font-size: .7em;
+  opacity: .5;
+}
+.fuzzy-date-picker .year option {
+  /*text-indent: 1em;*/
+}
+.fuzzy-date-picker .year .decade {
+  font-weight: bold;
+  /*text-indent: 0;*/
+}
+.fuzzy-date-picker .year .century {
+  font-weight: bold;
+  /*text-indent: 0;*/
+}
+.fuzzy-date-picker .year:disabled {
+  opacity: .5 !important;
+}
+.fuzzy-date-picker .month:disabled {
+  opacity: .5 !important;
+}
+.fuzzy-date-picker .day:disabled {
+  opacity: .5 !important;
+}
+
+/**********************************************************************************************
 * Selects validation css.
 */
 select.LV_invalid_field {
