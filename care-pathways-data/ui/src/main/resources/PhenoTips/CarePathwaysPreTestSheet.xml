@@ -63,7 +63,12 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:0",
       "modules" : [{
-        "pursuedDate" : true,
+        "dates":[
+          {
+            "name":"date_pursued",
+            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
+          }
+        ],
         "module" : "test",
         "submodule" : "genetic",
         "subject" : "proband"
@@ -72,7 +77,12 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:1",
       "modules" : [{
-        "pursuedDate" : true,
+        "dates":[
+          {
+            "name":"date_pursued",
+            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
+          }
+        ],
         "module" : "test",
         "submodule" : "diagnostic",
         "subject" : "proband"
@@ -81,7 +91,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:2",
       "modules" : [{
-        "pursuedDate" : false,
+        "dates":[],
         "module" : "test",
         "subject" : "proband"
       }]
@@ -89,7 +99,7 @@ $xwiki.ssx.use('PhenoTips.CarePathways')##
     {
       "question" : "CPQ:3",
       "modules" : [{
-        "pursuedDate" : false,
+        "dates":[],
         "module" : "care",
         "subject" : "proband"
       }]

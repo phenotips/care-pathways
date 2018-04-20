@@ -44,6 +44,11 @@
 #set ($familyCareTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
 #set ($diagnosticTerm = "CP:12")
+#macro (__displayDate $fuzzyDate)
+  #if($!{fuzzyDate.opt('year')})$!{fuzzyDate.opt('year')}#{end}#if($!{fuzzyDate.opt('month')})-${stringtool.leftPad($fuzzyDate.opt('month'), 2, '0')}#{end}#if($!{fuzzyDate.opt('day')})-${stringtool.leftPad($fuzzyDate.opt('day'), 2, '0')}#{end}
+#end
+##
+##
 #macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
 #if ("$!{groupTitle}" != "" || "$!{variantNumber}" != "")##
   &lt;tr class="table-row variant-label-row"&gt;
@@ -80,7 +85,13 @@
     #set ($storedAffectedMembers = [])
     #foreach ($obj in ${familyTestObjs})
       #if ($obj.getProperty('question').value == $question &amp;&amp; "$!{variantNumber}" == "$!{obj.getProperty('variant').value}")
-        #set ($datum = {"subject" : "$!{obj.getProperty('subject').value}", "count" : $obj.number})
+        #set ($datum = {"count" : $obj.number})
+        #foreach ($prop in $obj.xWikiClass.properties)
+          #set ($propValue = "$!{obj.getProperty($prop.name).value}")
+          #if ($propValue != "")
+            #set($discard = $datum.put($prop.name, $propValue))
+          #end
+        #end
         #set ($discard = $storedAffectedMembers.add($datum))
       #end
     #end
@@ -107,7 +118,7 @@
       &lt;td class="table-cell subject-group"&gt;
       #foreach ($subject in $subjects)##
         &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;${subject}&lt;/span&gt;&lt;/label&gt;
+          &lt;label&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/span&gt;&lt;/label&gt;
         &lt;/span&gt;
       #end##
       &lt;/td&gt;
@@ -123,7 +134,7 @@
               &lt;span class="affected-family-member"&gt;None&lt;/span&gt;
             #else##
               #foreach($person in $storedAffectedMembers)##
-                &lt;span class="affected-family-member"&gt;$stringtool.capitalize("$!{person.subject}")&lt;/span&gt;
+                &lt;span class="affected-family-member"&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${person.subject}"))&lt;/span&gt;
               #end##
             #end##
             &lt;/td&gt;
@@ -140,7 +151,6 @@
   #set ($curSubject = $!{module.get('subject')})
   #set ($moduleName = $!{module.get('module')})
   #set ($curSubmodule = $!{module.get('submodule')})
-  #set ($curPursuedDate = $!{module.get('pursuedDate')})
   #set ($associatedVariantType = $!{module.get('type')})
   #if ($retrieveStoredData || !$editable)
     #__getStoredValues("$!{question}", "$!{curSubject}", "$!{moduleName}", "$!{associatedVariantType}", "$!{variantNumber}", $storedValues, $storageClass)##
@@ -174,7 +184,7 @@
                   &lt;/tr&gt;
                   &lt;tr&gt;
                     &lt;td class="dialog-holder"&gt;
-                      #__displaySummaryItems($categoryData, $displayedData)
+                      #__displaySummaryItems($categoryData, $displayedData, $!{module.module})
                     &lt;/td&gt;
                   &lt;/tr&gt;
                 &lt;/table&gt;
@@ -189,7 +199,7 @@
 #end
 ##
 ##
-#macro(__displaySummaryItems $categoryData $displayedData)
+#macro(__displaySummaryItems $categoryData $displayedData $moduleType)
   #set ($qualifiers = $categoryData.qualifiers)##
   #foreach($qualifier in $qualifiers)##
   &lt;div class="summary-item"&gt;
@@ -198,14 +208,39 @@
         #foreach($key in $qualifier.keySet())##
           #set ($keyValue = $qualifier.get($key))##
           #set ($keyLabel = "$!{services.vocabularies.care-pathways.getTerm($keyValue).name}")
-          #set ($displayedData = {"datum" : {"displayedName" : "", "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"}, "date_pursued_fuzzy" : {"displayedName" : "Completed on", "displayedValue" : "#if($!{keyValue.opt('year')})$!{keyValue.opt('year')}#{end}#if($!{keyValue.opt('month')})-${stringtool.leftPad($keyValue.opt('month'), 2, '0')}#{end}#if($!{keyValue.opt('day')})-${stringtool.leftPad($keyValue.opt('day'), 2, '0')}#{end}"}, "notes" : {"displayedName" : "Notes"}, "subject" : {"displayedName" : "Family member", "displayedValue" : "#if($keyValue != 'proband')$!{keyValue}#{end}"}})##
+          #set ($displayedData = {
+            "datum" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.datum.title")),
+                "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"
+              },
+            "date_pursued_fuzzy" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_pursued.title")),
+                "displayedValue" : "#__displayDate($keyValue)"
+              },
+            "date_recommended_fuzzy" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_recommended.title")),
+                "displayedValue" : "#__displayDate($keyValue)"
+              },
+            "notes" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.notes.title"))
+              },
+            "subject" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.subject.title")),
+                "displayedValue" : "#if($keyValue != 'proband')$!{keyValue}#{end}"
+              }
+          })##
           #set ($itemSettings = $displayedData.get($key))
           #if ($itemSettings)##
             #set ($mappedVal = $!{itemSettings.displayedValue})
             #set ($displayedVal = "#if($mappedVal)$!{mappedVal}#{else}$!{keyValue}#{end}")##
             #if ($displayedVal != '')##
               #set ($displayedName = "$!{itemSettings.displayedName}")##
-              &lt;dt class="$key#if($!{displayedName} == '') hidden#{end}"&gt;${displayedName}:&lt;/dt&gt;
+              &lt;dt class="$key#if($!{displayedName} == '') hidden#{end}"&gt;${displayedName}&lt;/dt&gt;
               &lt;dd class="$key"&gt;${displayedVal}&lt;/dd&gt;
             #end##
           #end##
@@ -222,9 +257,10 @@
   #set ($curSubject = $!{module.get('subject')})
   #set ($moduleName = $!{module.get('module')})
   #set ($curSubmodule = $!{module.get('submodule')})
-  #set ($curPursuedDate = $!{module.get('pursuedDate')})
+  #set ($dates = $!{module.get('dates')})
+  #set ($withDates = "#if($!dates &amp;&amp; $!{dates.size()}) with-mandatory-dates#{end}")
   #set ($associatedVariantType = $!{module.get('type')})
-  &lt;tr class="table-row care-pathways-module-container#if($curPursuedDate) with-mandatory-dates#{end}"&gt;
+  &lt;tr class="table-row care-pathways-module-container$!{withDates}"&gt;
     &lt;td class="table-cell selector-panel cp-categories"&gt;
       &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
       &lt;div class="cp-categories-panel browse-categories-panel"&gt;
@@ -238,6 +274,7 @@
         &lt;input type="hidden" class="associated-variant-type" value="$!{associatedVariantType}"/&gt;
         &lt;input type="hidden" class="associated-variant-number" value="$!{variantNumber}"/&gt;
         &lt;input type="hidden" class="cp-current-selection-subject" value="$!{curSubject}"/&gt;
+        &lt;input type="hidden" class="cp-current-selection-dates" value="$!{escapetool.xml($jsontool.serialize($dates))}"/&gt;
         &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedValues))}"/&gt;
         &lt;table class="terms-data-table"&gt;&lt;/table&gt;
       &lt;/div&gt;
@@ -257,7 +294,7 @@
         #set ($discard = $categories.putIfAbsent($parent, {"id" : $parent, "label" : $label, "affected" : true, "qualifiers" : []}))
         #set ($categoryItems = $categories.get($parent).get("qualifiers"))
         #foreach($prop in $q.xWikiClass.properties)
-          #if ($prop.name != "date_pursued_fuzzy")
+          #if ($prop.name != "date_pursued_fuzzy" &amp;&amp; $prop.name != "date_recommended_fuzzy")
             #set ($discard = $storedDatum.put($prop.name, "$!{q.getProperty($prop.name).value}"))
           #else
             #set ($discard = $storedDatum.put($prop.name, $jsontool.parseToJSONObject($stringtool.defaultIfBlank("$!{q.getProperty($prop.name).value}", "{}"))))
@@ -760,6 +797,13 @@
       return dialog;
     },
 
+    addDialog: function($super, silent, count) {
+      var dialog = $super(silent, count);
+      // An event just for a DetailsDialogGroup object.
+      this.get().fire('detailsDialogGroup:dialog:added', {'element' : dialog.getDialog()});
+      return dialog;
+    },
+
     dialogsAddTypeAhead : function (collapsible, options) {
       var addTypeAhead = function (currentDialog) {
         currentDialog.withTypeAhead(collapsible, options);
@@ -1120,15 +1164,14 @@
 
       this._qualifierDataMarker = options.qualifierDataMarker;
 
-      this._buildModule();
+      this._selectedSummary = options.currentSelectionPanel;
+      this._moduleType = options.moduleType;
+
+      this._selectedSummary &amp;&amp; this._buildModule();
     },
 
     _buildModule : function() {
-      this._selectedSummary = this._container.down('div.current-selection-panel');
       this._termsTable = this._selectedSummary.down('table.terms-data-table');
-
-      var moduleTypeElem = this._selectedSummary.down('input[name=moduleType]');
-      this._moduleType = moduleTypeElem &amp;&amp; moduleTypeElem.value;
 
       var variantTypeElem = this._selectedSummary.down('input.associated-variant-type');
       this._variantType = variantTypeElem &amp;&amp; variantTypeElem.value;
@@ -1148,6 +1191,13 @@
     },
 
     _retrieveStoredData : function() {
+      var datesElem = this._selectedSummary.down('input.cp-current-selection-dates');
+      if (datesElem) {
+        var datesStr = datesElem.value;
+        this._dates = datesStr &amp;&amp; JSON.parse(datesStr);
+        datesElem.remove();
+      }
+
       var storedDataElem = this._selectedSummary.down('input.cp-current-selection-stored-data');
       var storedData;
       if (storedDataElem) {
@@ -1266,24 +1316,18 @@
           'placeholder': 'Begin typing or click to show options',
           'defListItemClass': this._moduleType + ' datum mandatory',
           'inputSourceClass': this._moduleType + '_typeahead',
-          'qualifierLabel': "",
+          'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.datum.title'))",
           'qualifierName': 'datum',
           'displayedToStoredMapper': this._getToStoredTypeAheadFx(json),
           'storedToDisplayedMapper': this._getToDisplayedTypeAheadFx(json)});
 
       this._pickSubjectElement(qualifiersWidget);
-
-      this._container.hasClassName('with-mandatory-dates') &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
-        'trackLastEnteredDate' : true,
-        'defListItemClass': 'date_pursued',
-        'qualifierLabel': 'Completed on:',
-        'qualifierName': 'date_pursued_fuzzy',
-        'approxQualifierName' : 'date_pursued'});
+      this._addDateElements(qualifiersWidget);
 
       qualifiersWidget.dialogsAddTextBox(false, {
-        'defListItemClass': 'comments',
+        'defListItemClass': 'comments hidden',
         'inputSourceClass': this._moduleType + '_notes',
-        'qualifierLabel': 'Notes:',
+        'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.notes.title'))",
         'qualifierName': 'notes'});
 
       return this._addHiddenDataElements(qualifiersWidget);
@@ -1295,7 +1339,7 @@
           'data': ['', 'mother', 'father', 'sister', 'brother', 'aunt', 'uncle'],
           'defListItemClass': 'subject mandatory',
           'inputSourceClass': this._moduleType + '_subject',
-          'qualifierLabel': "Family member:",
+          'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.subject.title'))",
           'qualifierName': 'subject'
         });
       } else {
@@ -1307,6 +1351,19 @@
         });
       }
       return qualifiersWidget;
+    },
+
+    _addDateElements : function(qualifiersWidget) {
+      this._dates &amp;&amp; this._dates.each(function(date) {
+        var name = date.name;
+        var label = date.label;
+        name &amp;&amp; qualifiersWidget.dialogsAddDatePicker(false, {
+          'trackLastEnteredDate' : true,
+          'defListItemClass': name,
+          'qualifierLabel': label,
+          'qualifierName': name + '_fuzzy',
+          'approxQualifierName' : name});
+      });
     },
 
     _addHiddenDataElements : function(qualifiersWidget) {
@@ -1324,7 +1381,7 @@
         'hiddenDataValue': parseInt(this._variantNumber)
       });
 
-      return qualifiersWidget.dialogsAddHiddenDataElement({
+      qualifiersWidget.dialogsAddHiddenDataElement({
           'defListItemClass': 'question hidden',
           'inputSourceClass': this._moduleType + '_question',
           'qualifierName': 'question',
@@ -1335,10 +1392,26 @@
           'qualifierName': 'date_entered',
           'hiddenDataValue': ''})
         .dialogsAddHiddenDataElement({
+          'defListItemClass': 'date_amended hidden',
+          'inputSourceClass': this._moduleType + '_date_amended',
+          'qualifierName': 'date_amended',
+          'hiddenDataValue': ''})
+        .dialogsAddHiddenDataElement({
           'defListItemClass': 'module hidden',
           'inputSourceClass': this._moduleType + '_module',
           'qualifierName': 'module',
           'hiddenDataValue': this._moduleType});
+
+        qualifiersWidget.get().observe("detailsDialogGroup:dialog:added", this._onDialogChangeListener.bind(this));
+        return qualifiersWidget;
+    },
+
+    _onDialogChangeListener : function(event) {
+      var dialog = event.memo &amp;&amp; event.memo.element;
+      var dateAmendedInput = dialog.down('input.' + this._moduleType + '_date_amended');
+      dateAmendedInput &amp;&amp; dialog.observe('change', function(event) {
+        dateAmendedInput.value = "";
+      });
     },
 
     _getToStoredTypeAheadFx : function(json) {
@@ -1364,7 +1437,7 @@
       <name>Care Pathways current module selection widget</name>
     </property>
     <property>
-      <parse>0</parse>
+      <parse>1</parse>
     </property>
     <property>
       <use>onDemand</use>
@@ -1478,6 +1551,7 @@ require.config({
     }
   }
 });
+
 var initNavAndSelMods = function(modules) {
     modules &amp;&amp; modules.length &gt; 0 &amp;&amp; modules.each(function(module) {
       var localUrl = XWiki.contextPath + "/rest/vocabularies/care-pathways/suggest?sort=nameSort%20asc&amp;maxResults=10000&amp;";
@@ -1487,6 +1561,9 @@ var initNavAndSelMods = function(modules) {
       var clearCategoryEl = $('clear-category-action');
       var deleteQualifierEl = $('delete-qualifier-action');
       var options = {"localUrl" : localUrl, "remoteUrl" : remoteUrl, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
+      options.currentSelectionPanel = module.down('div.current-selection-panel');
+      var moduleTypeElem = options.currentSelectionPanel &amp;&amp; options.currentSelectionPanel.down('input[name=moduleType]');
+      options.moduleType = moduleTypeElem &amp;&amp; moduleTypeElem.value;
       new PhenoTips.widgets.carePathways.ModuleSelectionPanel(module, options);
       new PhenoTips.widgets.carePathways.ModuleNavigationPanel(module, options);
     });
@@ -1510,7 +1587,7 @@ var initFamilyMods = function(modules) {
     var typeEl = module.down('input.associated-variant-type');
 
     var storedDataEl = module.down('input.cp-current-selection-stored-data');
-    var dataElements = {"question" : questionEl &amp;&amp; questionEl.value, "variant" : variantEl &amp;&amp; variantEl.value, "datum" : datumEl &amp;&amp; datumEl.value, "type" : typeEl &amp;&amp; typeEl.value};
+    var dataElements = {"question" : questionEl &amp;&amp; questionEl.value, "variant" : variantEl &amp;&amp; variantEl.value, "datum" : datumEl &amp;&amp; datumEl.value, "type" : typeEl &amp;&amp; typeEl.value, "date_entered" : "", "date_amended" : ""};
     var options = {"getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "dataName" : "subject", "dataElements" : dataElements, "storedDataEl" : storedDataEl};
     new PhenoTips.widgets.carePathways.MultiPicker(module, options);
   });
@@ -2152,7 +2229,7 @@ var init = function(event) {
           var term = elem[_this._dataName];
           var target = _this._container.down('span.term-picker.' + term);
           var checkbox = target &amp;&amp; target.down('input[type="checkbox"]');
-          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox)();
+          _this._insertDataElements.bind(_this, term, elem.count, target, checkbox, elem)();
         });
         // Importing already saved data.
         Event.fire(document, "xwiki:document:saved");
@@ -2178,16 +2255,16 @@ var init = function(event) {
         this._deleteElData(target, checkbox);
       } else {
         var pickedEl = target.down('span');
-        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox);
+        this._insertDataElements(pickedEl.innerHTML, this._getCount(), target, checkbox, {});
       }
     },
 
-    _insertDataElements : function(pickedElVal, count, target, checkbox) {
+    _insertDataElements : function(pickedElVal, count, target, checkbox, storedData) {
       var _this = this;
       if (target.disabled) { return; }
       $H(this._dataElements).each(function(pair) {
         var propName = pair.key;
-        var propValue = pair.value;
+        var propValue = storedData[propName] || pair.value;
         if (propValue !== undefined &amp;&amp; propValue !== null) {
           var dataEl = new Element('input', {'type' : 'hidden', 'class' : propName + '-stored-value', 'name' : _this._qualifierDataMarker + '_' + count + '_' + propName, 'value' : propValue});
           target.insert(dataEl);
