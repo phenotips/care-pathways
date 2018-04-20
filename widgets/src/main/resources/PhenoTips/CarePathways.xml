@@ -1677,19 +1677,19 @@ var init = function(event) {
           var moduleSpecsEl = $(targetElementVal + '-module-specs');
           var moduleSpecs = moduleSpecsEl &amp;&amp; moduleSpecsEl.value;
           if (moduleSpecs) {
-            _this._generateQuestionsForPrimaryVariants.bind(_this, targetElement, moduleSpecs, _this._primaryQuestionnaireContainer)();
+            _this._generateQuestionsForPrimaryVariants.bind(_this, targetElement, moduleSpecs)();
           }
         }
       });
     },
 
-    _generateQuestionsForPrimaryVariants : function(targetElement, moduleSpecs, questionnaireContainer) {
+    _generateQuestionsForPrimaryVariants : function(targetElement, moduleSpecs) {
       if (!this._currentInterpretationEl || this._currentInterpretationEl == targetElement || !this._userRecordedData(this._primaryQuestionnaireContainer)) {
         this._currentInterpretationEl = targetElement;
         this._ajaxRequestNewQuestions(this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants');
       } else {
         if (confirm("$!escapetool.javascript($services.localization.render('phenotips.carePathways.postTest.cpmodulesDeleteConfirmation'))")) {
-          var req = this._clearQuestionData(this._questionsClearUrl, this._currentlyDisplayedPrimaryQuestions(), questionnaireContainer);
+          var req = this._clearQuestionData(this._questionsClearUrl, this._currentlyDisplayedPrimaryQuestions(), this._primaryQuestionnaireContainer);
           var _this = this;
           // Proceed only after stored question data has been deleted.
           jQuery.when(req).then(function(r1) {
@@ -1785,7 +1785,21 @@ var init = function(event) {
         var request = _this._ajaxRequestNewQuestion.bind(_this, questionnaireContainer, questionSpecs, null, variantIndex, containerCssClass)();
         promises.push(request);
       });
-      jQuery.when.apply(null, promises);
+      var GENERATING = 'generating';
+      var spinner = this._getSpinner('care-pathways-loading', "$!escapetool.javascript($services.localization.render('phenotips.carePathways.generatingData'))");
+      questionnaireContainer.addClassName(GENERATING);
+      questionnaireContainer.insert(spinner);
+      jQuery.when.apply(null, promises).then(function() {
+        spinner.remove();
+        questionnaireContainer.removeClassName(GENERATING);
+      });
+    },
+
+    _getSpinner : function(cssClass, message) {
+      var spinner = new Element('span', {'class' : 'fa fa-lg fa-spinner fa-spin fa-fw'});
+      var spinnerContainer = new Element('span', {'class' : cssClass}).insert(spinner);
+      message &amp;&amp; spinnerContainer.insert(new Element('span', {'class' : 'spinner-message-container'}).insert(message));
+      return spinnerContainer;
     },
 
     _ajaxRequestNewQuestion : function(questionnaireContainer, questionSpecs, cDnaEl, variantIndex, containerCssClass) {
@@ -2831,6 +2845,17 @@ input[type='radio'] {
  * Survey css.
  */
 
+.care-pathways-loading {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  padding: 1em 0 1em 0;;
+  background-color: $theme.borderColor;
+}
+.care-pathways-questionnaire.generating .care-pathways-module-group-container {
+  display: none;
+}
 table.care-pathways-module-group-container,
 table.care-pathways-analysis-container {
   border-collapse: separate;
