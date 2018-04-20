@@ -47,6 +47,7 @@
 
 {{velocity output=false}}
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
+$xwiki.jsx.use('PhenoTips.PatientSheetCode')##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
 ##
