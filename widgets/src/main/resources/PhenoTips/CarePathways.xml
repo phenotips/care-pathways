@@ -44,6 +44,9 @@
 #set ($familyCareTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
 #set ($diagnosticTerm = "CP:12")
+#set ($electricalSurveillanceTerm = "CP:24")
+#set ($imagingSurveillanceTerm = "CP:23")
+#set ($subSpecCareTerm = "CP:21")
 #macro (__displayDate $fuzzyDate)
   #if($!{fuzzyDate.opt('year')})$!{fuzzyDate.opt('year')}#{end}#if($!{fuzzyDate.opt('month')})-${stringtool.leftPad($fuzzyDate.opt('month'), 2, '0')}#{end}#if($!{fuzzyDate.opt('day')})-${stringtool.leftPad($fuzzyDate.opt('day'), 2, '0')}#{end}
 #end
@@ -397,13 +400,7 @@
   #elseif ($module == "care")
     #__displayCategories("", $careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, false)
   #elseif ($module == "family")
-    #set ($allCare = $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}))
-    #set ($careSubset = [])
-    #foreach ($item in $allCare)
-      #if ($stringtool.containsIgnoreCase("$!{item.name}", "care") || $stringtool.containsIgnoreCase("$!{item.name}", "surveillance"))
-        #set($discard = $careSubset.add($item))
-      #end
-    #end
+    #set ($careSubset = $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc', 'fq': "id:${electricalSurveillanceTerm.replaceAll(':', '\\:')} OR id:${imagingSurveillanceTerm.replaceAll(':', '\\:')} OR id:${subSpecCareTerm.replaceAll(':', '\\:')}"}))
     #__displayCategories("", $careTerm, $careSubset, $question, $storedValues, false)
   #end
 #end
