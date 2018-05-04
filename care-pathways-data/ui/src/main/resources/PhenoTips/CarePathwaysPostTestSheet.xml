@@ -1581,7 +1581,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     &lt;div id="primary-wes-variants-proband" class="subject-variants-container"&gt;
       &lt;input class="question-id" type="hidden" value="$question"/&gt;
       {{/html}}
-        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered']})
+        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : 'proband-primary__', 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered'], 'hasVariants' : true})
       {{html clean="false" wiki="false"}}
     &lt;/div&gt;
     #else
@@ -1929,7 +1929,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
           #end
         #end
         #if ($xcontext.action == 'edit' || $hasData)
-          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${subject}-${variantStatus}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered']})
+          #__gene_table($geneClassName, $variantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${subject}-${variantStatus}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'onset', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status'], 'displayedProperties' : ['subject', 'status', 'date_of_lab_report_entered', 'date_reported_to_family_entered', 'date_of_follow_up_entered'], 'hasVariants' : true})
         #else
           No variant data entered
         #end
