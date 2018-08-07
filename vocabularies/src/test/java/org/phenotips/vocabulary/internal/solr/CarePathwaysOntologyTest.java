@@ -184,7 +184,7 @@ public class CarePathwaysOntologyTest
     public void getDefaultSourceLocation()
     {
         final URL source =
-                ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
+            ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysOrderedTestsAndCare.tsv");
         final String sourceStr = source == null ? StringUtils.EMPTY : source.toString();
         Assert.assertTrue(sourceStr.equals(this.component.getDefaultSourceLocation()));
     }

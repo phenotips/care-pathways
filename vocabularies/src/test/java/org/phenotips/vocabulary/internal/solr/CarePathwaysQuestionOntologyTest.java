@@ -94,7 +94,7 @@ public class CarePathwaysQuestionOntologyTest
 
     @Rule
     public final MockitoComponentMockingRule<Vocabulary> mocker =
-            new MockitoComponentMockingRule<>(CarePathwaysQuestionOntology.class);
+        new MockitoComponentMockingRule<>(CarePathwaysQuestionOntology.class);
 
     @Mock
     private SolrClient solrClient;
@@ -142,7 +142,7 @@ public class CarePathwaysQuestionOntologyTest
     public void testCarePathwaysQuestionsOntologyReindex() throws IOException, SolrServerException
     {
         final int ontologyServiceResult = this.component.reindex(this.getClass()
-                .getResource("/care-pathways-questions-test.tsv").toString());
+            .getResource("/care-pathways-questions-test.tsv").toString());
         Mockito.verify(this.solrClient).commit();
         Mockito.verify(this.solrClient).add(Matchers.anyCollectionOf(SolrInputDocument.class));
         Mockito.verify(this.cache).removeAll();
@@ -181,7 +181,7 @@ public class CarePathwaysQuestionOntologyTest
     public void getDefaultSourceLocation()
     {
         final URL source =
-                ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysQuestions.tsv");
+            ClassLoader.getSystemClassLoader().getResource("source/CarePathwaysQuestions.tsv");
         final String sourceStr = source == null ? StringUtils.EMPTY : source.toString();
         Assert.assertTrue(sourceStr.equals(this.component.getDefaultSourceLocation()));
     }
@@ -274,25 +274,25 @@ public class CarePathwaysQuestionOntologyTest
     public void loadReturnsNullWithMissingIdData() throws MalformedURLException
     {
         final URL url = new URL(this.getClass().getResource("/care-pathways-questions-missing-id-test.tsv")
-                .toString());
+            .toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNull(docs);
         verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways question source: {}",
-                "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
-                        + "recordNumber=4, values=[post test, Overall, the interpretation of my patient's primary "
-                        + "sequencing results is:]]");
+            "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
+                + "recordNumber=4, values=[post test, Overall, the interpretation of my patient's primary "
+                + "sequencing results is:]]");
     }
 
     @Test
     public void loadReturnsNullWithMissingNameData() throws MalformedURLException
     {
         final URL url = new URL(this.getClass().getResource("/care-pathways-questions-missing-name-test.tsv")
-                .toString());
+            .toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNull(docs);
         verify(this.logger, times(1)).warn("Failed to read/parse the Care Pathways question source: {}",
-                "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
-                        + "recordNumber=4, values=[post test, , CPQ:5]]");
+            "One of the required data fields is blank for record CSVRecord [comment=null, mapping=null, "
+                + "recordNumber=4, values=[post test, , CPQ:5]]");
     }
 
     @Test
@@ -338,8 +338,8 @@ public class CarePathwaysQuestionOntologyTest
         {
             SolrParams params = (SolrParams) argument;
             return params.get(CommonParams.FQ).startsWith(ID_LABEL)
-                    && params.get(DisMaxParams.PF) == null
-                    && params.get(DisMaxParams.QF) == null;
+                && params.get(DisMaxParams.PF) == null
+                && params.get(DisMaxParams.QF) == null;
         }
     }
 
@@ -350,8 +350,8 @@ public class CarePathwaysQuestionOntologyTest
         {
             SolrParams params = (SolrParams) argument;
             return params.get(DisMaxParams.PF) != null
-                    && params.get(DisMaxParams.QF) != null
-                    && params.get(CommonParams.Q) != null;
+                && params.get(DisMaxParams.QF) != null
+                && params.get(CommonParams.Q) != null;
         }
     }
 }

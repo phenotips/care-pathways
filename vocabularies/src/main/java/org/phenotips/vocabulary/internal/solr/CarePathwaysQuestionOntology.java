@@ -277,7 +277,7 @@ public class CarePathwaysQuestionOntology extends AbstractCSVSolrVocabulary
         query.set(SpellingParams.SPELLCHECK_Q, queryString);
         query.setRows(rows);
         if (StringUtils.isNotBlank(sort)) {
-            for (final String sortItem :sort.split("\\s*,\\s*")) {
+            for (final String sortItem : sort.split("\\s*,\\s*")) {
                 query.addSort(StringUtils.substringBefore(sortItem, " "),
                     sortItem.endsWith(" desc") || sortItem.startsWith("-") ? ORDER.desc : ORDER.asc);
             }
