@@ -50,6 +50,16 @@
 
 {{velocity}}
 (% class="" id="care-pathways-posttest-container"%)(((##
+#if ("$!{services.vocabularies.care-pathways-questions.version}" == '')
+
+  {{error}}This extension isn't fully installed yet.#if ($hasAdmin) You#else An administrator#end **must reindex** the "Care pathways tests and patient care" and "Care pathways survey questions" ontologies#if ($hasAdmin) in the [[administrative UI&gt;&gt;path:$xwiki.getURL('XWiki.XWikiPreferences', 'admin', 'editor=globaladmin&amp;section=Vocabulary', '')]]#end.{{/error}}
+
+  {{html clean="false" wiki="false"}}
+    &lt;input type='hidden' name="returnTo" value='#if ($supported_actions.contains("$!request.returnTo"))${request.returnTo}#{else}edit#{end}'/&gt;
+    &lt;input type='hidden' id='current-tab-id' value='care-pathways-posttest-tab'/&gt;
+  {{/html}}
+  #break
+#end
 {{html clean="false" wiki="false"}}
   &lt;p class="box infomessage"&gt;These questions should be completed following whole exome testing&lt;/p&gt;
   &lt;div id="posttest-analysis" class="care-pathways-analysis#if($xcontext.action == 'edit') care-pathways-analysis-module#{end}"&gt;
