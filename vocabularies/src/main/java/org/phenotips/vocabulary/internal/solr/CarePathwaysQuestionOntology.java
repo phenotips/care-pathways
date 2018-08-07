@@ -52,6 +52,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.SpellingParams;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * Provides access to the Care Pathways questions vocabulary. The vocabulary prefix is {@code CPQ}.
@@ -143,9 +145,13 @@ public class CarePathwaysQuestionOntology extends AbstractCSVSolrVocabulary
             final CSVFormat parser = CSVFormat.TDF;
             final CSVParser parsed = parser.parse(in);
             // Collect the solr documents.
-            return StreamSupport.stream(parsed.spliterator(), false)
+            Collection<SolrInputDocument> result = StreamSupport.stream(parsed.spliterator(), false)
                 .map(this::buildSolrDocForQuestion)
                 .collect(Collectors.toList());
+            // Add a "version" term with the version set to the current datetime
+            result.add(new SolrInputDocument("id", "HEADER_INFO", "version",
+                ISODateTimeFormat.dateTime().withZoneUTC().print(DateTime.now())));
+            return result;
         } catch (final Exception ex) {
             this.logger.warn("Failed to read/parse the Care Pathways question source: {}", ex.getMessage());
             return null;

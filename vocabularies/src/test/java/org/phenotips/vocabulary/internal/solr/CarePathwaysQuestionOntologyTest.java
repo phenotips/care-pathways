@@ -31,7 +31,9 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -44,6 +46,9 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.SolrParams;
+import org.joda.time.DateTime;
+import org.joda.time.Minutes;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -241,8 +246,28 @@ public class CarePathwaysQuestionOntologyTest
         final URL url = new URL(this.getClass().getResource("/care-pathways-questions-test.tsv").toString());
         final Collection<SolrInputDocument> docs = this.component.load(url);
         Assert.assertNotNull(docs);
-        Assert.assertEquals(5, docs.size());
+        // 5 input terms plus the version
+        Assert.assertEquals(6, docs.size());
         verifyZeroInteractions(this.logger);
+    }
+
+    @Test
+    public void loadAddsAVersionTerm() throws MalformedURLException
+    {
+        final URL url = new URL(this.getClass().getResource("/care-pathways-questions-test.tsv").toString());
+        final Collection<SolrInputDocument> docs = this.component.load(url);
+        Assert.assertNotNull(docs);
+        Assert.assertEquals(6, docs.size());
+        List<SolrInputDocument> versionDocs =
+            docs.stream().filter(doc -> doc.getFieldValue("version") != null).collect(Collectors.toList());
+        Assert.assertEquals(1, versionDocs.size());
+        SolrInputDocument versionDoc = versionDocs.get(0);
+        Assert.assertEquals("HEADER_INFO", versionDoc.getFieldValue("id"));
+        DateTime version =
+            ISODateTimeFormat.dateTime().withZoneUTC().parseDateTime((String) versionDoc.getFieldValue("version"));
+        Assert.assertTrue(DateTime.now().isAfter(version));
+        // We allow two minutes time for running tests on a busy slow machine
+        Assert.assertTrue(Minutes.minutesBetween(version, DateTime.now()).getMinutes() < 2);
     }
 
     @Test

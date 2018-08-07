@@ -56,6 +56,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.SpellingParams;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * Provides access to the Care Pathways care and tests vocabulary. The vocabulary prefix is {@code CP}.
@@ -181,10 +183,14 @@ public class CarePathwaysOntology extends AbstractCSVSolrVocabulary
                 .map(this::getPathData)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(CPNode::getId, Function.identity(), this::mergeNodes));
-            // Transfer the data to solr documents, and return.
-            return nodes.values().stream()
+            // Transfer the data to solr documents
+            Collection<SolrInputDocument> result = nodes.values().stream()
                 .map(this::buildSolrDoc)
                 .collect(Collectors.toList());
+            // Add a "version" term with the version set to the current datetime
+            result.add(new SolrInputDocument("id", "HEADER_INFO", "version",
+                ISODateTimeFormat.dateTime().withZoneUTC().print(DateTime.now())));
+            return result;
         } catch (final Exception ex) {
             this.logger.warn("Failed to read/parse the Care Pathways source: {}", ex.getMessage());
             return null;
