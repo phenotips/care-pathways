@@ -39,14 +39,14 @@
   <hidden>true</hidden>
   <content>{{velocity output=false}}
 #set ($testTerm = "CP:01")
-#set ($metabolicTerm = "CP:1114")
+#set ($metabolicTerm = "CP:1160")
 #set ($careTerm = "CP:02")
 #set ($familyCareTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
 #set ($diagnosticTerm = "CP:12")
-#set ($electricalSurveillanceTerm = "CP:24")
-#set ($imagingSurveillanceTerm = "CP:23")
-#set ($subSpecCareTerm = "CP:21")
+#set ($electricalSurveillanceTerm = "CP:25")
+#set ($imagingSurveillanceTerm = "CP:24")
+#set ($subSpecCareTerm = "CP:22")
 #macro (__displayDate $fuzzyDate)
   #if($!{fuzzyDate.opt('year')})$!{fuzzyDate.opt('year')}#{end}#if($!{fuzzyDate.opt('month')})-${stringtool.leftPad($fuzzyDate.opt('month'), 2, '0')}#{end}#if($!{fuzzyDate.opt('day')})-${stringtool.leftPad($fuzzyDate.opt('day'), 2, '0')}#{end}
 #end

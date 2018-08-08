@@ -1,3 +1,5 @@
+pre test	Which eligibility criteria does your patient meet? (check all that apply)	CPQ:16
+pre test	PLACEHOLDER FOR AN ALTERNATE CLINICAL CLASSIFICATION AS PER KB/FB DISCUSSION ON JULY 27	CPQ:17
 pre test	What genetic tests has your patient had to date?	CPQ:0
 pre test	What other diagnostic tests has your patient had in the past?	CPQ:1
 pre test	If WES was not available for your patient today, what diagnostic tests would you order at this point in time?	CPQ:2
