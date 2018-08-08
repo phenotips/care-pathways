@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!--
  * See the NOTICE file distributed with this work for additional
@@ -743,7 +743,7 @@
     <property>
       <use>onDemand</use>
     </property>
-  </object>  
+  </object>
   <object>
     <name>PhenoTips.CarePathways</name>
     <number>1</number>
@@ -2984,7 +2984,7 @@ var init = function(event) {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>cache</name>
-        <number>5</number>
+        <number>6</number>
         <prettyName>Caching policy</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -2997,7 +2997,7 @@ var init = function(event) {
       <code>
         <disabled>0</disabled>
         <name>code</name>
-        <number>2</number>
+        <number>3</number>
         <prettyName>Code</prettyName>
         <rows>20</rows>
         <size>50</size>
@@ -3010,7 +3010,7 @@ var init = function(event) {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
-        <number>6</number>
+        <number>1</number>
         <prettyName>Content Type</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -3023,7 +3023,7 @@ var init = function(event) {
       <name>
         <disabled>0</disabled>
         <name>name</name>
-        <number>1</number>
+        <number>2</number>
         <prettyName>Name</prettyName>
         <size>30</size>
         <unmodifiable>0</unmodifiable>
@@ -3034,7 +3034,7 @@ var init = function(event) {
         <displayFormType>select</displayFormType>
         <displayType>yesno</displayType>
         <name>parse</name>
-        <number>4</number>
+        <number>5</number>
         <prettyName>Parse content</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -3045,7 +3045,7 @@ var init = function(event) {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>use</name>
-        <number>3</number>
+        <number>4</number>
         <prettyName>Use this extension</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -3081,7 +3081,7 @@ var init = function(event) {
   display: table-cell;
 }
 
-.menu-horizontal > ul ul {
+.menu-horizontal &gt; ul ul {
   margin: .25em 0 0 -6.7em;
 }
 
@@ -3432,7 +3432,7 @@ select + .LV_validation_message {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>cache</name>
-        <number>5</number>
+        <number>6</number>
         <prettyName>Caching policy</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -3445,7 +3445,7 @@ select + .LV_validation_message {
       <code>
         <disabled>0</disabled>
         <name>code</name>
-        <number>2</number>
+        <number>3</number>
         <prettyName>Code</prettyName>
         <rows>20</rows>
         <size>50</size>
@@ -3458,7 +3458,7 @@ select + .LV_validation_message {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
-        <number>6</number>
+        <number>1</number>
         <prettyName>Content Type</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -3471,7 +3471,7 @@ select + .LV_validation_message {
       <name>
         <disabled>0</disabled>
         <name>name</name>
-        <number>1</number>
+        <number>2</number>
         <prettyName>Name</prettyName>
         <size>30</size>
         <unmodifiable>0</unmodifiable>
@@ -3482,7 +3482,7 @@ select + .LV_validation_message {
         <displayFormType>select</displayFormType>
         <displayType>yesno</displayType>
         <name>parse</name>
-        <number>4</number>
+        <number>5</number>
         <prettyName>Parse content</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -3493,7 +3493,7 @@ select + .LV_validation_message {
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>use</name>
-        <number>3</number>
+        <number>4</number>
         <prettyName>Use this extension</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
