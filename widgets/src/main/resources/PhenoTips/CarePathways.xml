@@ -388,6 +388,10 @@
       #__displayChildren("diagnostic", $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
       &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$testTerm'&gt;&lt;label for='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
       &lt;ul&gt;
+    #elseif ($submodule == "eligibility")
+      &lt;ul&gt;
+      #__displayChildren($submodule, 'CP:10', ${services.vocabularies.care-pathways.search({'is_a': 'CP:10'}, {'sort': 'nameSort asc'})}, $question, $storedValues, false)
+      &lt;/ul&gt;
     #elseif ($submodule == "genetic")
       &lt;ul&gt;
       #__displayChildren($submodule, $geneticTerm, $geneticNodes, $question, $storedValues, true)

@@ -62,6 +62,15 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #set($previewenabled = false)
 #set ($pretestQuestions = [
     {
+      "question" : "CPQ:16",
+      "modules" : [{
+        "dates":[],
+        "module" : "test",
+        "submodule" : "eligibility",
+        "subject" : "proband"
+      }]
+    },
+    {
       "question" : "CPQ:0",
       "modules" : [{
         "dates":[
