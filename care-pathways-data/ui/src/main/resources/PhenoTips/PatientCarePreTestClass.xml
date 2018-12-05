@@ -158,6 +158,19 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </laboratory>
+    <location>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>location</name>
+      <number>14</number>
+      <picker>0</picker>
+      <prettyName>Location</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </location>
     <module>
       <customDisplay/>
       <disabled>0</disabled>

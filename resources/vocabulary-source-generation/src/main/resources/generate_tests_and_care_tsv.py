@@ -18,6 +18,8 @@ def main(args):
     inputfile = args.inputfile
     # If user does not provide output file name, use a default one.
     outputfile = "CarePathwaysTestsAndCare.tsv" if not args.outputfile else args.outputfile
+    f = open(outputfile, "w")
+    f.close()
     # Process the file data, and save the result.
     process_data(inputfile, outputfile)
 
@@ -42,7 +44,7 @@ def process_data(inputfile, outputfile):
     # The Module A sheet.
     mod_a_sheet = book.sheet_by_index(1)
     # Process Module A data.
-    format_sheet(mod_a_sheet, 2, mod_a_sheet.nrows, 4, outputfile, "Test [CP:01]", True)
+    format_sheet(mod_a_sheet, 4, mod_a_sheet.nrows, 2, outputfile, "Eligibility [CP:01]", True)
 
     # Clear the map.
     TESTS_MAP = {}
@@ -55,7 +57,7 @@ def process_data(inputfile, outputfile):
     # The Module B sheet.
     mod_b_sheet = book.sheet_by_index(2)
     # Process Module B data.
-    format_sheet(mod_b_sheet, 3, mod_b_sheet.nrows, 3, outputfile, "Care [CP:02]", True)
+    format_sheet(mod_b_sheet, 2, mod_b_sheet.nrows, 5, outputfile, "Tests [CP:02]", True)
 
     # Clear the map.
     TESTS_MAP = {}
@@ -68,7 +70,7 @@ def process_data(inputfile, outputfile):
     # The Module C sheet.
     mod_c_sheet = book.sheet_by_index(3)
     # Process Module B data.
-    format_sheet(mod_c_sheet, 1, 4, 1, outputfile, "Family Care [CP:03]", True)
+    format_sheet(mod_c_sheet, 2, mod_c_sheet.nrows, 2, outputfile, "Care [CP:03]", True)
 
 def get_standard_prefix():
     global PREFIX
@@ -116,7 +118,7 @@ def format_sheet(sheet, start_pos, num_rows, num_cols, file_name, root, has_subc
     # Write the root node on its own line.
     f.write(root + '\n')
     # Process data one row at a time.
-    prev_row = ["ERROR", "ERROR"]
+    prev_row = ["ERROR", "ERROR", "ERROR"]
     for i in range(start_pos, num_rows):
         row = sheet.row_values(i)
         line = root
@@ -126,9 +128,14 @@ def format_sheet(sheet, start_pos, num_rows, num_cols, file_name, root, has_subc
         if row[0].strip() == "":
             line = line + '\t' + _attach_id(prev_row[0].strip(), True)
             cur_pos += 1
-            if row[1].strip() == "":
+            if row[1].strip() == "" and 2 < num_cols:
                 line = line + '\t' + _attach_id(prev_row[1].strip(), row[2].strip() != "" and 2 < num_cols - 1)
                 cur_pos += 1
+                if 2 < num_cols and row[2].strip() == "":
+                    line = line + '\t' + _attach_id(prev_row[2].strip(), row[3].strip() != "" and 3 < num_cols - 1)
+                    cur_pos += 1
+                else:
+                    prev_row[2] = row[2]
             else:
                 prev_row[1] = row[1]
         else:
@@ -169,8 +176,11 @@ def process_cell(f, data, row, cell, cur_pos, ncols):
     :param ncols:   the total number of columns
     """
     # Some rows have data that should be discarded.
-    garbage = ["other", "other:", "date data entered"]
-    next_cell = row[cur_pos + 1].strip()
+    garbage = ["other", "other:", "date data entered", "name of test", "name of gene", "name of panel and number of genes", "none", "name of enzymes"]
+    if len(row) <= cur_pos + 1:
+        next_cell = ""
+    else:
+        next_cell = row[cur_pos + 1].strip()
     for item in cell:
         stripped_item = item.strip()
         if stripped_item.lower() not in garbage:

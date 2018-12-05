@@ -18,7 +18,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="PhenoTips.CarePathwaysDataDeleteServices" locale="">
   <web>PhenoTips</web>
   <name>CarePathwaysDataDeleteServices</name>
   <language/>
@@ -29,8 +29,8 @@
   <parent>PhenoTips.PatientClass</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1520523916000</date>
-  <contentUpdateDate>1520523916000</contentUpdateDate>
+  <date>1542642639000</date>
+  <contentUpdateDate>1542642639000</contentUpdateDate>
   <version>1.1</version>
   <title>CarePathwaysDeleteServices</title>
   <comment/>

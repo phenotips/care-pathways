@@ -18,7 +18,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="PhenoTips.CPGeneVariantClass" locale="">
   <web>PhenoTips</web>
   <name>CPGeneVariantClass</name>
   <language/>
@@ -163,7 +163,7 @@ $!{displayed}
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>NA= |pathogenic=Pathogenic|likely_pathogenic=Likely Pathogenic|variant_u_s=Variant of Unknown Significance|likely_benign=Likely Benign|benign=Benign|investigation_n=Investigation Needed</values>
+      <values>NA= |pathogenic=Pathogenic|likely_pathogenic=Likely Pathogenic|variant_u_s=Variant of Unknown Significance</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </interpretation>
     <onset>

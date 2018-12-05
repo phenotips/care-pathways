@@ -1,18 +1,34 @@
-pre test	Which eligibility criteria does your patient meet? (check all that apply)	CPQ:16
-pre test	PLACEHOLDER FOR AN ALTERNATE CLINICAL CLASSIFICATION AS PER KB/FB DISCUSSION ON JULY 27	CPQ:17
-pre test	What genetic tests has your patient had to date?	CPQ:0
-pre test	What other diagnostic tests has your patient had in the past?	CPQ:1
-pre test	If WES was not available for your patient today, what diagnostic tests would you order at this point in time?	CPQ:2
-pre test	What types of specialists and activities are involved in your patient's routine care?	CPQ:3
-post test	My patient's analysis of primary variants revealed:	CPQ:4
-post test	Overall, the interpretation of my patient's primary sequencing results is:	CPQ:5
-post test	My patient's analysis of secondary variants revealed:	CPQ:6
-post test	Based on my patient's diagnostic sequencing results, I did NOT need to order the following diagnostic investigations:	CPQ:7
-post test	Based on my patient's partially-diagnostic sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis:	CPQ:8
-post test	Based on my patient's non-diagnostic sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis:	CPQ:9
-post test	Based on my patient's diagnostic sequencing result, I recommended the following care plan for my patient:	CPQ:10
-post test	Based on my patient's partially diagnostic sequencing result, I recommended the following care plan for my patient:	CPQ:11
-post test	Based on my patient's non-diagnostic sequencing result, I recommended the following care plan for my patient:	CPQ:12
-post test	Based on the secondary variant detected in my patient, I recommended the following care plan for him/her:	CPQ:13
-post test	Based on the secondary variant detected in my patient's mother, I recommended the following care plan for her:	CPQ:14
-post test	Based on the secondary variant detected in my patient's father, I recommended the following care plan for him:	CPQ:15
+pre test	Enrollment Site for Patient	CPQ:0
+pre test	Which clinical presentation criteria applies to this patient? (check 2 or more items)	CPQ:1
+pre test	Which management impact criteria applies to this patient? (check 1 or more item)	CPQ:2
+pre test	Which phenotypic category does your patient fit into?	CPQ:3
+pre test	What is the timeline for your patient's genetic consult?	CPQ:4
+pre test	What diagnostic tests has this patient had to date?	CPQ:5
+pre test	What specialists and/or allied health professionals are involved in this patient's routine care?	CPQ:6
+pre test	If WES was not available to order for this patient today, what diagnostic tests would you order at this point in time?	CPQ:7
+post test	The WES sequencing strategy for my patient involved:	CPQ:8
+post test	Details of WES test	CPQ:9
+post test	Lab name	CPQ:10
+post test	Date of application submission to MOH	CPQ:11
+post test	Date of MOH approval (if applicable)	CPQ:12
+post test	Date sample sent to lab	CPQ:13
+post test	Date of lab report	CPQ:14
+post test	Date WES results disclosed to family	CPQ:15
+post test	My patient's analysis of variants in known genes related to the test indication revealed:	CPQ:16
+post test	Overall, MY interpretation of my patient's primary sequencing results is:	CPQ:17
+post test	My patient's analysis of variants reported in genes of unknown significance revealed:	CPQ:18
+post test	My patient's analysis of secondary variants revealed:	CPQ:19
+post test	Based on my patient's sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis	CPQ:20
+post test	Based on my patient's sequencing results, I did not need to order the following diagnostic investigations	CPQ:21
+post test	Based on my patient's sequencing result, I recommended the following care plan for my patient:	CPQ:22
+post test	Based on my patient's secondary sequencing results, I ordered the following investigations	CPQ:23
+post test	Based on my patient's secondary sequencing result, I recommended the following care plan for my patient:	CPQ:24
+post test	After WES analysis:	CPQ:25
+post test	Was additional diagnostic testing ordered?	CPQ:26
+post test	Was additional diagnostic testing avoided?	CPQ:27
+post test	Was specific treatment recommended?	CPQ:28
+post test	Was specific treatment stopped?	CPQ:29
+post test	Was specific surveillance recommended?	CPQ:30
+post test	Was specific surveillance stopped?	CPQ:31
+post test	Was cascade testing for family member(s) recommended?	CPQ:32
+post test	Was prenatal diagnosis using these findings discussed?	CPQ:33

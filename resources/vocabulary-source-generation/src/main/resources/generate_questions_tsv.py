@@ -33,7 +33,6 @@ def process_data(inputfile, outputfile):
     # Process question sheet data.
     format_sheet(question_sheet, 1, question_sheet.nrows, outputfile)
 
-
 def format_sheet(sheet, start_pos, num_rows, file_name):
     """
     Read the sheet data and write it in correct format to the output file.

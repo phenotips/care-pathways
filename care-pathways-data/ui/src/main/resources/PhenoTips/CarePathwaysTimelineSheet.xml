@@ -171,53 +171,209 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <first_genetic_consult_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
+    <lab_report_date>
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
 {{/html}}{{/velocity}}</customDisplay>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
-      <name>first_genetic_consult_date</name>
-      <number>19</number>
+      <name>lab_report_date</name>
+      <number>7</number>
       <picker>1</picker>
-      <prettyName>Date of first genetic consult</prettyName>
+      <prettyName>Date of lab report</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </first_genetic_consult_date>
-    <first_genetic_consult_date_entered>
+    </lab_report_date>
+    <lab_report_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
 #__displayPropertyAsDate()
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
-      <name>first_genetic_consult_date_entered</name>
-      <number>3</number>
+      <name>lab_report_date_entered</name>
+      <number>15</number>
       <picker>0</picker>
-      <prettyName>first_genetic_consult_date_entered</prettyName>
+      <prettyName>lab_report_date_entered</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </first_genetic_consult_date_entered>
-    <moh_approval_date>
+    </lab_report_date_entered>
+    <laboratory>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>input</displayType>
+      <multiSelect>0</multiSelect>
+      <name>laboratory</name>
+      <number>19</number>
+      <picker>1</picker>
+      <prettyName>Laboratory name</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values/>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </laboratory>
+    <last_genetic_consult_date>
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
+{{/html}}{{/velocity}}</customDisplay>
+      <dateFormat>yyyy</dateFormat>
+      <disabled>0</disabled>
+      <emptyIsToday>0</emptyIsToday>
+      <name>last_genetic_consult_date</name>
+      <number>3</number>
+      <picker>1</picker>
+      <prettyName>Date of most recent genetic consult</prettyName>
+      <size>20</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+    </last_genetic_consult_date>
+    <last_genetic_consult_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
 #__displayPropertyAsDate()
 {{/html}}{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <name>last_genetic_consult_date_entered</name>
+      <number>11</number>
+      <picker>0</picker>
+      <prettyName>last_genetic_consult_date_entered</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </last_genetic_consult_date_entered>
+    <moh_approval_date>
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
+{{/html}}{{/velocity}}</customDisplay>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>moh_approval_date</name>
-      <number>23</number>
+      <number>5</number>
       <picker>1</picker>
       <prettyName>Date of MOH approval (if applicable)</prettyName>
       <size>20</size>
@@ -234,7 +390,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
       <name>moh_approval_date_entered</name>
-      <number>8</number>
+      <number>13</number>
       <picker>0</picker>
       <prettyName>moh_approval_date_entered</prettyName>
       <size>30</size>
@@ -243,161 +399,119 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </moh_approval_date_entered>
-    <primary_result_reported_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
+    <moh_submission_date>
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
 {{/html}}{{/velocity}}</customDisplay>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
-      <name>primary_result_reported_date</name>
-      <number>27</number>
+      <name>moh_submission_date</name>
+      <number>4</number>
       <picker>1</picker>
-      <prettyName>Date primary result reported to family</prettyName>
+      <prettyName>Date of application submission to MOH</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </primary_result_reported_date>
-    <primary_result_reported_date_entered>
+    </moh_submission_date>
+    <moh_submission_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
 #__displayPropertyAsDate()
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
-      <name>primary_result_reported_date_entered</name>
+      <name>moh_submission_date_entered</name>
       <number>12</number>
       <picker>0</picker>
-      <prettyName>primary_result_reported_date_entered</prettyName>
+      <prettyName>moh_submission_date_entered</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </primary_result_reported_date_entered>
-    <primary_variant_clinical_lab_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>primary_variant_clinical_lab_report_date</name>
-      <number>25</number>
-      <picker>1</picker>
-      <prettyName>Date of clinical laboratory report for validated primary variant</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </primary_variant_clinical_lab_report_date>
-    <primary_variant_clinical_lab_report_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>primary_variant_clinical_lab_report_date_entered</name>
-      <number>10</number>
-      <picker>0</picker>
-      <prettyName>primary_variant_clinical_lab_report_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </primary_variant_clinical_lab_report_date_entered>
-    <primary_variant_interim_negative_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>primary_variant_interim_negative_report_date</name>
-      <number>26</number>
-      <picker>1</picker>
-      <prettyName>Date of 'interim negative' report for primary indication (if applicable)</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </primary_variant_interim_negative_report_date>
-    <primary_variant_interim_negative_report_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>primary_variant_interim_negative_report_date_entered</name>
-      <number>11</number>
-      <picker>0</picker>
-      <prettyName>primary_variant_interim_negative_report_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </primary_variant_interim_negative_report_date_entered>
-    <primary_variant_research_lab_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>primary_variant_research_lab_report_date</name>
-      <number>24</number>
-      <picker>1</picker>
-      <prettyName>Date of research laboratory report for primary variant (if applicable)</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </primary_variant_research_lab_report_date>
-    <primary_variant_research_lab_report_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>primary_variant_research_lab_report_date_entered</name>
-      <number>9</number>
-      <picker>0</picker>
-      <prettyName>primary_variant_research_lab_report_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </primary_variant_research_lab_report_date_entered>
+    </moh_submission_date_entered>
     <referral_to_genetics_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
 {{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
+      <dateFormat>yyyy</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>referral_to_genetics_date</name>
-      <number>18</number>
+      <number>2</number>
       <picker>1</picker>
       <prettyName>Date of referral to genetics</prettyName>
       <size>20</size>
@@ -414,7 +528,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
       <name>referral_to_genetics_date_entered</name>
-      <number>2</number>
+      <number>10</number>
       <picker>0</picker>
       <prettyName>referral_to_genetics_date_entered</prettyName>
       <size>30</size>
@@ -423,7 +537,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </referral_to_genetics_date_entered>
-    <second_genetic_consult_date>
+    <result_reported_date>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
@@ -432,224 +546,180 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
-      <name>second_genetic_consult_date</name>
-      <number>20</number>
+      <name>result_reported_date</name>
+      <number>8</number>
       <picker>1</picker>
-      <prettyName>Date of second genetic consult</prettyName>
+      <prettyName>Date WES results disclosed to family </prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </second_genetic_consult_date>
-    <second_genetic_consult_date_entered>
+    </result_reported_date>
+    <result_reported_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
 #__displayPropertyAsDate()
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
-      <name>second_genetic_consult_date_entered</name>
-      <number>4</number>
-      <picker>0</picker>
-      <prettyName>second_genetic_consult_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </second_genetic_consult_date_entered>
-    <secondary_result_reported_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>secondary_result_reported_date</name>
-      <number>31</number>
-      <picker>1</picker>
-      <prettyName>Date secondary variant result reported to family</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </secondary_result_reported_date>
-    <secondary_result_reported_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>secondary_result_reported_date_entered</name>
+      <name>result_reported_date_entered</name>
       <number>16</number>
       <picker>0</picker>
-      <prettyName>secondary_result_reported_date_entered</prettyName>
+      <prettyName>result_reported_date_entered</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </secondary_result_reported_date_entered>
-    <secondary_variant_clinical_lab_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
+    </result_reported_date_entered>
+    <sample_sent_date>
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
 {{/html}}{{/velocity}}</customDisplay>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
-      <name>secondary_variant_clinical_lab_report_date</name>
-      <number>29</number>
+      <name>sample_sent_date</name>
+      <number>6</number>
       <picker>1</picker>
-      <prettyName>Date of research laboratory report for secondary variant (if applicable)</prettyName>
+      <prettyName>Date sample sent to lab</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </secondary_variant_clinical_lab_report_date>
-    <secondary_variant_clinical_lab_report_date_entered>
+    </sample_sent_date>
+    <sample_sent_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 
 {{velocity}}{{html clean=false}}
 #__displayPropertyAsDate()
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
-      <name>secondary_variant_clinical_lab_report_date_entered</name>
+      <name>sample_sent_date_entered</name>
       <number>14</number>
       <picker>0</picker>
-      <prettyName>secondary_variant_clinical_lab_report_date_entered</prettyName>
+      <prettyName>sample_sent_date_entered</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </secondary_variant_clinical_lab_report_date_entered>
-    <secondary_variant_interim_negative_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
+    </sample_sent_date_entered>
+    <symptom_onset>
+      <cache>0</cache>
+      <customDisplay/>
       <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>secondary_variant_interim_negative_report_date</name>
-      <number>30</number>
-      <picker>1</picker>
-      <prettyName>Date of 'interim negative' report for secondary variants (if applicable)</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </secondary_variant_interim_negative_report_date>
-    <secondary_variant_interim_negative_report_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>secondary_variant_interim_negative_report_date_entered</name>
-      <number>15</number>
+      <displayType>radio</displayType>
+      <multiSelect>0</multiSelect>
+      <name>symptom_onset</name>
+      <number>17</number>
       <picker>0</picker>
-      <prettyName>secondary_variant_interim_negative_report_date_entered</prettyName>
+      <prettyName>Approximate age of symptom onset</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>unknown=Unknown|prenatal=Prenatal|birth=At Birth|childhood=Childhood|adolescent=Adolescent|adult=Adult</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </symptom_onset>
+    <symptom_onset_age>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>symptom_onset_age</name>
+      <number>18</number>
+      <numberType>integer</numberType>
+      <prettyName>Specify approximate year</prettyName>
       <size>30</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </secondary_variant_interim_negative_report_date_entered>
-    <secondary_variant_research_lab_report_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>secondary_variant_research_lab_report_date</name>
-      <number>28</number>
-      <picker>1</picker>
-      <prettyName>Date of research laboratory report for secondary variant (if applicable)</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </secondary_variant_research_lab_report_date>
-    <secondary_variant_research_lab_report_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>secondary_variant_research_lab_report_date_entered</name>
-      <number>13</number>
-      <picker>0</picker>
-      <prettyName>secondary_variant_research_lab_report_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </secondary_variant_research_lab_report_date_entered>
-    <sequencing_bloodwork_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>sequencing_bloodwork_date</name>
-      <number>22</number>
-      <picker>1</picker>
-      <prettyName>Date of genome-wide sequencing bloodwork</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </sequencing_bloodwork_date>
-    <sequencing_bloodwork_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>sequencing_bloodwork_date_entered</name>
-      <number>6</number>
-      <picker>0</picker>
-      <prettyName>sequencing_bloodwork_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </sequencing_bloodwork_date_entered>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </symptom_onset_age>
     <symptom_onset_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
+      <customDisplay>{{velocity}}{{html clean=false}}
+#set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
+#set ($format = $definedFormat)
+#if ($xcontext.action == 'edit')
+  #if ($value)
+    #set ($value = $services.jodatime.getMutableDateTime($value.time))
+    #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  #end
+  &lt;input type='text' id='${prefix}${name}' title="$!escapetool.xml($format)" name='${prefix}${name}' class='hidden fuzzy-date' value="$!services.jodatime.getDateTimeFormatterForPattern($definedFormat).print($value)" alt="$!services.jodatime.ISODateTimeFormatter.print($value)"/&gt;&lt;input type='hidden' name='${prefix}${name}_entered' id='${prefix}${name}_entered' value="$!{escapetool.xml($object.getProperty("${name}_entered").value)}"/&gt;
+#else
+#set ($enteredValue = $object.getProperty("${name}_entered").value)
+#if ("$!enteredValue" != '' &amp;&amp; "$!enteredValue" != '{}')
+  #set ($enteredValue = $jsontool.parseToJSONObject($enteredValue))
+  #if ($enteredValue.opt('range') &amp;&amp; $enteredValue.opt('range').opt('years') &amp;&amp; $enteredValue.range.years &gt; 1)
+    &lt;span class="date"&gt;$!escapetool.xml($enteredValue.opt('year'))s&lt;/span&gt;
+  #else
+    #set ($displayedValue = $format)
+    #if ($enteredValue.opt('year'))
+      #set ($displayedValue = $displayedValue.replaceAll('y+', $enteredValue.year))
+      #if ($enteredValue.opt('month'))
+        #set ($displayedValue = $displayedValue.replaceAll('M+', $enteredValue.month))
+        #if ($enteredValue.opt('day'))
+          #set ($displayedValue = $displayedValue.replaceAll('d+', $enteredValue.day))
+        #end
+      #end
+    #end
+    #set ($displayedValue = $displayedValue.replaceAll('[a-zA-Z]+(\W|$)', '').replaceAll('^\W+|\W+$', ''))
+    ## add leading 0-s to 1-digit month and days, if missing
+    #set ($displayedValue = $displayedValue.replaceAll('(?&lt;=(^|\D))(\d)(\D|$)', '0$2$3'))
+    &lt;span class="date"&gt;$!escapetool.xml($displayedValue)&lt;/span&gt;
+  #end
+#elseif ($value)
+  #set ($value = $services.jodatime.getMutableDateTime($value.time))
+  #set ($discard = $value.setZoneRetainFields($services.jodatime.UTCTimezone))
+  &lt;span class="date"&gt;$!services.jodatime.getDateTimeFormatterForPattern($format).print($value)&lt;/span&gt;
+#end
+#end
 {{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
+      <dateFormat>yyyy</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>symptom_onset_date</name>
-      <number>17</number>
+      <number>1</number>
       <picker>1</picker>
       <prettyName>Date of symptom onset</prettyName>
       <size>20</size>
@@ -666,7 +736,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 {{/html}}{{/velocity}}</customDisplay>
       <disabled>0</disabled>
       <name>symptom_onset_date_entered</name>
-      <number>1</number>
+      <number>9</number>
       <picker>0</picker>
       <prettyName>symptom_onset_date_entered</prettyName>
       <size>30</size>
@@ -675,78 +745,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </symptom_onset_date_entered>
-    <third_genetic_consult_date>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy-MM-dd</dateFormat>
-      <disabled>0</disabled>
-      <emptyIsToday>0</emptyIsToday>
-      <name>third_genetic_consult_date</name>
-      <number>21</number>
-      <picker>1</picker>
-      <prettyName>Date of third genetic consult</prettyName>
-      <size>20</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </third_genetic_consult_date>
-    <third_genetic_consult_date_entered>
-      <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
-
-{{velocity}}{{html clean=false}}
-#__displayPropertyAsDate()
-{{/html}}{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>third_genetic_consult_date_entered</name>
-      <number>5</number>
-      <picker>0</picker>
-      <prettyName>third_genetic_consult_date_entered</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </third_genetic_consult_date_entered>
-    <type_of_sequencing_bloodwork>
-      <cache>0</cache>
-      <customDisplay>{{velocity}}
-#set ($wes = "wes")##
-#set ($wgs = "wgs")##
-#if ($xcontext.action == "edit")
-{{html clean="false" wiki="false"}}
-&lt;span class="xwiki-form-listclass"&gt;&lt;label for="${prefix}${name}-0"&gt;&lt;input id="${prefix}${name}-0" value="${wes}" name="${prefix}${name}" type="radio" #if($value == $wes || "$!value" == "")checked="checked"#end/&gt;$escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineSheet_type_of_sequencing_bloodwork_${wes}"))&lt;/label&gt;&lt;/span&gt;
-&lt;span class="xwiki-form-listclass"&gt;&lt;label for="${prefix}${name}-1"&gt;&lt;input id="${prefix}${name}-1" value="${wgs}" name="${prefix}${name}" type="radio" #if($value == $wgs)checked="checked"#end/&gt;$escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineSheet_type_of_sequencing_bloodwork_${wgs}"))&lt;/label&gt;&lt;/span&gt;
-{{/html}}##
-#else
-{{html clean="false" wiki="false"}}
-#if ("$!{value}" != "")
-$escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineSheet_type_of_sequencing_bloodwork_${value}"))
-#end
-{{/html}}##
-#end
-{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <displayType>radio</displayType>
-      <multiSelect>0</multiSelect>
-      <name>type_of_sequencing_bloodwork</name>
-      <number>7</number>
-      <picker>0</picker>
-      <prettyName>type_sequencing_bloodwork</prettyName>
-      <relationalStorage>0</relationalStorage>
-      <separator>&lt;br/&gt;</separator>
-      <separators>,|</separators>
-      <size>1</size>
-      <sort>none</sort>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <values>wes=WES|wgs=WGS</values>
-      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-    </type_of_sequencing_bloodwork>
   </class>
   <object>
     <name>PhenoTips.CarePathwaysTimelineSheet</name>
@@ -889,7 +887,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>cache</name>
-        <number>5</number>
+        <number>6</number>
         <prettyName>Caching policy</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -902,7 +900,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
       <code>
         <disabled>0</disabled>
         <name>code</name>
-        <number>2</number>
+        <number>3</number>
         <prettyName>Code</prettyName>
         <rows>20</rows>
         <size>50</size>
@@ -915,7 +913,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
-        <number>6</number>
+        <number>1</number>
         <prettyName>Content Type</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -928,7 +926,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
       <name>
         <disabled>0</disabled>
         <name>name</name>
-        <number>1</number>
+        <number>2</number>
         <prettyName>Name</prettyName>
         <size>30</size>
         <unmodifiable>0</unmodifiable>
@@ -939,7 +937,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
         <displayFormType>select</displayFormType>
         <displayType>yesno</displayType>
         <name>parse</name>
-        <number>4</number>
+        <number>5</number>
         <prettyName>Parse content</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -950,7 +948,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
         <displayType>select</displayType>
         <multiSelect>0</multiSelect>
         <name>use</name>
-        <number>3</number>
+        <number>4</number>
         <prettyName>Use this extension</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
@@ -1074,7 +1072,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysTimelineShe
       <content/>
     </property>
     <property>
-      <extensionPointId>org.phenotips.patientSheet.tab</extensionPointId>
+      <extensionPointId>org.phenotips.patientSheet.tab:disabled</extensionPointId>
     </property>
     <property>
       <name>org.phenotips.patientSheet.tab.care-pathways-timeline</name>

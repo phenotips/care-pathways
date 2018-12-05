@@ -49,6 +49,7 @@
 $xwiki.ssx.use('PhenoTips.PatientSheetCode', {'colorTheme' : "$xwiki.getSpacePreference('colorTheme')"})##
 $xwiki.jsx.use('PhenoTips.CarePathways')##
 $xwiki.ssx.use('PhenoTips.CarePathways')##
+$xwiki.jsx.use('PhenoTips.CarePathwaysPreTestSheet')##
 $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 ##
@@ -62,59 +63,78 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #set($previewenabled = false)
 #set ($pretestQuestions = [
     {
-      "question" : "CPQ:16",
-      "modules" : [{
-        "dates":[],
-        "module" : "test",
-        "submodule" : "eligibility",
-        "subject" : "proband"
-      }]
-    },
-    {
-      "question" : "CPQ:0",
-      "modules" : [{
-        "dates":[
-          {
-            "name":"date_recommended",
-            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_recommended.title'))"
-          },
-          {
-            "name":"date_pursued",
-            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
-          }
-        ],
-        "module" : "test",
-        "submodule" : "genetic",
-        "subject" : "proband"
-      }]
-    },
-    {
       "question" : "CPQ:1",
       "modules" : [{
-        "dates":[
-          {
-            "name":"date_pursued",
-            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
-          }
-        ],
-        "module" : "test",
-        "submodule" : "diagnostic",
+        "dates":[],
+        "module" : "Eligibility",
+        "submodule" : "CP:11",
         "subject" : "proband"
-      }]
+      }],
+      "selection-min" : 2
     },
     {
       "question" : "CPQ:2",
       "modules" : [{
         "dates":[],
-        "module" : "test",
+        "module" : "Eligibility",
+        "submodule" : "CP:12",
         "subject" : "proband"
-      }]
+      }],
+      "selection-min" : 1
     },
     {
       "question" : "CPQ:3",
       "modules" : [{
         "dates":[],
+        "module" : "Eligibility",
+        "submodule" : "CP:13",
+        "subject" : "proband"
+      }],
+      "selection-min" : 1,
+      "selection-max" : 1
+    },
+    {
+      "question" : "CPQ:4",
+      "modules" : [{
+        "module" : "timeline",
+        "submodule" : "pretest",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:5",
+      "modules" : [{
+        "dates":[
+          {
+            "name":"date_pursued",
+            "label":"$!escapetool.xml($services.localization.render('phenotips.carePathways.test.detailsDialog.datePicker.date_pursued.title'))"
+          }
+        ],
+        "module" : "test",
+        "submodule" : "done",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:6",
+      "formType": "primary",
+      "modules" : [{
+         "dates":[
+          {
+            "name":"date_pursued",
+            "label":"$!escapetool.xml($services.localization.render('Year'))"
+          }
+        ],
         "module" : "care",
+        "subject" : "proband"
+      }]
+    },
+    {
+      "question" : "CPQ:7",
+      "formType": "primary",
+      "modules" : [{
+        "module" : "test",
+        "submodule" : "wouldDo",
         "subject" : "proband"
       }]
     }
@@ -128,18 +148,18 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   #set ($clearCategory = $doc.getURL("get", "sheet=$sheet&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
   #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
   {{html clean="false" wiki="false"}}##
-  &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire"&gt;
+  &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire care-pathways-form"&gt;
   &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
   &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
   #foreach ($question in $pretestQuestions)
-    &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container chapter"&gt;
+    &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container chapter#if ($question.formType) cp-$question.formType#end"&gt;
       &lt;tr class="table-row care-pathways-section-label"&gt;
         &lt;td class="table-cell" colspan="2"&gt;
           &lt;input type="hidden" class="cp-question-id" value="$!{question.question}"/&gt;
           $!{services.vocabularies.care-pathways-questions.getTerm($question.question).name}
         &lt;/td&gt;
       &lt;/tr&gt;
-      &lt;tr class="care-pathways-modules"&gt;
+      &lt;tr class="care-pathways-modules"#if ($question.get('selection-min')) data-selection-min="$question.get('selection-min')"#end#if ($question.get('selection-max')) data-selection-max="$question.get('selection-max')"#end&gt;
         &lt;td&gt;
           &lt;table class="table care-pathways-modules-wrapper no-variants"&gt;
             #set ($lastIdx = $question.modules.size() - 1)
@@ -158,7 +178,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 {{/velocity}}
 
 {{velocity}}
-(% class="" id="care-pathways-pretest-container"%)(((##
+(% id="care-pathways-pretest-container"%)(((##
 #if ("$!{services.vocabularies.care-pathways-questions.version}" == '')
 
   {{error}}This extension isn't fully installed yet.#if ($hasAdmin) You#else An administrator#end **must reindex** the "Care pathways tests and patient care" and "Care pathways survey questions" ontologies#if ($hasAdmin) in the [[administrative UI&gt;&gt;path:$xwiki.getURL('XWiki.XWikiPreferences', 'admin', 'editor=globaladmin&amp;section=Vocabulary', '')]]#end.{{/error}}
@@ -169,9 +189,15 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   {{/html}}
   #break
 #end
-{{html clean="false" wiki="false"}}##
-  &lt;p class="box infomessage"&gt;These questions should be completed prior to whole exome testing&lt;/p&gt;
-{{/html}}##
+(% class="box infomessage" %)
+These questions should be completed prior to whole exome testing
+
+(% class="cp-site-selection" %)(((
+  == Enrollment Site for Patient ==
+  #set ($enrollmentObject = $doc.getObject('PhenoTips.CarePathwaysEnrollmentClass', true))
+  $doc.display('enrollment', $enrollmentObject)
+)))
+
   #__displayPreTestSurvey()##
 {{html clean="false" wiki="false"}}##
   &lt;input type='hidden' id='data-storage-class' value="PhenoTips.PatientCarePreTestClass"/&gt;
@@ -185,6 +211,123 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 {{/html}}##
 )))
 {{/velocity}}</content>
+  <object>
+    <name>PhenoTips.CarePathwaysPreTestSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>50990b4b-09aa-49a1-aef3-ee5462a37628</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var XWiki = (function(XWiki) {
+  var onAgeSelected = function(e) {
+    if (e.target.value == 'childhood' || e.target.value == 'adolescent' || e.target.value == 'adult') {
+      $$('dt.symptom_onset_age').each(function(i) {i.show(); i.next('dd').show();});
+    } else {
+      $$('dt.symptom_onset_age').each(function(i) {i.hide(); i.next('dd').hide();});
+    }
+  }
+  var init = function() {
+    if ($$('dt.symptom_onset').length == 1) {
+      var onsetRange = $$('dt.symptom_onset')[0].next('dd');
+      onsetRange.select('input[type=radio]').invoke('observe', 'click', onAgeSelected)
+      var selected = onsetRange.down('input[type=radio]:checked');
+      if (selected &amp;&amp; (selected.value == 'childhood' || selected.value == 'adolescent' || selected.value == 'adult')) {
+        $$('dt.symptom_onset_age').each(function(i) {i.show(); i.next('dd').show();});
+      } else {
+        $$('dt.symptom_onset_age').each(function(i) {i.hide(); i.next('dd').hide();});
+      }
+    }
+  };
+
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+
+  // End XWiki augmentation.
+  return XWiki;
+}(XWiki || {}));</code>
+    </property>
+    <property>
+      <name>Only show age of onset input when onset is post-natal</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
   <object>
     <name>PhenoTips.CarePathwaysPreTestSheet</name>
     <number>0</number>

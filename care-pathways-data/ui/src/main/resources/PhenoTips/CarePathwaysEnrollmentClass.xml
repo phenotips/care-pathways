@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.2" reference="PhenoTips.CarePathwaysEnrollmentClass" locale="">
+  <web>PhenoTips</web>
+  <name>CarePathwaysEnrollmentClass</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1542643458000</creationDate>
+  <parent>PhenoTips.CarePathways</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1543940684000</date>
+  <contentUpdateDate>1542643458000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content/>
+  <class>
+    <name>PhenoTips.CarePathwaysEnrollmentClass</name>
+    <customClass/>
+    <customMapping/>
+    <defaultViewSheet/>
+    <defaultEditSheet/>
+    <defaultWeb/>
+    <nameField/>
+    <validationScript/>
+    <enrollment>
+      <cache>0</cache>
+      <classname/>
+      <customDisplay>{{velocity}}
+###foreach ($i in $xcontext.vcontext.keys) $i #end
+$!xwiki.ssx.use('PhenoTips.CarePathwaysEnrollmentClass')##
+$!xwiki.jsx.use('PhenoTips.CarePathwaysEnrollmentClass')##
+
+#if ($type == 'edit')
+  {{html clean="false" wiki="false"}}
+    &lt;ul class="cp-site-list"&gt;
+    #foreach ($site in $xwiki.wrapDocs($field.getListValues()))
+      &lt;li&gt;&lt;label#if ($site.fullName == $value) class="selected"#end&gt;$site.getValue('name')&lt;input type="radio" name="$prefix$name" value="$site.fullName" #if ($site.fullName == $value)checked="checked" #end/&gt;&lt;/label&gt;&lt;input type="hidden" value="$site.getValue('type')" class="cp-type" /&gt;&lt;/li&gt;
+    #end
+    &lt;/ul&gt;
+  {{/html}}
+#elseif ($value)
+  {{html clean="false" wiki="false"}}
+    &lt;ul class="cp-site-list"&gt;
+      #set ($site = $xwiki.getDocument($value))
+      &lt;li&gt;&lt;label class="selected"&gt;$site.getValue('name')&lt;input type="radio" name="$prefix$name" value="$site.fullName" checked="checked" /&gt;&lt;/label&gt;&lt;input type="hidden" value="$site.getValue('type')" class="cp-type" /&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  {{/html}}
+#end
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <idField/>
+      <multiSelect>0</multiSelect>
+      <name>enrollment</name>
+      <number>2</number>
+      <picker>0</picker>
+      <prettyName>enrollment</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>1</size>
+      <sort>none</sort>
+      <sql>select doc.fullName from XWikiDocument doc, BaseObject site, StringProperty id, StringProperty type where site.name = doc.fullName and site.className = 'PhenoTips.CarePathwaysEnrollmentSiteClass' and id.id.id = site.id and id.id.name = 'id' and type.id.id = id.id.id and type.id.name = 'type' order by type.value, id.value</sql>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+    </enrollment>
+  </class>
+  <object>
+    <name>PhenoTips.CarePathwaysEnrollmentClass</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>c03ae9b8-2110-47c3-bbe0-501911d3f763</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>(function() {
+  var init = function() {
+    var questionaire = $$('.care-pathways-form:not(.initialized)')[0];
+    if (!questionaire) {
+      return;
+    }
+    var initialType = $$(".cp-site-list input:checked")[0] &amp;&amp; $$(".cp-site-list input:checked")[0].up('li').down('input.cp-type').value;
+    if (initialType) {
+      questionaire.addClassName("cp-" + initialType);
+    } else {
+      questionaire.addClassName('cp-undefined')
+    }
+    $$(".cp-site-list li").each(function(site) {
+      site.observe('click', function(event) {
+        if (site.down("input::checked")) {
+          $$(".cp-site-list label.selected").invoke('removeClassName', 'selected');
+          site.select('label').invoke('addClassName', 'selected');
+          questionaire.removeClassName("cp-primary");
+          questionaire.removeClassName("cp-secondary");
+          questionaire.removeClassName("cp-undefined");
+          questionaire.addClassName("cp-" + site.down("input.cp-type").value);
+        }
+      });
+    });
+    questionaire.addClassName("initialized");
+  };
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+}());</code>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysEnrollmentClass</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>9ecfa17d-1695-4832-be8b-15a496caca3a</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>6</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>3</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>1</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>5</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>4</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>#template('colorThemeInit.vm')
+
+.cp-site-selection {
+  padding: 0 20px 3em;
+  text-shadow: initial;
+}
+#care-pathways-posttest-container .cp-site-selection {
+    padding: 0 10px 3em;
+}
+.cp-site-selection h2 {
+  color: #000;
+  font-size: 1.3em;
+}
+
+.cp-site-selection .cp-site-list {
+  margin: 0;
+}
+.cp-site-selection .cp-site-list li {
+  display: inline-block;
+  margin: 2px 0;
+}
+.cp-site-selection .cp-site-list label {
+  border: 1px solid $theme.borderColor;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  margin: 0;
+  padding: 2px 4px;
+}
+.cp-site-selection .cp-site-list label:hover {
+  border-color: $theme.linkColor;
+  color: $theme.linkColor;
+}
+.cp-site-selection .cp-site-list label.selected {
+  background: $theme.linkColor;
+  border-color: $theme.linkColor;
+  color: $theme.pageContentBackgroundColor;
+}
+.viewbody .cp-site-selection .cp-site-list label.selected {
+  background: transparent;
+  border: 0 none;
+  color: $theme.textColor;
+  cursor: default;
+  padding: 0;
+  float: left;
+  clear: right;
+  margin-top: 20px;
+  margin-left: 1em;
+}
+.viewbody .cp-site-selection h2 {
+  float: left;
+  margin-bottom: 0;
+}
+.viewbody .cp-site-selection h2:after {
+  content: ": ";
+}
+.cp-site-selection .cp-site-list input {
+  display: none;
+}
+</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+</xwikidoc>

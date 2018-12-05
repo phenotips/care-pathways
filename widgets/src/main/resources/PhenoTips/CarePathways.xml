@@ -38,18 +38,33 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output=false}}
-#set ($testTerm = "CP:01")
+#set ($testTerm = "CP:02")
 #set ($metabolicTerm = "CP:1160")
-#set ($careTerm = "CP:02")
-#set ($familyCareTerm = "CP:03")
+#set ($careTerm = "CP:03")
 #set ($geneticTerm = "CP:11")
 #set ($diagnosticTerm = "CP:12")
-#set ($electricalSurveillanceTerm = "CP:25")
-#set ($imagingSurveillanceTerm = "CP:24")
-#set ($subSpecCareTerm = "CP:22")
+#set ($termsExcludedFromPath = ['CP:01', 'CP:11', 'CP:12', 'CP:13', 'CP:02', 'CP:03', 'CP:04', 'CP:31', 'CP:32', 'CP:08', 'CP:09'])
 #macro (__displayDate $fuzzyDate)
   #if($!{fuzzyDate.opt('year')})$!{fuzzyDate.opt('year')}#{end}#if($!{fuzzyDate.opt('month')})-${stringtool.leftPad($fuzzyDate.opt('month'), 2, '0')}#{end}#if($!{fuzzyDate.opt('day')})-${stringtool.leftPad($fuzzyDate.opt('day'), 2, '0')}#{end}
 #end
+##
+##
+#macro (__displayRow $propName)
+  #set ($value = "$doc.display($propName).trim()")
+  #if ($value != '')
+  &lt;dt class="$propName"&gt;##
+    {{/html}}##
+    #__label($propName "" "")##
+    {{html clean="false" wiki="false"}}##
+  &lt;/dt&gt;##
+  &lt;dd class="$propName"&gt;##
+   {{/html}}##
+   $value
+   {{html clean="false" wiki="false"}}##
+  &lt;/dd&gt;##
+  #end
+#end
+##
 ##
 ##
 #macro (__displayModuleGroup $question $variantNumber $groupTitle $modules $modulesLastIdx $sheet $storageClass $retrieveStoredData $editable)
@@ -69,84 +84,10 @@
 #end##
 #foreach ($i in [0..${modulesLastIdx}])
   #set($module = $modules.get($i))
-  #if ($!{module.get('module')} == 'family')
-    #__buildFamilyModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData, $editable)
-  #else
-    #__buildCategoryModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData, $editable)
-  #end
+  #__buildCategoryModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData, $editable)
 #end##
 #end
 ##
-##
-#macro(__buildFamilyModule $module $question $variantNumber $storageClass $retrieveStoredData $editable)
-  #set ($subjects = ['mother', 'father', 'sister', 'brother', 'aunt', 'uncle'])
-  #set ($familyTesting = $services.vocabularies.care-pathways.search({'is_a': $familyCareTerm}, {'sort': 'nameSort asc'}))
-  #foreach ($familyTest in $!{familyTesting})
-    #set ($testId = $familyTest.id)
-    #set ($testName = $familyTest.name)
-    #set ($familyTestObjs = $doc.getObjects($storageClass, 'datum', $testId))
-    #set ($storedAffectedMembers = [])
-    #foreach ($obj in ${familyTestObjs})
-      #if ($obj.getProperty('question').value == $question &amp;&amp; "$!{variantNumber}" == "$!{obj.getProperty('variant').value}")
-        #set ($datum = {"count" : $obj.number})
-        #foreach ($prop in $obj.xWikiClass.properties)
-          #set ($propValue = "$!{obj.getProperty($prop.name).value}")
-          #if ($propValue != "")
-            #set($discard = $datum.put($prop.name, $propValue))
-          #end
-        #end
-        #set ($discard = $storedAffectedMembers.add($datum))
-      #end
-    #end
-    #__displayFamilyModule($testId, $testName, $subjects, $storedAffectedMembers, $editable)
-  #end
-  &lt;tr class="table-row family-care-subtitle"&gt;
-    &lt;td class="table-cell" colspan="2"&gt;
-      Surveillance and/or specialist referral(s) for at risk family members:
-    &lt;/td&gt;
-  &lt;/tr&gt;
-  #__buildCategoryModule($module, $question, $variantNumber, $storageClass, $retrieveStoredData, $editable)
-#end
-##
-##
-#macro(__displayFamilyModule $testId $testName $subjects $storedAffectedMembers $editable)
-  #if ($editable)##
-    &lt;tr class="table-row care-pathways-family-module-container"&gt;
-      &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedAffectedMembers))}"/&gt;
-      &lt;input type="hidden" class="associated-variant-type" value="$!{module.type}"/&gt;
-      &lt;td class="table-cell family-test-name"&gt;
-        &lt;input class="test-id" value="$!{testId}" type="hidden"/&gt;
-        ${testName}
-      &lt;/td&gt;
-      &lt;td class="table-cell subject-group"&gt;
-      #foreach ($subject in $subjects)##
-        &lt;span id ="${question}-${module.module}-${subject}#if($variantNumber != '')-${variantNumber}#{end}" class="term-picker ${subject}"&gt;
-          &lt;label&gt;&lt;input type="hidden" class="selected-item-id" value="$!{subject}"/&gt;&lt;input type="checkbox"/&gt;&lt;span&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/span&gt;&lt;/label&gt;
-        &lt;/span&gt;
-      #end##
-      &lt;/td&gt;
-    &lt;/tr&gt;
-  #else##
-    &lt;tr class="table-row care-pathways-family-module-container-view"&gt;
-      &lt;td class="table-cell family-test-data"&gt;
-        &lt;table class="table"&gt;
-          &lt;tr class="table-row"&gt;
-            &lt;td class="table-cell family-test-name"&gt;${testName}:&lt;/td&gt;
-            &lt;td class="table-cell subject-group"&gt;
-            #if ($storedAffectedMembers.size() == 0)##
-              &lt;span class="affected-family-member"&gt;None&lt;/span&gt;
-            #else##
-              #foreach($person in $storedAffectedMembers)##
-                &lt;span class="affected-family-member"&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${person.subject}"))&lt;/span&gt;
-              #end##
-            #end##
-            &lt;/td&gt;
-          &lt;/tr&gt;
-        &lt;/table&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-  #end##
-#end
 ##
 ##
 #macro(__buildCategoryModule $module $question $variantNumber $storageClass $retrieveStoredData $editable)
@@ -165,17 +106,189 @@
 #end
 ##
 ##
+#macro (__displayVariantList)
+  #set ($cpGeneClassName = 'PhenoTips.CPGeneClass')
+  #set ($cpVariantClassName = 'PhenoTips.CPGeneVariantClass')
+  #set ($type = $module.submodule)
+  #if ($module.subject == 'trio')
+    #set ($subjects = ['proband', 'mother', 'father'])
+  #else
+    #set ($subjects = ['proband'])
+  #end
+  #set ($geneStatus = $stringtool.defaultIfEmpty($module.geneStatus, 'confirmed'))
+  #set ($variantStatus = $stringtool.defaultIfEmpty($module.variantStatus, 'primary'))
+  #set ($clearVariantData = $doc.getURL("get", "sheet=$!{class.name}&amp;action=cpcleargenes&amp;geneclassname=PhenoTips.CPGeneClass&amp;variantclassname=PhenoTips.CPGeneVariantClass&amp;genestatus=${geneStatus}&amp;variantstatus=${variantStatus}&amp;form_token=$!{services.csrf.getToken()}"))
+  &lt;div class="no-variants-container"&gt;
+  &lt;input type="hidden" id="clear-${type}-data" class="clear-data-url" value="$clearVariantData"/&gt;
+  {{/html}}##
+    #set ($propName = "no${stringtool.capitalize($type)}Variants")##
+    #set ($hasNoVariants = $obj.getValue($propName) == 1)
+    #if ($xcontext.action == 'edit')##
+      #__form_field($propName) ##
+    #end##
+    #if ($hasNoVariants || $xcontext.action == 'edit')##
+      #__form_label($propName '' '')##
+    #end
+  {{html clean="false" wiki="false"}}##
+  &lt;/div&gt;
+  #if ($xcontext.action == 'edit' || !$hasNoVariants )##
+  &lt;div id="${type}-wes-variants-all" class="${type}-variants-container variants-container"&gt;
+    #foreach ($subject in $subjects)
+      #if ($subjects.size() &gt; 1)&lt;h2 class="subject-label group-label"&gt;&lt;span&gt;&lt;strong&gt;$escapetool.xml($services.localization.render("phenotips.carePathways.multiPicker.subject.${subject}"))&lt;/strong&gt;&lt;/span&gt;&lt;/h2&gt;#end
+      #if ($xcontext.action == 'edit' || $doc.getObject($cpGeneClassName, 'status', ${geneStatus}))##
+      &lt;div id="${type}-wes-variants-${subject}" class="subject-variants-container"&gt;
+        &lt;input class="question-id" type="hidden" value="$question"/&gt;
+        {{/html}}
+        #__gene_table($cpGeneClassName, $cpVariantClassName, {'geneFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $geneStatus}], 'variantFilters' : [{'propName' : 'subject', 'propValue' : $subject}, {'propName' : 'status', 'propValue' : $variantStatus}], 'tableIdPrefix' : "${curSubject}-${type}__", 'tableClass' : 'cp-variants', 'mode' : $xcontext.action, 'defaultProperties' : ['cdna', 'interpretation'], 'inputStrings' : ['cdna','protein','transcript','dbsnp','start_position','end_position'], 'displayedProperties' : ['subject', 'status'], 'hasVariants' : true})
+      {{html clean="false" wiki="false"}}
+      &lt;/div&gt;
+      #else
+        #if (!$hasNoVariants)##
+        &lt;div id="${type}-wes-variants-${subject}" class="subject-variants-container"&gt;
+          No variant data entered
+        &lt;/div&gt;
+        #end##
+      #end##
+    #end
+  &lt;/div&gt;
+  #end
+#end
+##
+#macro (__displayVariantsSection)
+    &lt;table class="${section}-section table care-pathways-analysis-container"&gt;
+      &lt;tr class="care-pathways-modules analysis"&gt;
+        &lt;td&gt;
+          &lt;div class="table care-pathways-modules-wrapper"&gt;
+            #__displayVariantList()##
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+#end
+##
+##
+#macro (__displayVariantAnalysis $question)
+&lt;div id="primary-variants-interpretation-container"&gt;
+{{/html}}##
+  #set ($macro.hasContent = false)
+  #set ($primaryAnalysisProp = 'primaryVariantAnalysis')
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty($primaryAnalysisProp).value}" != '')##
+    #set ($macro.hasContent = true)
+    #__form_field($primaryAnalysisProp)
+  #end
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty('genes').value}" != '' &amp;&amp; "$!{obj.getProperty('genes').value}" != '[]')##
+    #set ($macro.hasContent = true)
+    (% class="geneListField" %) (((
+    {{html clean="false" wiki="false"}}&lt;label class="associated-data-field-label"&gt;Name of genes:&lt;/label&gt;{{/html}}
+    #__form_field('genes')
+    )))
+  #end
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty('diseases').value}" != '' &amp;&amp; "$!{obj.getProperty('diseases').value}" != '[]')##
+    #set ($macro.hasContent = true)
+    (% id="diseaseListField" %) (((
+    {{html clean="false" wiki="false"}}&lt;label class="associated-data-field-label"&gt;Name of diseases:&lt;/label&gt;{{/html}}
+    #__form_field('diseases')
+    )))
+  #end
+  #if ($xcontext.action == 'edit' || "$!{obj.getProperty($primaryAnalysisProp).value}" == 'partially-diagnostic' &amp;&amp; "$!{obj.getProperty('partialDiagnosisExplanation').value}" != '')
+    #set ($macro.hasContent = true)
+    (% id="partialDiagnosisExplanationField" %) (((
+    {{html clean="false" wiki="false"}}&lt;label class="associated-data-field-label"&gt;Explanation for Partial Diagnosis:&lt;/label&gt;{{/html}}
+    #__form_field('partialDiagnosisExplanation')
+    )))
+  #end
+  #if (!$macro.hasContent)
+    {{html clean="false" wiki="false"}}&lt;span class="displayed-value"&gt;No data entered&lt;/span&gt;{{/html}}
+  #end
+{{html clean="false" wiki="false"}}##
+&lt;/div&gt;
+#end
+#macro (__displayVariantsAnalysisSection)
+    &lt;table class="${section}-section module-analysis table care-pathways-analysis-container"&gt;
+      &lt;tr class="care-pathways-modules analysis"&gt;
+        &lt;td&gt;
+          &lt;div class="table care-pathways-modules-wrapper"&gt;
+            #__displayVariantAnalysis("CPQ:17")##
+          &lt;/div&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+#end
+##
+##
 #macro(__buildCategoryModuleViewMode $module $question $variantNumber $storedValues)
   &lt;tr class="table-row care-pathways-module-container-view"&gt;
     &lt;td class="table-cell selector-panel cp-current-selection"&gt;
-      &lt;div class="cp-current-selection-panel current-selection-panel" name="$!{question}"&gt;
-        &lt;table class="terms-data-table"&gt;
-        #if($storedValues.size() == 0)##
+        #if ($module.module == 'timeline')
+          #macro(__displayViewDate $propertyName $className)
+            #set ($date = $doc.display($propertyName, $doc.getObject($className)).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', ''))
+            #if ("$!date" != '')
+              &lt;tr class="${module.module}_field category-data"&gt;
+                &lt;td&gt;
+                  &lt;table class="summary-group parent-summary-group"&gt;
+                    &lt;tr class="term-holder"&gt;
+                      &lt;td&gt;&lt;span class="term-data"&gt;&lt;label class="label-field"&gt;${doc.displayPrettyName($propertyName, $doc.getObject($className))}: ${date}&lt;/label&gt;&lt;/span&gt;&lt;/td&gt;
+                    &lt;/tr&gt;
+                  &lt;/table&gt;
+                &lt;/td&gt;
+              &lt;/tr&gt;
+            #end
+          #end
+          &lt;table class="terms-data-table"&gt;
+          #if ($module.submodule == 'pretest')
+            #set ($content = "
+              #__displayViewDate('date_of_birth', 'PhenoTips.PatientClass')
+              #__displayViewDate('symptom_onset', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('symptom_onset_age', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('referral_to_genetics_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('last_genetic_consult_date', 'PhenoTips.CarePathwaysTimelineSheet')
+            ")
+          #elseif ($module.submodule == 'posttest')
+            #set ($content = "
+              #__displayViewDate('laboratory', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('moh_submission_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('moh_approval_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('sample_sent_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('lab_report_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('result_reported_date', 'PhenoTips.CarePathwaysTimelineSheet')
+            ")
+          #end
+          #if ("$!content.trim()" != '')
+            $content
+          #else
+            &lt;tr&gt;&lt;td class="no-data"&gt;No data entered&lt;/td&gt;&lt;/tr&gt;
+          #end
+          &lt;/table&gt;
+        #elseif ($module.module == 'variants')
+          #if ($module.submodule == 'analysis')
+            #__displayVariantsAnalysisSection()
+          #else
+            #__displayVariantsSection()
+          #end
+        #elseif ($module.module == "relatives")
+          #set ($content = "
+            #__displayRow(""firstDegreeCounselling${stringtool.capitalize($module.submodule)}"")
+            #__displayRow(""secondDegreeCounselling${stringtool.capitalize($module.submodule)}"")
+            #__displayRow(""firstDegreeTesting${stringtool.capitalize($module.submodule)}"")
+            #__displayRow(""secondDegreeTesting${stringtool.capitalize($module.submodule)}"")
+          ")
+          #if ("$!content.trim()" != '')
+            &lt;dl&gt;$content&lt;/dl&gt;
+          #end
+        #elseif ($module.module == "followUp")
+          &lt;dl&gt;
+            #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+              #__displayRow($q)
+            #end
+          &lt;/dl&gt;
+        #elseif($storedValues.size() == 0)##
+          &lt;table class="terms-data-table"&gt;
           &lt;tr&gt;
-            #set ($target = "#if($!{module.subject} != '')$!{module.subject}#{else}$!{module.module}#{end}")##
-            &lt;td class="no-data"&gt;&lt;span&gt;No data entered for $!{target}&lt;/span&gt;&lt;/td&gt;
+            &lt;td class="no-data"&gt;&lt;span&gt;No data entered&lt;/span&gt;&lt;/td&gt;
           &lt;/tr&gt;
+          &lt;/table&gt;
         #else##
+          &lt;table class="terms-data-table"&gt;
           #foreach($category in $storedValues.keySet())##
             #set ($categoryData = $storedValues.get($category))##
             &lt;tr class="${module.module}_field category-data"&gt;
@@ -193,9 +306,8 @@
               &lt;/td&gt;
             &lt;/tr&gt;
           #end##
+          &lt;/table&gt;
         #end##
-        &lt;/table&gt;
-      &lt;/div&gt;
     &lt;/td&gt;
   &lt;/tr&gt;
 #end
@@ -204,6 +316,14 @@
 #macro(__displaySummaryItems $categoryData $displayedData $moduleType)
   #set ($qualifiers = $categoryData.qualifiers)##
   #foreach($qualifier in $qualifiers)##
+    #set ($macro.hasData = false)
+    #foreach($key in ['datum', 'laboratory', 'date_pursued', 'date_recommended', 'notes'])##
+      #if ("$!qualifier.get($key)" != '')
+        #set ($macro.hasData = true)
+        #break
+      #end
+    #end
+  #if ($macro.hasData)
   &lt;div class="summary-item"&gt;
     &lt;div class="term-details"&gt;
       &lt;dl&gt;
@@ -219,6 +339,10 @@
             "laboratory" :
               {
                 "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.laboratory.title"))
+              },
+            "location" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.location.title"))
               },
             "date_pursued_fuzzy" :
               {
@@ -255,7 +379,8 @@
       &lt;div class="clearfloats"&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  #end##
+  #end## qualifier has data
+  #end## foreach qualifier
 #end
 ##
 ##
@@ -267,23 +392,28 @@
   #set ($withDates = "#if($!dates &amp;&amp; $!{dates.size()}) with-mandatory-dates#{end}")
   #set ($associatedVariantType = $!{module.get('type')})
   &lt;tr class="table-row care-pathways-module-container$!{withDates}"&gt;
-    &lt;td class="table-cell selector-panel cp-categories"&gt;
-      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+    &lt;td class="table-cell selector-panel cp-categories"#if ($module.type == '1block') colspan="2"#{end}&gt;
+      #if ($module.type != '1block')
+        &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Categories&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+      #end
       &lt;div class="cp-categories-panel browse-categories-panel"&gt;
-        #__displayModule("$!{moduleName}", "$!{curSubmodule}", "$!{question}", "$!{variantNumber}", $storedValues)
+        #__displayModule($module, "$!{question}", "$!{variantNumber}", $storedValues)
       &lt;/div&gt;
+      #if ($module.type != '1block')
     &lt;/td&gt;
     &lt;td class="table-cell selector-panel cp-current-selection"&gt;
-      &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Current selection&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
+        &lt;h3&gt;&lt;span&gt;&lt;strong&gt;Current selection&lt;/strong&gt;&lt;/span&gt;&lt;/h3&gt;
       &lt;div class="cp-current-selection-panel current-selection-panel" name="$!{question}"&gt;
         &lt;input type="hidden" name="moduleType" value="$!{moduleName}"/&gt;
         &lt;input type="hidden" class="associated-variant-type" value="$!{associatedVariantType}"/&gt;
         &lt;input type="hidden" class="associated-variant-number" value="$!{variantNumber}"/&gt;
         &lt;input type="hidden" class="cp-current-selection-subject" value="$!{curSubject}"/&gt;
         &lt;input type="hidden" class="cp-current-selection-dates" value="$!{escapetool.xml($jsontool.serialize($dates))}"/&gt;
+        &lt;input type="hidden" class="cp-current-selection-pursued" value="$!{escapetool.xml($module.hasPursued)}"/&gt;
         &lt;input type="hidden" class="cp-current-selection-stored-data" value="$!{escapetool.xml($jsontool.serialize($storedValues))}"/&gt;
         &lt;table class="terms-data-table"&gt;&lt;/table&gt;
       &lt;/div&gt;
+      #end
     &lt;/td&gt;
   &lt;/tr&gt;
 #end
@@ -315,8 +445,7 @@
 ##
 ##
 #macro(__buildLabelPath $test)
-  #set ($excludes = [$testTerm, $careTerm, $familyCareTerm, $geneticTerm, $diagnosticTerm])##
-  #if (!$excludes.contains($test))##
+  #if (!$termsExcludedFromPath.contains($test))##
     #set ($node = $!{services.vocabularies.care-pathways.getTerm($test)})##
     #if ($node)##
       #set ($macro.accumulatedPath = "$!{node.name}")##
@@ -349,12 +478,12 @@
         #set ($itemName = "$!{item.name}")
         #if ($stringtool.trim("$!{childrenHtml}") != "")
           #set ($otherKey = $stringtool.join([$item.id, '_other'], ''))##
-          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${module}-${question}-${item.id}${variantStub}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
+          #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label&gt;&lt;span id='cp-expand-tool-${module}-${question}-${item.id}${variantStub}' class='expand-tool fa fa-caret-right'&gt;&lt;/span&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;ul&gt;${childrenHtml}&lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${item.id}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${item.id}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherKey))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;")
         #else
           #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;$!{itemName}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
         #end
       #elseif ("$!{childrenHtml}" == "" &amp;&amp; ($macro.expectedNumChildren &gt; $macro.numChildren || $justCategories))
-        #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;$!{item.name}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
+        #set ($macro.accumulated = "${macro.accumulated}&lt;li class='term-entry'&gt;&lt;input class='term-id' type='hidden' value='$!{item.id}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${item.id}${variantStub}'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${item.id}${variantStub}' name='$!{item.id}' class='add-tool' type='checkbox' #if($storedValues.containsKey($item.id))checked#{end}&gt;&lt;input class='submodule-name' type='hidden' value='${submoduleName}'&gt;&lt;span class='term-name'&gt;$!{item.name}&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;")
       #end
     #end
     $macro.accumulated
@@ -366,46 +495,142 @@
   #set ($otherId = $stringtool.join([$rootNode, '_other'], ''))##
   &lt;ul&gt;
     #__displayChildren($submoduleName, $rootNode, $rootChildren, $question, $storedValues, $justCategories)
-  &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+  #if ($module.module == 'care' &amp;&amp; $section == 'posttest')
+    #if ($question == 'CPQ:22')
+      #__displayChildren($submoduleName, 'CP:08', ${services.vocabularies.care-pathways.search({'is_a': 'CP:08'}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
+    #end
+    #__displayChildren($submoduleName, 'CP:09', [$services.vocabularies.resolveTerm('CP:99')], $question, $storedValues, true)
+  #end
+  &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
   &lt;ul&gt;
 #end
 ##
 ##
-#macro (__displayModule $module $submodule $question $variantNumber $storedValues)
+#macro (__displayModule $module $question $variantNumber $storedValues)
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
-  #if ($module == "test")
+  #if ($module.module == "test")
+    &lt;ul&gt;
+    #__displayChildren($module.submodule, $testTerm, ${services.vocabularies.care-pathways.search({'is_a': $testTerm}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
+    &lt;/ul&gt;
+  #elseif ($module.module == "test")
     #set ($testNodes = [])
     #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc', 'fq': "NOT id:${metabolicTerm.replaceAll(':', '\\:')}"}))
     #set ($metabolicNodes = [$services.vocabularies.care-pathways.getTerm($metabolicTerm)])
     #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnosticTerm}, {'sort': 'nameSort asc'}))
     #set ($discard = $testNodes.addAll($geneticNodes))
     #set ($discard = $testNodes.addAll($diagnosticNodes))
-    #if ($submodule == "")
+    #if ($module.submodule == "")
       #set ($otherId = $stringtool.join([$testTerm, '_other'], ''))##
       &lt;ul&gt;
       #__displayChildren("genetic", $geneticTerm, $geneticNodes, $question, $storedValues, true)
       #__displayChildren("genetic", $metabolicTerm, $metabolicNodes, $question, $storedValues, false)
       #__displayChildren("diagnostic", $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
-      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$testTerm'&gt;&lt;label for='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${testTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$testTerm'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${testTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${testTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
       &lt;ul&gt;
-    #elseif ($submodule == "eligibility")
+    #elseif ($module.submodule == "eligibility")
       &lt;ul&gt;
-      #__displayChildren($submodule, 'CP:10', ${services.vocabularies.care-pathways.search({'is_a': 'CP:10'}, {'sort': 'nameSort asc'})}, $question, $storedValues, false)
+      #__displayChildren($module.submodule, 'CP:10', ${services.vocabularies.care-pathways.search({'is_a': 'CP:10'}, {'sort': 'nameSort asc'})}, $question, $storedValues, false)
       &lt;/ul&gt;
-    #elseif ($submodule == "genetic")
+    #elseif ($module.submodule == "genetic")
       &lt;ul&gt;
-      #__displayChildren($submodule, $geneticTerm, $geneticNodes, $question, $storedValues, true)
-      #__displayChildren($submodule, $metabolicTerm, $metabolicNodes, $question, $storedValues, false)
-      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$geneticTerm'&gt;&lt;label for='cp-add-tool-${module}-${question}-${geneticTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module}-${question}-${geneticTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+      #__displayChildren($module.submodule, $geneticTerm, $geneticNodes, $question, $storedValues, true)
+      #__displayChildren($module.submodule, $metabolicTerm, $metabolicNodes, $question, $storedValues, false)
+      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$geneticTerm'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${geneticTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${geneticTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
       &lt;ul&gt;
-    #elseif ($submodule == "diagnostic")
-      #__displayCategories($submodule, $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
+    #elseif ($module.submodule == "diagnostic")
+      #__displayCategories($module.submodule, $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
     #end
-  #elseif ($module == "care")
-    #__displayCategories("", $careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, false)
-  #elseif ($module == "family")
-    #set ($careSubset = $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc', 'fq': "id:${electricalSurveillanceTerm.replaceAll(':', '\\:')} OR id:${imagingSurveillanceTerm.replaceAll(':', '\\:')} OR id:${subSpecCareTerm.replaceAll(':', '\\:')}"}))
-    #__displayCategories("", $careTerm, $careSubset, $question, $storedValues, false)
+  #elseif ($module.module == "care")
+    #__displayCategories("", $careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, true)
+  #elseif ($module.module == "Eligibility")
+    &lt;ul&gt;
+    #__displayChildren($module.submodule, $module.submodule, ${services.vocabularies.care-pathways.search({'is_a': $module.submodule}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
+    &lt;/ul&gt;
+  #elseif ($module.module == "relatives")
+    &lt;dl&gt;
+      #__displayRow("firstDegreeCounselling${stringtool.capitalize($module.submodule)}")
+      #__displayRow("secondDegreeCounselling${stringtool.capitalize($module.submodule)}")
+      #__displayRow("firstDegreeTesting${stringtool.capitalize($module.submodule)}")
+      #__displayRow("secondDegreeTesting${stringtool.capitalize($module.submodule)}")
+    &lt;/dl&gt;
+  #elseif ($module.module == "followUp")
+    &lt;dl&gt;
+      #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+        #__displayRow($q)
+      #end
+    &lt;/dl&gt;
+  #elseif ($module.module == "sequencing")
+    &lt;ul&gt;
+    #__displayChildren('CP:04', 'CP:04', ${services.vocabularies.care-pathways.search({'is_a': 'CP:04'}, {'sort': 'id asc'})}, $question, $storedValues, true)
+    &lt;/ul&gt;
+  #elseif ($module.module == 'variants')
+    #if ($module.submodule == 'analysis')
+      #__displayVariantsAnalysisSection()
+    #else
+      #__displayVariantsSection()
+    #end
+  #elseif ($module.module == "timeline")
+    &lt;div class="timeline"&gt;
+    #set($timelineObject = $doc.getObject('PhenoTips.CarePathwaysTimelineSheet', true))
+    #set($timelineClass = $timelineObject.xWikiClass)
+    #set($patientObj = $doc.getObject('PhenoTips.PatientClass'))
+    #set($patientClass = $patientObj.xWikiClass)
+    #set($discard = $doc.use($patientObj))
+    #set($prevClass= $class)
+    #set($class = $patientClass)
+    #macro (__displayDateRow $propName $mandatory)
+      &lt;dt class="date $propName#if($mandatory) mandatory-date#{end}"&gt;
+      {{/html}}
+
+      #__label($propName "" "")##
+      {{html clean="false" wiki="false"}}##
+      &lt;/dt&gt;
+      &lt;dd class="date $propName#if($mandatory) mandatory-date#{end}"&gt;
+      {{/html}}
+      #__display($propName)
+      {{html clean="false" wiki="false"}}##
+      &lt;/dd&gt;
+    #end
+
+    #if ($module.submodule == 'pretest')
+    &lt;dl style="margin: 1em 0 1em 2em"&gt;
+    &lt;dt&gt;
+    {{/html}}##
+    #__label('date_of_birth' "" "")##
+    {{html clean="false" wiki="false"}}
+    &lt;/dt&gt;
+    &lt;dd&gt;
+    {{/html}}
+    #set($display = $patientObj.display('date_of_birth', $xcontext.action))
+    (% class="displayed-value"%)(((
+    #if ($xcontext.action == 'edit' || "$!{display}" != "")
+      $display
+    #else
+      -
+    #end
+    )))
+    {{html clean="false" wiki="false"}}##
+    &lt;/dd&gt;
+    #set($discard = $doc.use($timelineObject))
+    #set($class = $timelineClass)
+    #__displayDateRow("symptom_onset", true)##
+    #__displayDateRow("symptom_onset_age", true)##
+    #__displayDateRow("referral_to_genetics_date", true)##
+    #__displayDateRow("last_genetic_consult_date", true)##
+    &lt;/dl&gt;
+    #elseif ($module.submodule == 'posttest')
+      #set($discard = $doc.use($timelineObject))
+      #set($class = $timelineClass)
+      #__displayDateRow("laboratory", true)##
+      #__displayDateRow("moh_submission_date", true)##
+      #__displayDateRow("moh_approval_date", true)##
+      #__displayDateRow("sample_sent_date", true)##
+      #__displayDateRow("lab_report_date", true)##
+      #__displayDateRow("results_reported_date", true)##
+    #end
+    &lt;/div&gt;
+    #set ($discard = $doc.use($obj))
+    #set ($class = $prevClass)
   #end
 #end
 {{/velocity}}
@@ -1376,6 +1601,7 @@
       this._addInputsFx &amp;&amp; this._addInputsFx(qualifiersWidget, json, termId, this._moduleType, submodule, this._qualifierDataMarker);
       this._pickSubjectElement(qualifiersWidget);
       this._addDateElements(qualifiersWidget);
+      this._addPursued(qualifiersWidget);
       this._addTextboxesFx &amp;&amp; this._addTextboxesFx(qualifiersWidget, this._questionId, parseInt(this._variantNumber), termId, this._moduleType, submodule);
       return this._addHiddenDataElements(qualifiersWidget);
     },
@@ -1412,6 +1638,17 @@
           'qualifierName': name + '_fuzzy',
           'approxQualifierName' : name});
       });
+    },
+
+    _addPursued : function(qualifiersWidget) {
+      var pursued = this._selectedSummary.down('input.cp-current-selection-pursued');
+      pursued = pursued &amp;&amp; pursued.value === 'true';
+      if (!pursued) {
+        return;
+      }
+      qualifiersWidget.dialogsAddItemSelect({'qualifierLabel': 'Pursued', 'qualifierName': 'pursued', 'inline':'inline', 'data':['', 'Yes', 'No'], 'storedToDisplayedMapper': function(v) {
+      return (v === "0" ? 'No' : v === "1" ? 'Yes' : '')}, 'displayedToStoredMapper': function(v) {
+      return (v === 'No' ? "0" : v === 'Yes' ? "1" : -1)}});
     },
 
     _addHiddenDataElements : function(qualifiersWidget) {
@@ -1620,6 +1857,7 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
   // TODO: This will be different for a gene panel/single gene.
   var detailsRemoteUrl = new XWiki.Document('CarePathwaysDataSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
   var labRemoteUrl = new XWiki.Document('CarePathwaysLaboratorySearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
+  var locationRemoteUrl = new XWiki.Document('CarePathwaysLocationSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
 
   qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
@@ -1632,7 +1870,7 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'displayedToStoredMapper': getToStoredTypeAheadFx(json),
     'storedToDisplayedMapper': getToDisplayedTypeAheadFx(json)});
 
-  submoduleType == "genetic" &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
+  (submoduleType == "genetic" || submoduleType == "done") &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : labRemoteUrl + "&amp;input=",
     'data': [],
     'placeholder': 'Begin typing or click to show options',
@@ -1640,6 +1878,15 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'inputSourceClass': moduleType + '_typeahead',
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.laboratory.title'))",
     'qualifierName': 'laboratory'});
+
+  moduleType == "care" &amp;&amp; this._questionId == "CPQ:6" &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
+    'remote' : locationRemoteUrl + "&amp;input=",
+    'data': [],
+    'placeholder': 'Begin typing or click to show options',
+    'defListItemClass': moduleType + ' location mandatory',
+    'inputSourceClass': moduleType + '_typeahead',
+    'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.location.title'))",
+    'qualifierName': 'location'});
 };
 
 var addTextboxFormElements = function(qualifiersWidget, questionId, variantNum, termId, moduleType, submoduleType) {
@@ -1834,216 +2081,60 @@ var init = function(event) {
   var cp = widgets.carePathways = widgets.carePathways || {};
 
   cp.VariantAnalysisModule = Class.create({
-    initialize : function(container, options) {
-      this._container = container;
-
-      this._sheet = "PhenoTips.CarePathwaysPostTestSheet";
-      this._dataStorage = "PhenoTips.PatientCarePostTestClass";
-      this._section = options.section || "";
+    initialize : function(options) {
       this._questionsClearUrl = options.questionsClearUrl;
-      this._questionDeleteUrl = options.questionDeleteUrl;
-      this._buildModulesUrl = options.buildModulesUrl;
-
-      this._primaryQuestionnaireContainer = $(this._section + '-questionnaire-primary');
-      this._secondaryQuestionnaireContainer = $(this._section + '-questionnaire-secondary');
 
       this._buildModule();
-      this._attachGeneOrVariantAddedListener();
+      this._attachGeneAddedListener();
     },
 
     _buildModule : function() {
-      this._buildPrimaryVariantsDataAnalysis();
-      this._buildPrimaryVariantsInterpretation();
-      this._buildSecondaryVariantsDataAnalysis();
+      $$('.no-variants-container').each(this._buildVariantsDataAnalysis.bind(this));
     },
 
-    _buildPrimaryVariantsDataAnalysis : function() {
-      var clearPrimaryDataObj = $('clear-primary-data');
-      this._clearPrimaryDataUrl = clearPrimaryDataObj &amp;&amp; clearPrimaryDataObj.value || "";
+    _buildVariantsDataAnalysis : function(container) {
+      var clearDataInput = container.down('.clear-data-url');
+      var clearDataUrl = clearDataInput &amp;&amp; clearDataInput.value || "";
+      var variantsContainer = container.next('.variants-container');
+      var noVariantsCheckbox = container.down('input[type="checkbox"]');
 
-      this._primaryVariantsList = $('primary-wes-variants-proband');
-      // No primary variants checkbox.
-      this._noPrimaryVariants = $(this._sheet + '_0_noPrimaryVariants');
-      this._noPrimaryVariants &amp;&amp; this._noPrimaryVariants.checked &amp;&amp; this._primaryVariantsList.addClassName('hidden');
-      this._attachNoPrimaryVariantsClickListener();
-    },
+      if (!noVariantsCheckbox || !variantsContainer) {
+        return;
+      }
 
-    _buildPrimaryVariantsInterpretation : function() {
-      this._primaryVariantsInterpretation = $('primary-variants-interpretation-container');
-      // Store the checked interpretation in case the selection is not confirmed.
-      this._currentInterpretationEl = this._primaryVariantsInterpretation.down('input[checked="checked"]');
-      this._attachPrimaryInterpretationClickListener();
-    },
-
-    _attachPrimaryInterpretationClickListener : function() {
-      this._primaryVariantsInterpretation.observe('click', function(event) {
+      noVariantsCheckbox.checked &amp;&amp; variantsContainer.hide();
+      noVariantsCheckbox.observe('click', function(event) {
         event.stopPropagation();
       });
 
       var _this = this;
-      this._primaryVariantsInterpretation.observe('change', function(event) {
+      noVariantsCheckbox.observe('change', function(event) {
         event.stop();
-        var targetElement = event.findElement('input');
-        if (targetElement) {
-          var targetElementVal = targetElement.value;
-          var moduleSpecsEl = $(targetElementVal + '-module-specs');
-          var moduleSpecs = moduleSpecsEl &amp;&amp; moduleSpecsEl.value;
-          if (moduleSpecs) {
-            _this._generateQuestionsForPrimaryVariants.bind(_this, targetElement, moduleSpecs)();
-          }
-        }
-      });
-    },
-
-    _generateQuestionsForPrimaryVariants : function(targetElement, moduleSpecs) {
-      if (!this._currentInterpretationEl || this._currentInterpretationEl == targetElement || !this._userRecordedData(this._primaryQuestionnaireContainer)) {
-        this._currentInterpretationEl = targetElement;
-        this._ajaxRequestNewQuestions(this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants');
-      } else {
-        if (confirm("$!escapetool.javascript($services.localization.render('phenotips.carePathways.postTest.cpmodulesDeleteConfirmation'))")) {
-          var req = this._clearQuestionData(this._questionsClearUrl, this._currentlyDisplayedPrimaryQuestions(), this._primaryQuestionnaireContainer);
-          var _this = this;
-          // Proceed only after stored question data has been deleted.
-          jQuery.when(req).then(function(r1) {
-            _this._currentInterpretationEl = targetElement;
-            _this._ajaxRequestNewQuestions.bind(_this, _this._primaryQuestionnaireContainer, moduleSpecs, null, 'modules-for-primary-variants')();
+        if (noVariantsCheckbox.checked) {
+          var genesTables = variantsContainer.select('table.gene-table.cp-variants.extradata-list');
+          var tables = [];
+          genesTables.each(function(genesTable) {
+            var inputs = genesTable.select('input.gene-id');
+            if (inputs &amp;&amp; inputs.size() &gt; 0) {
+              genesTable.__inputs = inputs;
+              tables.push(genesTable);
+            }
           });
+          if (tables.size() == 0) {
+            // There is no variant data.
+            variantsContainer.hide();
+          } else {
+            // There is variant data. Do a confirmed ajax request and check only on success.
+            noVariantsCheckbox.checked = false;
+            _this._ajaxClearGenes.bind(_this, clearDataUrl, noVariantsCheckbox, tables, variantsContainer, null)();
+          }
         } else {
-          targetElement.checked = "";
-          this._currentInterpretationEl.checked = "checked";
-        }
-      }
-    },
-
-    _clearQuestionData : function(url, questions, questionnaireContainer) {
-      var questionData = '&amp;question=' + questions.join('&amp;question=');
-      return jQuery.ajax(url + questionData, {
-        method : "GET",
-      }).success(function(data, textStatus, jqXHR) {
-        questionnaireContainer.innerHTML = '';
-      });
-    },
-
-    _currentlyDisplayedPrimaryQuestions : function() {
-      var currentVal = this._currentInterpretationEl.value;
-      var oldSpecsEl = $(currentVal + '-module-specs');
-      var oldSpecs = oldSpecsEl &amp;&amp; oldSpecsEl.value;
-      return JSON.parse(oldSpecs).map(function(questionData) {
-        return questionData.question;
-      });
-    },
-
-    _userRecordedData : function(questionnaireContainer) {
-      var hasData;
-      questionnaireContainer.select('div.cp-current-selection-panel table.terms-data-table').each(function(dataTable) {
-        if (dataTable.innerHTML.trim() !== '') {
-          hasData = true;
-          throw $break;
+          variantsContainer.show();
         }
       });
-      !hasData &amp;&amp; (questionnaireContainer.innerHTML = '');
-      return hasData;
     },
 
-    _ajaxRequestDataModules : function(questionContainer, question, cDnaEl, variantIndex, modules, containerCssClass) {
-      var _this = this;
-      var cDnaInput;
-      var params = {'question' : question, 'modules' : JSON.stringify(modules), 'tab' : encodeURIComponent(_this._sheet), 'storageClass' : encodeURIComponent(_this._dataStorage)};
-      if (cDnaEl) {
-        cDnaInput = cDnaEl.down('input[type="text"]');
-        params['groupTitle'] = this._getModuleGroupTitle(cDnaEl, cDnaInput);
-      }
-      variantIndex &amp;&amp; (params['variantNumber'] = variantIndex);
-      var req = jQuery.ajax(this._buildModulesUrl, {
-        method : "GET",
-        data : params
-      });
-      var container = new Element("table", {"class" : "care-pathways-modules-wrapper table " + containerCssClass});
-      return req.success(function(data, textStatus, jqXHR) {
-        questionContainer.insert(container.insert(data));
-        var titleEl = container.down('h2.module-group-label p');
-        cDnaInput &amp;&amp; titleEl &amp;&amp; _this._updateModuleGroupTitleOnDoneTyping.bind(_this, titleEl, cDnaEl, cDnaInput)();
-        Event.fire(document, 'cp:navmodules:added', {'element' : container});
-      });
-    },
-
-    _updateModuleGroupTitleOnDoneTyping : function(titleEl, cDnaEl, cDnaInput) {
-      var typingTimer;
-      var doneTypingInterval = 500;
-      var _this = this;
-      var doneTyping = function() {
-        titleEl.innerHTML = _this._getModuleGroupTitle(cDnaEl, cDnaInput);
-      };
-      cDnaInput.observe('keyup', function() {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(doneTyping, doneTypingInterval);
-      });
-      cDnaInput.observe('keydown', function() {
-        clearTimeout(typingTimer);
-      });
-    },
-
-    _getModuleGroupTitle : function(cDnaEl, cDnaInput) {
-      var cdna = cDnaInput.value || "";
-      var gene = this._getGeneForVariant(cDnaEl);
-      return gene + " [" + cdna.escapeHTML() + "]";
-    },
-
-    _ajaxRequestNewQuestions : function(questionnaireContainer, moduleSpecs, variantIndex, containerCssClass) {
-      var specsJson = JSON.parse(moduleSpecs);
-      var _this = this;
-      var promises = [];
-      specsJson.each(function(questionSpecs) {
-        var request = _this._ajaxRequestNewQuestion.bind(_this, questionnaireContainer, questionSpecs, null, variantIndex, containerCssClass)();
-        promises.push(request);
-      });
-      var GENERATING = 'generating';
-      var spinner = this._getSpinner('care-pathways-loading', "$!escapetool.javascript($services.localization.render('phenotips.carePathways.generatingData'))");
-      questionnaireContainer.addClassName(GENERATING);
-      questionnaireContainer.insert(spinner);
-      jQuery.when.apply(null, promises).then(function() {
-        spinner.remove();
-        questionnaireContainer.removeClassName(GENERATING);
-      });
-    },
-
-    _getSpinner : function(cssClass, message) {
-      var spinner = new Element('span', {'class' : 'fa fa-lg fa-spinner fa-spin fa-fw'});
-      var spinnerContainer = new Element('span', {'class' : cssClass}).insert(spinner);
-      message &amp;&amp; spinnerContainer.insert(new Element('span', {'class' : 'spinner-message-container'}).insert(message));
-      return spinnerContainer;
-    },
-
-    _ajaxRequestNewQuestion : function(questionnaireContainer, questionSpecs, cDnaEl, variantIndex, containerCssClass) {
-      var questionContainer = this._buildQuestionContainer(questionnaireContainer, questionSpecs.question, questionSpecs.questionLabel);
-      return this._ajaxRequestDataModules(questionContainer, questionSpecs.question, cDnaEl, variantIndex, questionSpecs.modules, containerCssClass);
-    },
-
-    _buildQuestionContainer : function(questionnaireContainer, questionId, questionLabel) {
-      var tableId = 'modules-for-' + questionId;
-      var modulesContainer = new Element('td');
-      var questionTable = new Element("table", {"id" : tableId, "class" : this._section + "-section table care-pathways-module-group-container"});
-      questionTable.insert(new Element("tr", {"class" : "table-row care-pathways-section-label"})
-        .insert(new Element("td", {"colspan" : "2", "class" : "table-cell"})
-          .insert(new Element("input", {"type" : "hidden", "class" : "cp-question-id", "value" : questionId}))
-          .insert(questionLabel || questionId)))
-      .insert(new Element("tr", {"class" : "care-pathways-modules"})
-        .insert(modulesContainer));
-      questionnaireContainer.insert(questionTable);
-      return modulesContainer;
-    },
-
-    _buildSecondaryVariantsDataAnalysis : function() {
-      var clearSecondaryDataObj = $('clear-secondary-data');
-      this._clearSecondaryDataUrl = clearSecondaryDataObj &amp;&amp; clearSecondaryDataObj.value || "";
-      this._secondaryVariantsList = $('secondary-wes-variants-all');
-      // No secondary variants checkbox.
-      this._noSecondaryVariants = $(this._sheet + '_0_noSecondaryVariants');;
-      this._noSecondaryVariants.checked &amp;&amp; this._secondaryVariantsList.addClassName('hidden');
-      this._attachNoSecondaryVariantsClickListener();
-    },
-
-    _attachGeneOrVariantAddedListener : function() {
+    _attachGeneAddedListener : function() {
       var _this = this;
       document.observe("xwiki:dom:updated", function(event) {
         var elem = event.memo &amp;&amp; event.memo.elements &amp;&amp; event.memo.elements[0];
@@ -2054,74 +2145,6 @@ var init = function(event) {
           var defaultStatus = statusCol.down('input.default-gene-status-value');
           // The extraGeneVariantData sets the value to "candidate" by default. That's not what we want.
           savedStatus &amp;&amp; defaultStatus &amp;&amp; (savedStatus.value = defaultStatus.value);
-        } else {
-          // This is a variant.
-          var parentContainer = elem.up('div.subject-variants-container');
-          var parentContainerId = parentContainer &amp;&amp; parentContainer.id;
-          var type = parentContainerId &amp;&amp; parentContainerId.substring(0, parentContainerId.indexOf('-wes-variants'));
-          if (type === 'secondary') {
-            // This is a secondary variant.
-            _this._generateQuestionForSecondaryVariant(elem, parentContainerId.substring(parentContainerId.lastIndexOf('-') + 1));
-          }
-        }
-      });
-    },
-
-    _generateQuestionForSecondaryVariant : function(addedElem, subject) {
-      var variantCdnaEl = addedElem.down('td.variant.cdna');
-      if (variantCdnaEl) {
-        var variantCdnaClass = variantCdnaEl.className;
-        var variantIndex = variantCdnaClass.substring(variantCdnaClass.lastIndexOf('-') + 1);
-        var moduleSpecsEl = $(subject + '-secondary-module-specs');
-        var moduleSpecs = moduleSpecsEl &amp;&amp; moduleSpecsEl.value;
-        var _this = this;
-        var promises = [];
-        var containerCssClass = 'modules-for-secondary-variants with-variant-' + variantIndex;
-        moduleSpecs &amp;&amp; JSON.parse(moduleSpecs).each(function(questionSpecs) {
-          var questionId = questionSpecs.question;
-          var questionTable = $('modules-for-' + questionId);
-          if (questionTable) {
-            var questionContainer = questionTable.down('tr.care-pathways-modules td');
-            questionContainer &amp;&amp; _this._ajaxRequestDataModules(questionContainer, questionSpecs.question, variantCdnaEl, variantIndex, questionSpecs.modules, containerCssClass);
-          } else {
-            var request = _this._ajaxRequestNewQuestion.bind(_this, _this._secondaryQuestionnaireContainer, questionSpecs, variantCdnaEl, variantIndex, containerCssClass)();
-            promises.push(request);
-          }
-        });
-        jQuery.when.apply(null, promises);
-      }
-    },
-
-    _getGeneForVariant : function(cDnaEl) {
-      var containingRow = cDnaEl.up('tr');
-      var rowClass = containingRow.className;
-      var geneIndex = rowClass.substring(rowClass.lastIndexOf('-') + 1);
-      var geneTable = containingRow.up('table.gene-table');
-      var symbolEl = geneTable.down('p.gene.gene-input-label.gene-' + geneIndex);
-      return symbolEl &amp;&amp; symbolEl.innerHTML || "";
-    },
-
-    _attachNoPrimaryVariantsClickListener : function() {
-      var _this = this;
-      this._noPrimaryVariants.observe('click', function(event) {
-        event.stopPropagation();
-      });
-
-      this._noPrimaryVariants.observe('change', function(event) {
-        event.stop();
-        if (this.checked) {
-          var genesTable = _this._primaryVariantsList.down('table.gene-table.cp-variants.extradata-list');
-          genesTable &amp;&amp; (genesTable.__inputs = genesTable.select('input.gene-id'));
-          if (!genesTable || !genesTable.__inputs || genesTable.__inputs.size() == 0) {
-            // There is no variant data.
-            _this._primaryVariantsList.addClassName('hidden');
-          } else {
-            // There is variant data. Do a confirmed ajax request and uncheck only on success.
-            this.checked = false
-            _this._ajaxClearGenes.bind(_this, _this._clearPrimaryDataUrl, this, [genesTable], _this._primaryVariantsList, null)();
-          }
-        } else {
-          _this._primaryVariantsList.removeClassName('hidden');
         }
       });
     },
@@ -2140,7 +2163,7 @@ var init = function(event) {
           genesTables.each(function(genesTable) {
             _this._clearDisplayedGeneData.bind(_this, genesTable, genesTable.__inputs)();
           });
-          variantsContainer.addClassName('hidden');
+          variantsContainer.hide();
           clearRelatedDataFx &amp;&amp; clearRelatedDataFx();
         });
       }
@@ -2173,56 +2196,14 @@ var init = function(event) {
           item.update(i++);
         });
       });
-    },
-
-    _attachNoSecondaryVariantsClickListener : function() {
-      var _this = this;
-      this._noSecondaryVariants.observe('click', function(event) {
-        event.stopPropagation();
-      });
-
-      this._noSecondaryVariants.observe('change', function(event) {
-        event.stop();
-        if (this.checked) {
-          var genesTables = _this._secondaryVariantsList.select('table.gene-table.cp-variants.extradata-list');
-          var tables = [];
-          genesTables.each(function(genesTable) {
-            var inputs = genesTable.select('input.gene-id');
-            if (inputs &amp;&amp; inputs.size() &gt; 0) {
-              genesTable.__inputs = inputs;
-              tables.push(genesTable);
-            }
-          });
-          if (tables.size() == 0) {
-            // There is no variant data.
-            _this._secondaryVariantsList.addClassName('hidden');
-          } else {
-            // There is variant data. Do a confirmed ajax request and check only on success.
-            this.checked = false
-            _this._ajaxClearGenes.bind(_this, _this._clearSecondaryDataUrl, this, tables, _this._secondaryVariantsList, function() { _this._secondaryQuestionnaireContainer.innerHTML = '' })();
-          }
-        } else {
-          _this._secondaryVariantsList.removeClassName('hidden');
-        }
-      });
     }
   });
 
   var init = function() {
-    var analysisModules = $$('.care-pathways-analysis-module');
-    analysisModules &amp;&amp; analysisModules.each(function(module) {
-      var options = {};
-      var moduleId = module.id;
-      var section = moduleId &amp;&amp; moduleId.substring(0, moduleId.lastIndexOf('-')) || "";
-      options.section = section;
-      var questionsClearUrlEl = $('clear-questions-data');
-      options.questionsClearUrl = questionsClearUrlEl &amp;&amp; questionsClearUrlEl.value;
-      var questionDeleteUrlEl = $('delete-question-data');
-      options.questionDeleteUrl = questionDeleteUrlEl &amp;&amp; questionDeleteUrlEl.value;
-      options.buildModulesUrl = new XWiki.Document('CarePathways', 'PhenoTips').getURL('get');
-      new PhenoTips.widgets.carePathways.VariantAnalysisModule(module, options);
-    });
-    return true;
+    var options = {};
+    var questionsClearUrlEl = $('clear-questions-data');
+    options.questionsClearUrl = questionsClearUrlEl &amp;&amp; questionsClearUrlEl.value;
+    new PhenoTips.widgets.carePathways.VariantAnalysisModule(options);
   };
 
   (XWiki.domIsLoaded &amp;&amp; init()) || document.observe('xwiki:dom:loaded', init);
@@ -2946,6 +2927,9 @@ var init = function(event) {
         item.select(".mandatory input[type='text']").each(function(element) {
           addInputValidator(element);
         });
+        item.select(".mandatory-date input.fuzzy-date").each(function(element) {
+          addFuzzyDateValidator(element);
+        });
       }
     });
     return true;
@@ -2963,6 +2947,180 @@ var init = function(event) {
     </property>
     <property>
       <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>10</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>8e832f1d-ef9c-489e-a3ec-14c72c2ff185</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>(function() {
+  var cancelSaveIfNotValid = function(event) {
+    if (event &amp;&amp; event.memo &amp;&amp; !event.memo.continue) {
+      if (!this.__validation.validate()) {
+        event.memo.originalEvent.stopped = true;
+      }
+    }
+  };
+  var _generateMessage = function (min, max) {
+     if (!min &amp;&amp; !max) return '';
+     var lastValue = 0;
+     var message = 'Please select ';
+     if (min == max) {
+        lastValue = max;
+        message += "exactly " + max; 
+     } else {
+       if (min) {
+          lastValue = min;
+          message += "at least " + min;
+       }
+       if (min &amp;&amp; max) {
+         message += " and "
+       }
+       if (max) {
+         lastValue = max;
+         message += "at most " + max;
+       }
+     }
+     message += " option" + (lastValue == 1 ? '' : 's') + ': ';
+     var validCheckbox = new Element('input', {type : 'checkbox', 'class': 'required'});
+     validCheckbox.__validation = new LiveValidation(validCheckbox, {validMessage: '', wait : 500});
+     validCheckbox.__validation.add(Validate.Acceptance, {failureMessage: ''});
+     document.observe('xwiki:actions:save', cancelSaveIfNotValid.bindAsEventListener(validCheckbox));
+     return new Element('p', {'class' : 'mandatory selection-restriction-msg'}).update(message).insert(validCheckbox).insert(new Element('span', {'class' : 'fa fa-exclamation-triangle'})).insert(new Element('span', {'class' : 'fa fa-check'}));
+  }
+
+  var _selectionSync = function(min, max, options, msg) {
+     var selected = options.filter(o =&gt; o.checked == true).size();
+     options.filter(o =&gt; o.checked == false).invoke((selected == max) ? 'disable' : 'enable');
+     var satisfied = (!min || selected &gt;= min) &amp;&amp; (!max || selected &lt;=max);
+     msg.toggleClassName('satisfied', satisfied);
+     msg.down('input').checked = satisfied;
+  }
+
+  var onTermDeleted = function(event) {
+    var element = event &amp;&amp; event.memo &amp;&amp; event.memo.id &amp;&amp; $$('input[class="term-id"][value="' + event.element().id.replace(/.*_/, '') + '"]')[0];
+    element = element &amp;&amp; element.up('.care-pathways-modules');
+    element = element &amp;&amp; element.__validationCallback;
+    element &amp;&amp; element();
+  };
+
+  var init = function(event) {
+    $$('.care-pathways-modules:not(initialized)').each(function(module) {
+      var min = module.dataset.selectionMin;
+      var max = module.dataset.selectionMax;
+      if (min || max) {
+        var optionsPanel = module.select(".cp-categories-panel.browse-categories-panel")[0];
+        if (optionsPanel) {
+          var msg = _generateMessage(min,max);
+          optionsPanel.insert({before: msg});
+          Event.fire(document, 'xwiki:dom:updated', {'elements' : [module]});
+          var options = optionsPanel.select('input[type="checkbox"]');
+
+          var callback = _selectionSync.bind(this, min, max, options, msg);
+          module.__validationCallback = callback;
+
+          callback();
+          options.invoke('observe', 'click', callback);
+        }
+      }
+      module.addClassName('initialized');
+    });
+    var temp = function() {
+      $$('.parent-summary-group').invoke('observe', 'parent:term:deleted', onTermDeleted);
+    };
+    temp.delay(0.5);
+    document.observe('parent:dialog:added', function(event) {
+      console.log('added', event.memo.element);
+      event.memo.element &amp;&amp; event.memo.element.up('table').observe('parent:term:deleted', onTermDeleted);
+    });
+  };
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+}());</code>
+    </property>
+    <property>
+      <name>Validate minimum and maximum choices</name>
+    </property>
+    <property>
+      <parse>0</parse>
     </property>
     <property>
       <use>onDemand</use>
@@ -3065,6 +3223,10 @@ var init = function(event) {
     </property>
     <property>
       <code>#template('colorThemeInit.vm')
+
+.main dl {
+  margin: 1em 0 1em 2em;
+}
 
 .main table {
   margin: 0;
@@ -3213,8 +3375,10 @@ table.summary-group tr.term-holder span.patient-term-delete {
   padding: 1em;
 }
 
-tr.care-pathways-module-container table.summary-group div.summary-item div.fuzzy-date-picker {
+div.fuzzy-date-picker {
   display: inline-block;
+  padding: 2px;
+  border: 1px solid transparent;
 }
 
 tr.care-pathways-module-container table.summary-group div.summary-item span.parent-paste-last-date-button {
@@ -3230,7 +3394,7 @@ tr.care-pathways-module-container-view table.summary-group div.summary-item dl {
 }
 tr.care-pathways-module-container table.summary-group div.summary-item.blurred dt,
 tr.care-pathways-module-container-view table.summary-group div.summary-item dt {
-  margin: 0 0 0 .5em;
+  margin: 2px 0 2px .5em;
   border-bottom-left-radius: .3em;
   border-top-left-radius: .3em;
 }
@@ -3240,7 +3404,7 @@ tr.care-pathways-module-container-view table.summary-group div.summary-item dl:f
 }
 tr.care-pathways-module-container table.summary-group div.summary-item.blurred dd,
 tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
-  margin: 0;
+  margin: 2px 0;
   border-bottom-right-radius: .3em;
   border-top-right-radius: .3em;
 }
@@ -3401,6 +3565,24 @@ select + .LV_validation_message {
 }
 .LV_validation_message {
   line-height: 1em;
+}
+
+.care-pathways-form.cp-secondary table.cp-primary,
+.care-pathways-form.cp-primary table.cp-secondary {
+  display:none;
+}
+.care-pathways-form.cp-undefined table.care-pathways-module-group-container,
+.care-pathways-form:not(.initialized) table.care-pathways-module-group-container {
+  display: none;
+}
+
+#primary-variants-interpretation-container label.associated-data-field-label {
+  margin-left: 28px;
+  margin-top: 1em;
+  display: inline-block;
+}
+.timeline {
+  padding: .5em 28px;
 }</code>
     </property>
     <property>
@@ -3576,6 +3758,244 @@ tr.family-care-subtitle .table-cell {
     </property>
     <property>
       <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>2</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>2ab5cd5d-79d9-4098-b3c2-756d26f6ce82</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>6</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>3</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>1</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>5</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>4</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>.cp-categories .selection-restriction-msg {
+  font-size: 0.8em;
+  color: #D00;
+  margin: 0 0 1em 15px;
+}
+.cp-categories .selection-restriction-msg.satisfied {
+  color: #0A0;
+}
+.mandatory.selection-restriction-msg input, .mandatory.selection-restriction-msg .fa {
+  display:none;
+}
+.mandatory.selection-restriction-msg.satisfied .fa-check,
+.mandatory.selection-restriction-msg:not(.satisfied) .LV_invalid + .fa-exclamation-triangle {
+  display:inline-block;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Minimum and maximum choice validation styling</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathways</name>
+    <number>3</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>e5e014f9-09e7-49fd-bed3-7d2d1442c6fe</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>6</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>3</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>1</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>5</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>4</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>.date_pursued .month, .date_pursued .day {
+  display:none;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Hide month and day from datepickers</name>
+    </property>
+    <property>
+      <parse/>
     </property>
     <property>
       <use>onDemand</use>
