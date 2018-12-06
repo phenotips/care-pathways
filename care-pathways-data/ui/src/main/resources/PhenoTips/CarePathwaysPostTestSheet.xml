@@ -2035,6 +2035,10 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
 
 #care-pathways-posttest-container .transparent-row {
   border: 0 none;
+}
+
+.secondary-variants-container option[value="variant_u_s"] {
+  display: none;
 }</code>
     </property>
     <property>
