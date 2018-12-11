@@ -50,7 +50,7 @@
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
-      <emptyIsToday>1</emptyIsToday>
+      <emptyIsToday>0</emptyIsToday>
       <name>date_amended</name>
       <number>14</number>
       <picker>1</picker>
@@ -65,7 +65,7 @@
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
-      <emptyIsToday>1</emptyIsToday>
+      <emptyIsToday>0</emptyIsToday>
       <name>date_entered</name>
       <number>6</number>
       <picker>1</picker>
@@ -108,7 +108,7 @@
       <customDisplay/>
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
-      <emptyIsToday>1</emptyIsToday>
+      <emptyIsToday>0</emptyIsToday>
       <name>date_recommended</name>
       <number>13</number>
       <picker>1</picker>
