@@ -1240,7 +1240,7 @@
         var listItemEl = item.up('li.term-entry');
         var innerList = listItemEl &amp;&amp; listItemEl.down('ul');
         if (innerList) {
-          if (!innerList.down('input[type="checkbox"]:checked')) {
+          if (!innerList.down('input[type="checkbox"]:checked') &amp;&amp; !innerList.up().up().hasClassName('cp-module-test')) {
             innerList.hide();
           } else {
             item.removeClassName("fa-caret-right");
