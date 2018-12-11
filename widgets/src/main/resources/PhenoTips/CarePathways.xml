@@ -337,11 +337,6 @@
           #set ($keyValue = $qualifier.get($key))##
           #set ($keyLabel = "$!{services.vocabularies.care-pathways.getTerm($keyValue).name}")
           #set ($displayedData = {
-            "datum" :
-              {
-                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.datum.title")),
-                "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"
-              },
             "laboratory" :
               {
                 "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.laboratory.title"))
@@ -364,6 +359,11 @@
               {
                 "displayedName" : 'Pursued within 1 year?',
                 "displayedValue" : "#if ($qualifier.get('pursued') == 1)Yes#elseif ($qualifier.get('pursued') == 0)No#end"
+              },
+            "datum" :
+              {
+                "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.detailsDialog.datum.title")),
+                "displayedValue" : "#if($!{keyLabel} != '')$!{keyLabel}#{else}$keyValue#{end}"
               },
             "notes" :
               {
@@ -1587,10 +1587,10 @@
         .withQualifierDataMarker(this._qualifierDataMarker + "_")
         .withLabel(termName, termId, null, true)
         .dialogsAddDeleteAction(this._deleteQualifierAction);
-      this._addInputsFx &amp;&amp; this._addInputsFx(qualifiersWidget, json, termId, this._moduleType, submodule, this._qualifierDataMarker);
       this._pickSubjectElement(qualifiersWidget);
       this._addDateElements(qualifiersWidget);
       this._addPursued(qualifiersWidget);
+      this._addInputsFx &amp;&amp; this._addInputsFx(qualifiersWidget, json, termId, this._moduleType, submodule, this._qualifierDataMarker);
       this._addTextboxesFx &amp;&amp; this._addTextboxesFx(qualifiersWidget, this._questionId, parseInt(this._variantNumber), termId, this._moduleType, submodule);
       return this._addHiddenDataElements(qualifiersWidget);
     },
