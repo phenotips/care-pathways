@@ -3666,8 +3666,47 @@ select + .LV_validation_message {
   padding: .5em 28px;
 }
 
-label[for="cp-add-tool-test-CPQ:7-CP:22_other"] {
+label[for$="CP:22_other"] {
   display: none;
+}
+label[for$="CP:21_other"]::after,
+label[for$="CP:213"]::after,
+label[for$="CP:232_other"]::after,
+label[for$="CP:2334_other"]::after,
+label[for$="CP:2352_other"]::after,
+label[for$="CP:23_other"]::after,
+label[for$="CP:24_other"]::after,
+label[for$="CP:25_other"]::after,
+label[for$="CP:26_other"]::after,
+label[for$="CP:2345_other"]::after,
+label[for$="CP:2317_other"]::after {
+  content: " (specify test)";
+}
+label[for$="CP:222"]::after {
+  content: " (specify panel and number of genes)";
+}
+label[for$="CP:221"]::after {
+  content: " (specify gene)";
+}
+label[for$="CP:251_other"]::after,
+label[for$="CP:257_other"]::after,
+label[for$="CP:259_other"]::after,
+label[for$="CP:2515_other"]::after,
+label[for$="CP:2523_other"]::after {
+  content: " (specify region)";
+}
+label[for$="CP:2359"]::after {
+  content: " (specify type and sample type)";
+}
+label[for$="CP:2349"]::after,
+label[for$="CP:2350"]::after {
+  content: " (specify enzymes)";
+}
+label[for$="CP:31_other"]::after {
+  content: " (specify subspecialty)";
+}
+label[for$="CP:32_other"]::after {
+  content: " (specify allied health care)";
 }
 
 .cp-categories-panel label.controller {
