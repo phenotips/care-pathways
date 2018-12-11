@@ -3122,7 +3122,6 @@ var init = function(event) {
     };
     temp.delay(0.5);
     document.observe('parent:dialog:added', function(event) {
-      console.log('added', event.memo.element);
       event.memo.element &amp;&amp; event.memo.element.up('table').observe('parent:term:deleted', onTermDeleted);
     });
   };
