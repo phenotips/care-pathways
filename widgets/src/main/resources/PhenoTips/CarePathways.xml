@@ -569,7 +569,7 @@
       #__label($propName "" "")##
       {{html clean="false" wiki="false"}}##
       &lt;/dt&gt;
-      &lt;dd class="date $propName#if($mandatory) mandatory-date#{end}"&gt;
+      &lt;dd class="date $propName#if($mandatory) mandatory-date#if ($module.submodule == 'posttest') mandatory-date-full#{end}#{end}"&gt;
       {{/html}}
       #__display($propName)
       {{html clean="false" wiki="false"}}##
@@ -2874,10 +2874,14 @@ var init = function(event) {
     var fuzzyDiv = element.previous('div.fuzzy-date-picker');
     element.value = element.value === "{}" ? "" : element.value;
     if (fuzzyDiv) {
-      fuzzyDiv.toggleClassName("invalid", element.value === "");
+      if (element.up('.mandatory-date-full')) {
+        element.__validation.add(Validate.Custom, {failureMessage: "$escapetool.javascript($services.localization.render('phenotips.PatientSheetCode.failureSelectValue'))", against: function() {
+          return element.up('.mandatory-date-full').select('select').pluck('value').reject(Prototype.K).size() == 0;
+        }});
+      }
+      fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
       element.observe("xwiki:date:changed", function(event) {
         fuzzyDiv.toggleClassName("invalid", !element.__validation.validate());
-        element.__validation.validate();
       });
     }
   };
