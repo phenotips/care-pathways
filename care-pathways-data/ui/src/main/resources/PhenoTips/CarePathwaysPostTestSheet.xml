@@ -1542,15 +1542,14 @@ var getOnWarnButtons = function(cdnaInput, variantNumberStr, parentRow, moreInfo
 };
 
 var attachDuplicateVariantsInPatientSheetValidator = function(event) {
-  var primaryVarContainer = $('primary-wes-variants-proband');
   var serviceUrlEl = $('matching-patient-variants-url');
   var serviceUrl = serviceUrlEl &amp;&amp; serviceUrlEl.value
 
-  if (primaryVarContainer &amp;&amp; serviceUrl) {
+  if (serviceUrl) {
     var elements = event &amp;&amp; event.memo &amp;&amp; event.memo.elements;
-    ((elements) || [primaryVarContainer]).each(function(element) {
+    ((elements) || $$('.gene-table')).each(function(element) {
       var selector = 'td.variant.variant-default-input.cdna input';
-      element.up('#primary-wes-variants-proband') &amp;&amp; element.select(selector).each(function(cdnaInput) {
+      element.select(selector).each(function(cdnaInput) {
         var options = {};
 
         var parentRow = cdnaInput.up('tr');
@@ -1570,7 +1569,11 @@ var attachDuplicateVariantsInPatientSheetValidator = function(event) {
         options.addOnWarnButtonsContainer = parentCol.next('td');
 
         // Add the validator.
-        cdnaInput.__CPMatchingVariants_detector = new PhenoTips.widgets.carePathways.RemoteDuplicatesValidator(cdnaInput, selector, "$escapetool.javascript($services.localization.render('PhenoTips.CPGeneVariantClass.valueAlreadyEnteredInPatientForm'))", options);
+        var temp = function() {
+          cdnaInput.__validation.validations = cdnaInput.__validation.validations.reject(function(i) {return i.type.name == 'bound validate'});
+          cdnaInput.__CPMatchingVariants_detector = new PhenoTips.widgets.carePathways.RemoteDuplicatesValidator(cdnaInput, selector, "$escapetool.javascript($services.localization.render('PhenoTips.CPGeneVariantClass.valueAlreadyEnteredInPatientForm'))", options);
+        }
+        temp.delay();
       });
     });
   }
