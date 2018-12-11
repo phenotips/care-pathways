@@ -189,6 +189,11 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                 }
               ],
               'hasPursued':true
+            },
+            {
+              "module" : "relatives",
+              "type" : "1block",
+              "submodule" : "primary"
             }
          ]
       },
@@ -205,11 +210,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                ],
                'module':'test',
                'hasPursued':true
-            },
-            {
-              "module" : "relatives",
-              "type" : "1block",
-              "submodule" : "primary"
             }
          ]
       },
