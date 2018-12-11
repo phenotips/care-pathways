@@ -112,6 +112,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
         ],
         "module" : "test",
         "submodule" : "done",
+        "noneOption" : "noPastTests",
         "subject" : "proband"
       }]
     },
@@ -126,6 +127,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
           }
         ],
         "module" : "care",
+        "noneOption" : "noCare",
         "subject" : "proband"
       }]
     },
@@ -211,6 +213,44 @@ These questions should be completed prior to whole exome testing
 {{/html}}##
 )))
 {{/velocity}}</content>
+  <class>
+    <name>PhenoTips.CarePathwaysPreTestSheet</name>
+    <customClass/>
+    <customMapping/>
+    <defaultViewSheet/>
+    <defaultEditSheet/>
+    <defaultWeb/>
+    <nameField/>
+    <validationScript/>
+    <noCare>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noCare</name>
+      <number>1</number>
+      <prettyName>noCare</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noCare>
+    <noPastTests>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noPastTests</name>
+      <number>2</number>
+      <prettyName>noPastTests</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noPastTests>
+  </class>
   <object>
     <name>PhenoTips.CarePathwaysPreTestSheet</name>
     <number>0</number>

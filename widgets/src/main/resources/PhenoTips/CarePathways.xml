@@ -281,10 +281,10 @@
               #__displayRow($q)
             #end
           &lt;/dl&gt;
-        #elseif($storedValues.size() == 0)##
+        #elseif($storedValues.size() == 0 || $module.noneOption &amp;&amp; $doc.getValue($module.noneOption))##
           &lt;table class="terms-data-table"&gt;
           &lt;tr&gt;
-            &lt;td class="no-data"&gt;&lt;span&gt;No data entered&lt;/span&gt;&lt;/td&gt;
+            &lt;td class="no-data"&gt;&lt;span&gt;#if ($module.noneOption &amp;&amp; $doc.getValue($module.noneOption))None#{else}No data entered#end&lt;/span&gt;&lt;/td&gt;
           &lt;/tr&gt;
           &lt;/table&gt;
         #else##
@@ -493,7 +493,13 @@
 ##
 #macro (__displayCategories $submoduleName $rootNode $rootChildren $question $storedValues $justCategories)
   #set ($otherId = $stringtool.join([$rootNode, '_other'], ''))##
-  &lt;ul&gt;
+  #if ($module.noneOption)
+  &lt;div class="controlled-group"&gt;
+  &lt;label class="controller exclude"&gt;&lt;input type="checkbox" name="PhenoTips.CarePathwaysPreTestSheet_0_${module.noneOption}" value="1"#if ($doc.getValue($module.nonOption)) checked="checked"#end /&gt; None&lt;/label&gt;
+  &lt;ul class="controlled cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
+  #else
+  &lt;ul class="cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
+  #end
     #__displayChildren($submoduleName, $rootNode, $rootChildren, $question, $storedValues, $justCategories)
   #if ($module.module == 'care' &amp;&amp; $section == 'posttest')
     #if ($question == 'CPQ:22')
@@ -503,6 +509,9 @@
   #end
   &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
   &lt;ul&gt;
+  #if ($module.noneOption)
+  &lt;/div&gt;
+  #end
 #end
 ##
 ##
@@ -3587,6 +3596,11 @@ select + .LV_validation_message {
 
 label[for="cp-add-tool-test-CPQ:7-CP:22_other"] {
   display: none;
+}
+
+.cp-categories-panel label.controller {
+  display: block;
+  margin: 1em 0 -1em 2em;
 }</code>
     </property>
     <property>
