@@ -281,6 +281,12 @@
               #__displayRow($q)
             #end
           &lt;/dl&gt;
+        #elseif ($module.module == "sequencing")
+          &lt;table class="terms-data-table"&gt;
+          &lt;tr&gt;
+            &lt;td class="no-data"&gt;&lt;span&gt;$doc.display('sequencingStrategy', $doc.getObject('PhenoTips.CarePathwaysPostTestSheet')).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', '')&lt;/span&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;/table&gt;
         #elseif($storedValues.size() == 0 || $module.noneOption &amp;&amp; $doc.getValue($module.noneOption))##
           &lt;table class="terms-data-table"&gt;
           &lt;tr&gt;
@@ -569,9 +575,7 @@
       #end
     &lt;/dl&gt;
   #elseif ($module.module == "sequencing")
-    &lt;ul&gt;
-    #__displayChildren('CP:04', 'CP:04', ${services.vocabularies.care-pathways.search({'is_a': 'CP:04'}, {'sort': 'id asc'})}, $question, $storedValues, true)
-    &lt;/ul&gt;
+    $doc.display('sequencingStrategy', $doc.getObject('PhenoTips.CarePathwaysPostTestSheet')).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', '')
   #elseif ($module.module == 'variants')
     #if ($module.submodule == 'analysis')
       #__displayVariantsAnalysisSection()

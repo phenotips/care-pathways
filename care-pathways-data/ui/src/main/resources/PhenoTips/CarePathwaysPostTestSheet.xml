@@ -87,7 +87,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
             {
                'dates':[],
                'module':'sequencing',
-               'type':'2panes',
+               'type':'1block',
                'subject':'proband'
             }
          ]
@@ -859,6 +859,41 @@ $!value
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </secondDegreeTestingSecondary>
+    <sequencingStrategy>
+      <cache>0</cache>
+      <customDisplay>{{velocity}}
+#if ($type == 'edit')
+{{html}}
+#set ($defaultValueSelected = false)
+&lt;ul&gt;
+&lt;li class="term-entry"&gt;&lt;label&gt;&lt;input type="radio" name="$prefix$name" value="Proband only"#if ($value == 'Proband only') checked="checked"#set ($defaultValueSelected = true)#end /&gt; Proband only&lt;/label&gt;&lt;/li&gt;
+&lt;li class="term-entry"&gt;&lt;label&gt;&lt;input type="radio" name="$prefix$name" value="Exome trio"#if ($value == 'Exome trio') checked="checked"#set ($defaultValueSelected = true)#end /&gt; Exome trio&lt;/label&gt;&lt;/li&gt;
+&lt;li class="other-enabler term-entry"&gt;&lt;label&gt;&lt;input type="radio" name="$prefix$name"#if (!$defaultValueSelected)checked="checked" #end value="" /&gt; Other&lt;/label&gt;&lt;/li&gt;
+&lt;li class="term-entry"&gt;&lt;input type="text" name="$prefix$name"#if (!$defaultValueSelected) value="$!value"#end placeholder="Sequencing strategy" /&gt;&lt;/li&gt;
+&lt;/ul&gt;
+{{/html}}
+#else
+#if ("$!value" != '')$value#{else}No data entered#end
+#end
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <multiSelect>0</multiSelect>
+      <name>sequencingStrategy</name>
+      <number>24</number>
+      <picker>0</picker>
+      <prettyName>The WES sequencing strategy for my patient involved:</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values/>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </sequencingStrategy>
     <specificSurveillanceRecommended>
       <customDisplay/>
       <defaultValue/>
@@ -1808,6 +1843,114 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
     </property>
     <property>
       <use>currentPage</use>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysPostTestSheet</name>
+    <number>5</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>23d2080c-2454-4d0e-9fd1-1836b92aabda</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>(function() {
+  var init = function(event) {
+    $$('.other-enabler').each (function(element) {
+      var otherRadio = element.down('input');
+      var radios = $$('input[type="radio"][name="' + otherRadio.name + '"]');
+      var otherInput = element.next();
+      otherInput.toggle(otherRadio.checked);
+      otherRadio.disabled = otherRadio.checked;
+      radios.invoke('observe', 'change', function() {
+        otherInput.toggle(otherRadio.checked);
+        otherRadio.disabled = otherRadio.checked;
+        otherRadio.checked &amp;&amp; otherInput.down('input').focus();
+      });
+    });
+  };
+  (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+}());</code>
+    </property>
+    <property>
+      <name>Show text input when "other" is selected</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
     </property>
   </object>
   <object>
