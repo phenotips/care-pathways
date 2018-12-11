@@ -9,7 +9,7 @@ PhenoTips 1.4+
 1. Build the care-pathwaysl project (mvn clean install)
 1. Copy the resulting jars to WEB-INF/lib . Especially when upgrading, ensure only one version of each jar exists in WEB-INF/lib.
 1. Restart PhenoTips
-1. Import the xar resulting from the build (Administration > Import)
+1. Import the xars resulting from the build (Administration > Import)
 
 ## Care Pathways questionnaires
 To do
