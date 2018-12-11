@@ -120,12 +120,6 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "question" : "CPQ:6",
       "formType": "primary",
       "modules" : [{
-         "dates":[
-          {
-            "name":"date_pursued",
-            "label":"$!escapetool.xml($services.localization.render('Year'))"
-          }
-        ],
         "module" : "care",
         "noneOption" : "noCare",
         "subject" : "proband"

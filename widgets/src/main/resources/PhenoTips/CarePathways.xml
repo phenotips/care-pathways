@@ -1892,7 +1892,7 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.laboratory.title'))",
     'qualifierName': 'laboratory'});
 
-  moduleType == "care" &amp;&amp; this._questionId == "CPQ:6" &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
+  false &amp;&amp; moduleType == "care" &amp;&amp; this._questionId == "CPQ:6" &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : locationRemoteUrl + "&amp;input=",
     'data': [],
     'placeholder': 'Begin typing or click to show options',
