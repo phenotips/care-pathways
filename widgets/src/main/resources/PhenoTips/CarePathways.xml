@@ -626,7 +626,7 @@
       #__displayDateRow("moh_approval_date", true)##
       #__displayDateRow("sample_sent_date", true)##
       #__displayDateRow("lab_report_date", true)##
-      #__displayDateRow("results_reported_date", true)##
+      #__displayDateRow("result_reported_date", true)##
     #end
     &lt;/div&gt;
     #set ($discard = $doc.use($obj))
