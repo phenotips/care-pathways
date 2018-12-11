@@ -3583,6 +3583,10 @@ select + .LV_validation_message {
 }
 .timeline {
   padding: .5em 28px;
+}
+
+label[for="cp-add-tool-test-CPQ:7-CP:22_other"] {
+  display: none;
 }</code>
     </property>
     <property>
