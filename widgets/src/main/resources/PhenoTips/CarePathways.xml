@@ -513,8 +513,11 @@
     #end
     #__displayChildren($submoduleName, 'CP:09', [$services.vocabularies.resolveTerm('CP:99')], $question, $storedValues, true)
   #end
-  &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
-  &lt;ul&gt;
+  #if ($module.otherEnabled)
+    #set ($otherId = $stringtool.join([$rootNode, '_other'], ''))##
+    &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$!{rootNode}'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${rootNode}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
+  #end
+  &lt;/ul&gt;
   #if ($module.noneOption)
   &lt;/div&gt;
   #end
@@ -524,43 +527,11 @@
 #macro (__displayModule $module $question $variantNumber $storedValues)
   #set ($variantStub = "#if($variantNumber != '')-${variantNumber}#{end}")
   #if ($module.module == "test")
-    &lt;ul&gt;
-    #__displayChildren($module.submodule, $testTerm, ${services.vocabularies.care-pathways.search({'is_a': $testTerm}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
-    &lt;/ul&gt;
-  #elseif ($module.module == "test")
-    #set ($testNodes = [])
-    #set ($geneticNodes = $services.vocabularies.care-pathways.search({'is_a': $geneticTerm}, {'sort': 'nameSort asc', 'fq': "NOT id:${metabolicTerm.replaceAll(':', '\\:')}"}))
-    #set ($metabolicNodes = [$services.vocabularies.care-pathways.getTerm($metabolicTerm)])
-    #set ($diagnosticNodes = $services.vocabularies.care-pathways.search({'is_a': $diagnosticTerm}, {'sort': 'nameSort asc'}))
-    #set ($discard = $testNodes.addAll($geneticNodes))
-    #set ($discard = $testNodes.addAll($diagnosticNodes))
-    #if ($module.submodule == "")
-      #set ($otherId = $stringtool.join([$testTerm, '_other'], ''))##
-      &lt;ul&gt;
-      #__displayChildren("genetic", $geneticTerm, $geneticNodes, $question, $storedValues, true)
-      #__displayChildren("genetic", $metabolicTerm, $metabolicNodes, $question, $storedValues, false)
-      #__displayChildren("diagnostic", $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
-      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$testTerm'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${testTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${testTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
-      &lt;ul&gt;
-    #elseif ($module.submodule == "eligibility")
-      &lt;ul&gt;
-      #__displayChildren($module.submodule, 'CP:10', ${services.vocabularies.care-pathways.search({'is_a': 'CP:10'}, {'sort': 'nameSort asc'})}, $question, $storedValues, false)
-      &lt;/ul&gt;
-    #elseif ($module.submodule == "genetic")
-      &lt;ul&gt;
-      #__displayChildren($module.submodule, $geneticTerm, $geneticNodes, $question, $storedValues, true)
-      #__displayChildren($module.submodule, $metabolicTerm, $metabolicNodes, $question, $storedValues, false)
-      &lt;li class='term-entry custom'&gt;&lt;input class='parent-id' type='hidden' value='$geneticTerm'&gt;&lt;label for='cp-add-tool-${module.module}-${question}-${geneticTerm}${variantStub}_other'&gt;&lt;input id='cp-add-tool-${module.module}-${question}-${geneticTerm}${variantStub}_other' class='add-tool' type='checkbox' #if($storedValues.containsKey($otherId))checked#{end}&gt;&lt;span class='term-name'&gt;Other&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;
-      &lt;ul&gt;
-    #elseif ($module.submodule == "diagnostic")
-      #__displayCategories($module.submodule, $diagnosticTerm, $diagnosticNodes, $question, $storedValues, false)
-    #end
+    #__displayCategories($module.submodule, $testTerm, ${services.vocabularies.care-pathways.search({'is_a': $testTerm}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
   #elseif ($module.module == "care")
     #__displayCategories("", $careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, true)
   #elseif ($module.module == "Eligibility")
-    &lt;ul&gt;
-    #__displayChildren($module.submodule, $module.submodule, ${services.vocabularies.care-pathways.search({'is_a': $module.submodule}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
-    &lt;/ul&gt;
+    #__displayCategories($module.submodule, $module.submodule, ${services.vocabularies.care-pathways.search({'is_a': $module.submodule}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
   #elseif ($module.module == "relatives")
     &lt;dl&gt;
       #__displayRow("firstDegreeCounselling${stringtool.capitalize($module.submodule)}")

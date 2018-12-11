@@ -122,6 +122,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "modules" : [{
         "module" : "care",
         "noneOption" : "noCare",
+        "otherEnabled" : true,
         "subject" : "proband"
       }]
     },
