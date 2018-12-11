@@ -4,7 +4,7 @@ pre test	Which management impact criteria applies to this patient? (check 1 or m
 pre test	Which phenotypic category does your patient fit into?	CPQ:3
 pre test	What is the timeline for your patient's genetic consult?	CPQ:4
 pre test	What diagnostic tests has this patient had to date?	CPQ:5
-pre test	What specialists and/or allied health professionals are involved in this patient's routine care?	CPQ:6
+pre test	What specialists and/or allied health professionals are currently involved in this patient's routine care?	CPQ:6
 pre test	If WES was not available to order for this patient today, what diagnostic tests would you order at this point in time?	CPQ:7
 post test	The WES sequencing strategy for my patient involved:	CPQ:8
 post test	Details of WES test	CPQ:9

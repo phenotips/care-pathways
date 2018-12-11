@@ -513,7 +513,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <name>referral_to_genetics_date</name>
       <number>2</number>
       <picker>1</picker>
-      <prettyName>Date of referral to genetics</prettyName>
+      <prettyName>Date of most recent referral to genetics</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
