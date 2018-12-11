@@ -1630,7 +1630,7 @@
       if (!pursued) {
         return;
       }
-      qualifiersWidget.dialogsAddItemSelect({'qualifierLabel': 'Pursued', 'qualifierName': 'pursued', 'inline':'inline', 'data':['', 'Yes', 'No'], 'storedToDisplayedMapper': function(v) {
+      qualifiersWidget.dialogsAddItemSelect({'qualifierLabel': 'Pursued within 1 year?', 'qualifierName': 'pursued', 'inline':'inline', 'data':['', 'Yes', 'No'], 'storedToDisplayedMapper': function(v) {
       return (v === "0" ? 'No' : v === "1" ? 'Yes' : '')}, 'displayedToStoredMapper': function(v) {
       return (v === 'No' ? "0" : v === 'Yes' ? "1" : -1)}});
     },
