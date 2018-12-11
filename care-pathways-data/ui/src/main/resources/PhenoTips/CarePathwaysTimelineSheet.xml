@@ -300,7 +300,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #end
 #end
 {{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy</dateFormat>
+      <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>last_genetic_consult_date</name>
@@ -507,7 +507,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 #end
 #end
 {{/html}}{{/velocity}}</customDisplay>
-      <dateFormat>yyyy</dateFormat>
+      <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>referral_to_genetics_date</name>
