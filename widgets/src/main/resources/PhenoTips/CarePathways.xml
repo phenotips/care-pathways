@@ -323,7 +323,7 @@
   #set ($qualifiers = $categoryData.qualifiers)##
   #foreach($qualifier in $qualifiers)##
     #set ($macro.hasData = false)
-    #foreach($key in ['datum', 'laboratory', 'date_pursued', 'date_recommended', 'notes'])##
+    #foreach($key in ['datum', 'laboratory', 'date_pursued', 'date_recommended', 'notes', 'pursued'])##
       #if ("$!qualifier.get($key)" != '')
         #set ($macro.hasData = true)
         #break
@@ -359,6 +359,11 @@
               {
                 "displayedName" : $!escapetool.xml($services.localization.render("phenotips.carePathways.${moduleType}.detailsDialog.datePicker.date_recommended.title")),
                 "displayedValue" : "#__displayDate($keyValue)"
+              },
+            "pursued" :
+              {
+                "displayedName" : 'Pursued within 1 year?',
+                "displayedValue" : "#if ($qualifier.get('pursued') == 1)Yes#elseif ($qualifier.get('pursued') == 0)No#end"
               },
             "notes" :
               {
