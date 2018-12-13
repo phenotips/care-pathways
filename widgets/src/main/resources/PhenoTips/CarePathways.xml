@@ -1634,8 +1634,8 @@
       if (!pursued) {
         return;
       }
-      qualifiersWidget.dialogsAddItemSelect({'qualifierLabel': 'Pursued within 1 year?', 'qualifierName': 'pursued', 'inline':'inline', 'data':['', 'Yes', 'No'], 'storedToDisplayedMapper': function(v) {
-      return (v === "0" ? 'No' : v === "1" ? 'Yes' : '')}, 'displayedToStoredMapper': function(v) {
+      qualifiersWidget.dialogsAddRadioList(false, {'qualifierLabel': 'Pursued within 1 year?', 'qualifierName': 'pursued', 'inline':'inline', 'data':['Unknown', 'Yes', 'No'], 'storedToDisplayedMapper': function(v) {
+      return (v === "0" ? 'No' : v === "1" ? 'Yes' : 'Unknown')}, 'displayedToStoredMapper': function(v) {
       return (v === 'No' ? "0" : v === 'Yes' ? "1" : -1)}});
     },
 
@@ -3716,6 +3716,10 @@ label[for$="CP:32_other"]::after {
 .cp-categories-panel label.controller {
   display: block;
   margin: 1em 0 -1em 2em;
+}
+
+.cp-current-selection-panel .dialog-holder ul {
+  margin: 0;
 }</code>
     </property>
     <property>
