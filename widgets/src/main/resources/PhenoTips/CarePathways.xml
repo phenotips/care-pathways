@@ -505,7 +505,7 @@
 #macro (__displayCategories $submoduleName $rootNode $rootChildren $question $storedValues $justCategories)
   #if ($module.noneOption)
   &lt;div class="controlled-group"&gt;
-  &lt;label class="controller exclude"&gt;&lt;input type="checkbox" name="PhenoTips.CarePathwaysPreTestSheet_0_${module.noneOption}" value="1"#if ($doc.getValue($module.nonOption)) checked="checked"#end /&gt; None&lt;/label&gt;
+  &lt;label class="controller exclude"&gt;&lt;input type="checkbox" name="PhenoTips.CarePathwaysPreTestSheet_0_${module.noneOption}" value="1"#if ($doc.getValue($module.noneOption)) checked="checked"#end /&gt; None&lt;/label&gt;
   &lt;ul class="controlled cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
   #else
   &lt;ul class="cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
