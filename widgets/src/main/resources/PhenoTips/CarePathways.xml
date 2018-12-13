@@ -1847,17 +1847,6 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
   var labRemoteUrl = new XWiki.Document('CarePathwaysLaboratorySearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
   var locationRemoteUrl = new XWiki.Document('CarePathwaysLocationSearch', 'PhenoTips').getURL('get', 'dataclass=' + dataStorage);
 
-  qualifiersWidget.dialogsAddTypeAhead(false, {
-    'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
-    'data': json.map(function(x) { return x.name; }),
-    'placeholder': 'Begin typing or click to show options',
-    'defListItemClass': moduleType + ' datum' + ((json.size() || termId.endsWith('_other') || termId === 'CP:1110' || termId === 'CP:1111') ? ' mandatory' : ''),
-    'inputSourceClass': moduleType + '_typeahead',
-    'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.datum.title'))",
-    'qualifierName': 'datum',
-    'displayedToStoredMapper': getToStoredTypeAheadFx(json),
-    'storedToDisplayedMapper': getToDisplayedTypeAheadFx(json)});
-
   (submoduleType == "genetic" || submoduleType == "done") &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : labRemoteUrl + "&amp;input=",
     'data': [],
@@ -1875,6 +1864,17 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'inputSourceClass': moduleType + '_typeahead',
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.location.title'))",
     'qualifierName': 'location'});
+
+  qualifiersWidget.dialogsAddTypeAhead(false, {
+    'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
+    'data': json.map(function(x) { return x.name; }),
+    'placeholder': 'Begin typing or click to show options',
+    'defListItemClass': moduleType + ' datum' + ((json.size() || termId.endsWith('_other') || termId === 'CP:1110' || termId === 'CP:1111') ? ' mandatory' : ''),
+    'inputSourceClass': moduleType + '_typeahead',
+    'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.datum.title'))",
+    'qualifierName': 'datum',
+    'displayedToStoredMapper': getToStoredTypeAheadFx(json),
+    'storedToDisplayedMapper': getToDisplayedTypeAheadFx(json)});
 };
 
 var addTextboxFormElements = function(qualifiersWidget, questionId, variantNum, termId, moduleType, submoduleType) {
