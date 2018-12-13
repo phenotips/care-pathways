@@ -3064,7 +3064,9 @@ var init = function(event) {
 
   var _selectionSync = function(min, max, options, msg) {
      var selected = options.filter(o =&gt; o.checked == true).size();
-     options.filter(o =&gt; o.checked == false).invoke((selected == max) ? 'disable' : 'enable');
+     if (options[0].type == 'checkbox') {
+       options.filter(o =&gt; o.checked == false).invoke((selected == max) ? 'disable' : 'enable');
+     }
      var satisfied = (!min || selected &gt;= min) &amp;&amp; (!max || selected &lt;=max);
      msg.toggleClassName('satisfied', satisfied);
      msg.down('input').checked = satisfied;
@@ -3087,7 +3089,7 @@ var init = function(event) {
           var msg = _generateMessage(min,max);
           optionsPanel.insert({before: msg});
           Event.fire(document, 'xwiki:dom:updated', {'elements' : [module]});
-          var options = optionsPanel.select('input[type="checkbox"]');
+          var options = optionsPanel.select('input[type="checkbox"],input[type="radio"]');
 
           var callback = _selectionSync.bind(this, min, max, options, msg);
           module.__validationCallback = callback;
