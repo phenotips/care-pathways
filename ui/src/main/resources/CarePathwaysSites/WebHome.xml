@@ -42,7 +42,7 @@
 #foreach ($i in $services.query.xwql('from doc.object(PhenoTips.CarePathwaysEnrollmentSiteClass) e').execute())
   #set ($s = $xwiki.getDocument($i))
   (% class="cp-site" %)(((
-  == $s.getValue('name')&gt;&gt;$i (//$s.getValue('type')//) ==
+  == [[$s.getValue('name')&gt;&gt;$i]] (//$s.getValue('type')//) ==
   )))
 #end
 )))
