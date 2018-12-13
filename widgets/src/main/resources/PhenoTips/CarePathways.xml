@@ -259,6 +259,8 @@
             &lt;tr&gt;&lt;td class="no-data"&gt;No data entered&lt;/td&gt;&lt;/tr&gt;
           #end
           &lt;/table&gt;
+        #elseif ($module.module == 'Eligibility')
+          &lt;div class="eligibility"&gt;$doc.display($module.submodule).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', '').replaceAll('\|', '&lt;br/&gt;')&lt;/div&gt;
         #elseif ($module.module == 'variants')
           #if ($module.submodule == 'analysis')
             #__displayVariantsAnalysisSection()
@@ -535,7 +537,7 @@
   #elseif ($module.module == "care")
     #__displayCategories("", $careTerm, $services.vocabularies.care-pathways.search({'is_a': $careTerm}, {'sort': 'nameSort asc'}), $question, $storedValues, true)
   #elseif ($module.module == "Eligibility")
-    #__displayCategories($module.submodule, $module.submodule, ${services.vocabularies.care-pathways.search({'is_a': $module.submodule}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
+    &lt;div class="eligibility"&gt;$doc.display($module.submodule).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', '')&lt;/div&gt;
   #elseif ($module.module == "relatives")
     &lt;dl&gt;
       #__displayRow("firstDegreeCounselling${stringtool.capitalize($module.submodule)}")
@@ -3666,12 +3668,16 @@ select + .LV_validation_message {
   margin-top: 1em;
   display: inline-block;
 }
-.timeline {
+.timeline, .eligibility {
   padding: .5em 28px;
 }
 
+.eligibility label {
+  display: block;
+}
+
 label[for$="CP:22_other"] {
-  display: none;
+  display: none !important;
 }
 label[for$="CP:21_other"]::after,
 label[for$="CP:213"]::after,

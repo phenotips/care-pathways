@@ -67,7 +67,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "modules" : [{
         "dates":[],
         "module" : "Eligibility",
-        "submodule" : "CP:11",
+        "submodule" : "clinicalPresentationCriteria",
+        "type" : "1block",
         "subject" : "proband"
       }],
       "selection-min" : 2
@@ -77,7 +78,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "modules" : [{
         "dates":[],
         "module" : "Eligibility",
-        "submodule" : "CP:12",
+        "submodule" : "managementImpactCriteria",
+        "type" : "1block",
         "subject" : "proband"
       }],
       "selection-min" : 1
@@ -87,7 +89,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "modules" : [{
         "dates":[],
         "module" : "Eligibility",
-        "submodule" : "CP:13",
+        "submodule" : "phenotypicCategory",
+        "type" : "1block",
         "subject" : "proband"
       }],
       "selection-min" : 1,
@@ -217,6 +220,48 @@ These questions should be completed prior to whole exome testing
     <defaultWeb/>
     <nameField/>
     <validationScript/>
+    <clinicalPresentationCriteria>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>checkbox</displayType>
+      <multiSelect>1</multiSelect>
+      <name>clinicalPresentationCriteria</name>
+      <number>3</number>
+      <picker>0</picker>
+      <prettyName>Which clinical presentation criteria applies to this patient? (check 2 or more items)</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator>|</separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>2diseases=Differential diagnosis includes ≥ 2 well defined genetic conditions that would be evaluated in separate panels|impairment=Moderate to severe developmental or functional impairment|multisystem=Multisystem involvement|progressive=Progressive clinical course|familialNYD=Suspected severe genetic syndrome NYD for which multiple family members are also affected</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </clinicalPresentationCriteria>
+    <managementImpactCriteria>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>checkbox</displayType>
+      <multiSelect>1</multiSelect>
+      <name>managementImpactCriteria</name>
+      <number>4</number>
+      <picker>0</picker>
+      <prettyName>managementImpactCriteria</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator>|</separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>diagnostic=Will limit further diagnostic investigations|reproduction=Results allow for specific and informed reproductive decision making (for patient or parents)|identification=Will enable identification of at risk family members and facilitate early intervention</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </managementImpactCriteria>
     <noCare>
       <customDisplay/>
       <defaultValue/>
@@ -245,6 +290,27 @@ These questions should be completed prior to whole exome testing
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </noPastTests>
+    <phenotypicCategory>
+      <cache>0</cache>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <displayType>radio</displayType>
+      <multiSelect>0</multiSelect>
+      <name>phenotypicCategory</name>
+      <number>5</number>
+      <picker>0</picker>
+      <prettyName>phenotypicCategory</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>syndromicID=Syndromic ID|congenital=Multiple congenital anomalies without ID|multisystem=Multisystem disorder without ID|singleOrgan=Single organ disorder without ID|isolatedID=Isolated ID</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </phenotypicCategory>
   </class>
   <object>
     <name>PhenoTips.CarePathwaysPreTestSheet</name>
