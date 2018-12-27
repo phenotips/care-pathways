@@ -1879,23 +1879,6 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'storedToDisplayedMapper': getToDisplayedTypeAheadFx(json)});
 };
 
-var addTextboxFormElements = function(qualifiersWidget, questionId, variantNum, termId, moduleType, submoduleType) {
-  // The text box should only be added for imaging tests or care items, or other items.
-  var hasNotes = termId.endsWith('_other') || isAnImagingElement(questionId, variantNum, termId, moduleType);
-  hasNotes &amp;&amp; qualifiersWidget.dialogsAddTextBox(false, {
-    'defListItemClass': 'comments',
-    'inputSourceClass': moduleType + '_notes',
-    'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.notes.title'))",
-    'qualifierName': 'notes'});
-};
-
-var isAnImagingElement = function(questionId, variantNum, termId, moduleType) {
-  var imagingSpan = $("cp-expand-tool-" + moduleType + "-" + questionId + "-" + "CP:23" + ((variantNum == 0 || variantNum) ? "-" + variantNum : ""))
-      || $("cp-expand-tool-" + moduleType + "-" + questionId + "-" + "CP:1267" + ((variantNum == 0 || variantNum) ? "-" + variantNum : ""));
-  var termEntryElem = imagingSpan &amp;&amp; imagingSpan.up('.term-entry');
-  return termEntryElem &amp;&amp; termEntryElem.down('input.term-id[value="' + termId + '"]');
-};
-
 // Cannot use typeahead.bundle.min.js, need to define typeahead and bloodhound separately.
 require.config({
   paths: {
@@ -1920,7 +1903,7 @@ var initNavAndSelMods = function(modules) {
       var dataStorage = dataStorageEl &amp;&amp; dataStorageEl.value;
       var clearCategoryEl = $('clear-category-action');
       var deleteQualifierEl = $('delete-qualifier-action');
-      var options = {"localUrl" : localUrl, "addInputsFx" : addInputFormElements, "addTextboxesFx" : addTextboxFormElements, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
+      var options = {"localUrl" : localUrl, "addInputsFx" : addInputFormElements, "getCount" : getCount, "incrementCount" : incrementCount, "updateCount" : updateCount, "clearCategory" : clearCategoryEl.value, "deleteQualifier" : deleteQualifierEl.value, "qualifierDataMarker" : dataStorage, "showPath" : true};
       options.currentSelectionPanel = module.down('div.current-selection-panel');
       var moduleTypeElem = options.currentSelectionPanel &amp;&amp; options.currentSelectionPanel.down('input[name=moduleType]');
       options.moduleType = moduleTypeElem &amp;&amp; moduleTypeElem.value;
