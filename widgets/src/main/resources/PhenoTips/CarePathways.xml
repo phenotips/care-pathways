@@ -514,7 +514,7 @@
   #end
     #__displayChildren($submoduleName, $rootNode, $rootChildren, $question, $storedValues, $justCategories)
   #if ($module.module == 'care' &amp;&amp; $section == 'posttest')
-    #if ($question == 'CPQ:22')
+    #if ($question == 'CPQ:22' || $question == 'CPQ:24')
       #__displayChildren($submoduleName, 'CP:08', ${services.vocabularies.care-pathways.search({'is_a': 'CP:08'}, {'sort': 'nameSort asc'})}, $question, $storedValues, true)
     #end
     #__displayChildren($submoduleName, 'CP:09', [$services.vocabularies.resolveTerm('CP:99')], $question, $storedValues, true)
