@@ -1870,11 +1870,13 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.location.title'))",
     'qualifierName': 'location'});
 
+  var mandatoryDetails = ['CP:213', 'CP:221', 'CP:222', 'CP:2349', 'CP:2350', 'CP:2359'];
+
   (termId.endsWith('_other') || this._questionId != "CPQ:6") &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
     'data': json.map(function(x) { return x.name; }),
     'placeholder': 'Begin typing or click to show options',
-    'defListItemClass': moduleType + ' datum' + ((json.size() || termId.endsWith('_other') || termId === 'CP:1110' || termId === 'CP:1111') ? ' mandatory' : ''),
+    'defListItemClass': moduleType + ' datum' + ((json.size() || termId.endsWith('_other') || mandatoryDetails.indexOf(termId) &gt;= 0) ? ' mandatory' : ''),
     'inputSourceClass': moduleType + '_typeahead',
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.datum.title'))",
     'qualifierName': 'datum',
