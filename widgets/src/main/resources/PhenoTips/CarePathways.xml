@@ -3703,6 +3703,15 @@ label[for$="CP:2350"]::after {
 label[for$="CP:31_other"]::after {
   content: " (specify subspecialty)";
 }
+label[for$="CP:801"]::after {
+  content: " (specify tissue)";
+}
+label[for$="CP:80_other"]::after {
+  content: " (specify procedure)";
+}
+label[for$="CP:81_other"]::after {
+  content: " (specify treatment)";
+}
 label[for$="CP:32_other"]::after {
   content: " (specify allied health care)";
 }
