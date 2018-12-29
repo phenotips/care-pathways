@@ -606,7 +606,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </result_reported_date_entered>
-    <sample_sent_date>
+    <sample_received_date>
       <customDisplay>{{velocity}}{{html clean=false}}
 #set ($definedFormat = "$!object.xWikiClass.get($name).getProperty('dateFormat').value")
 #set ($format = $definedFormat)
@@ -648,16 +648,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       <dateFormat>yyyy-MM-dd</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
-      <name>sample_sent_date</name>
+      <name>sample_received_date</name>
       <number>6</number>
       <picker>1</picker>
-      <prettyName>Date sample sent to lab</prettyName>
+      <prettyName>Date sample received by lab</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </sample_sent_date>
+    </sample_received_date>
     <sample_sent_date_entered>
       <customDisplay>{{include reference="PhenoTips.PatientSheetMacros" /}}
 

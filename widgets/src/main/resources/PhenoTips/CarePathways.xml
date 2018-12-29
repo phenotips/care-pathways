@@ -248,7 +248,7 @@
               #__displayViewDate('laboratory', 'PhenoTips.CarePathwaysTimelineSheet')
               #__displayViewDate('moh_submission_date', 'PhenoTips.CarePathwaysTimelineSheet')
               #__displayViewDate('moh_approval_date', 'PhenoTips.CarePathwaysTimelineSheet')
-              #__displayViewDate('sample_sent_date', 'PhenoTips.CarePathwaysTimelineSheet')
+              #__displayViewDate('sample_received_date', 'PhenoTips.CarePathwaysTimelineSheet')
               #__displayViewDate('lab_report_date', 'PhenoTips.CarePathwaysTimelineSheet')
               #__displayViewDate('result_reported_date', 'PhenoTips.CarePathwaysTimelineSheet')
             ")
@@ -614,7 +614,7 @@
       #__displayDateRow("laboratory", true)##
       #__displayDateRow("moh_submission_date", true)##
       #__displayDateRow("moh_approval_date", true)##
-      #__displayDateRow("sample_sent_date", true)##
+      #__displayDateRow("sample_received_date", true)##
       #__displayDateRow("lab_report_date", true)##
       #__displayDateRow("result_reported_date", true)##
     #end
