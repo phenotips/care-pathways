@@ -135,6 +135,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
       "modules" : [{
         "module" : "test",
         "submodule" : "wouldDo",
+        "noneOption" : "noPlannedTests",
         "subject" : "proband"
       }]
     }
@@ -290,6 +291,20 @@ These questions should be completed prior to whole exome testing
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </noPastTests>
+    <noPlannedTests>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noPlannedTests</name>
+      <number>6</number>
+      <prettyName>noPlannedTests</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noPlannedTests>
     <phenotypicCategory>
       <cache>0</cache>
       <customDisplay/>

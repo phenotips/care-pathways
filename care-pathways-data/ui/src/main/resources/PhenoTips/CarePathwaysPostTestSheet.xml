@@ -163,6 +163,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                  }
                ],
                'module':'test',
+               "noneOption" : "noFurtherInvestigations",
                'hasPursued':true
             }
          ]
@@ -172,7 +173,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
          'formType': 'primary',
          'modules':[
             {
-               'module':'test'
+               'module':'test',
+               'noneOption': 'noInvestigationsAvoided'
             }
          ]
       },
@@ -209,7 +211,8 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
                  }
                ],
                'module':'test',
-               'hasPursued':true
+               'noneOption': 'noFurtherSecondaryInvestigations',
+               'hasPursued': true
             }
          ]
       },
@@ -646,6 +649,48 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <values/>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </genes>
+    <noFurtherInvestigations>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noFurtherInvestigations</name>
+      <number>25</number>
+      <prettyName>noFurtherInvestigations</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noFurtherInvestigations>
+    <noFurtherSecondaryInvestigations>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noFurtherSecondaryInvestigations</name>
+      <number>26</number>
+      <prettyName>noFurtherSecondaryInvestigations</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noFurtherSecondaryInvestigations>
+    <noInvestigationsAvoided>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>noInvestigationsAvoided</name>
+      <number>27</number>
+      <prettyName>noInvestigationsAvoided</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </noInvestigationsAvoided>
     <noPrimaryVariants>
       <customDisplay/>
       <defaultValue/>
