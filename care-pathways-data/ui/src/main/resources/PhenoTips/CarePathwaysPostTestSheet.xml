@@ -1903,14 +1903,21 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
       <code>(function() {
   var init = function(event) {
     var partialDiagnosisInput = $$('input[value="partially-diagnostic"]')[0];
+    var noDiagnosisInput = $$('input[value="non-diagnostic"]')[0];
     var diagnosisInputs = $$('input[name$="primaryVariantAnalysis"]');
     var partialDiagnosisExplanationField = $('partialDiagnosisExplanationField');
+    var genesField = $('geneListField');
+    var diseasesField = $('diseaseListField');
     if (!partialDiagnosisInput || !partialDiagnosisExplanationField) {
       return;
     }
     partialDiagnosisExplanationField.toggle(partialDiagnosisInput.checked);
+    genesField.toggle(!noDiagnosisInput.checked);
+    diseasesField.toggle(!noDiagnosisInput.checked);
     diagnosisInputs.invoke('observe', 'change', function() {
       partialDiagnosisExplanationField.toggle(partialDiagnosisInput.checked);
+      genesField.toggle(!noDiagnosisInput.checked);
+      diseasesField.toggle(!noDiagnosisInput.checked);
     });
 
     var noSecondaryVariantsInput = $('PhenoTips.CarePathwaysPostTestSheet_0_noSecondaryVariants');

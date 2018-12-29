@@ -176,14 +176,14 @@
     #set ($macro.hasContent = true)
     #__form_field($primaryAnalysisProp)
   #end
-  #if ($xcontext.action == "edit" || "$!{obj.getProperty('genes').value}" != '' &amp;&amp; "$!{obj.getProperty('genes').value}" != '[]')##
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty($primaryAnalysisProp).value}" != 'non-diagnostic' &amp;&amp; "$!{obj.getProperty('genes').value}" != '' &amp;&amp; "$!{obj.getProperty('genes').value}" != '[]')##
     #set ($macro.hasContent = true)
-    (% class="geneListField" %) (((
+    (% id="geneListField" %) (((
     {{html clean="false" wiki="false"}}&lt;label class="associated-data-field-label"&gt;Name of genes:&lt;/label&gt;{{/html}}
     #__form_field('genes')
     )))
   #end
-  #if ($xcontext.action == "edit" || "$!{obj.getProperty('diseases').value}" != '' &amp;&amp; "$!{obj.getProperty('diseases').value}" != '[]')##
+  #if ($xcontext.action == "edit" || "$!{obj.getProperty($primaryAnalysisProp).value}" != 'non-diagnostic' &amp;&amp; "$!{obj.getProperty('diseases').value}" != '' &amp;&amp; "$!{obj.getProperty('diseases').value}" != '[]')##
     #set ($macro.hasContent = true)
     (% id="diseaseListField" %) (((
     {{html clean="false" wiki="false"}}&lt;label class="associated-data-field-label"&gt;Name of diseases:&lt;/label&gt;{{/html}}
