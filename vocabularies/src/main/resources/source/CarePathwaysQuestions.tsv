@@ -18,7 +18,7 @@ post test	My patient's analysis of variants in known genes related to the test i
 post test	Overall, MY interpretation of my patient's primary sequencing results is:	CPQ:17
 post test	My patient's analysis of variants reported in genes of unknown significance revealed:	CPQ:18
 post test	My patient's analysis of secondary variants revealed:	CPQ:19
-post test	Based on my patient's sequencing results, I ordered the following investigations to continue to try to determine/refine my patient's diagnosis	CPQ:20
+post test	Based on my patient’s sequencing results, I ordered the following investigations	CPQ:20
 post test	Based on my patient's sequencing results, I did not need to order the following diagnostic investigations	CPQ:21
 post test	Based on my patient's sequencing result, I recommended the following care plan for my patient:	CPQ:22
 post test	Based on my patient's secondary sequencing results, I ordered the following investigations	CPQ:23
