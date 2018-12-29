@@ -273,6 +273,37 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
           $!{services.vocabularies.care-pathways-questions.getTerm($question.question).name}
         &lt;/td&gt;
       &lt;/tr&gt;
+      #if ($question.question == 'CPQ:21' &amp;&amp; $xcontext.action == 'edit')
+        #set ($potentialTests = [])
+        #foreach ($o in $doc.getObjects('PhenoTips.PatientCarePreTestClass'))
+          #if ($o.getValue('question') == 'CPQ:7')
+            #set ($item = $o.getValue('parent'))
+            #if ($item.endsWith('_other'))
+              #set ($item = "#__buildLabelPath($item.substring(0, $item.indexOf('_')))")
+            #else
+              #set ($item = "#__buildLabelPath($item)")
+            #end
+            #if ("$!o.getValue('datum')" != '')
+              #set ($item = "$item » $o.getValue('datum')")
+            #end
+            #set ($discard = $potentialTests.add($item))
+          #end
+        #end
+        #if ($potentialTests.size() &gt; 0)
+          &lt;tr&gt;
+            &lt;td colspan="2"&gt;
+              &lt;div class="box infomessage"&gt;
+                The following tests were listed as potential investigations in the Pre-Test:
+                &lt;ul&gt;
+                  #foreach ($item in $potentialTests)
+                    &lt;li&gt;$item&lt;/li&gt;
+                  #end
+                &lt;/ul&gt;
+              &lt;/div&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        #end
+      #end
       &lt;tr class="care-pathways-modules"#if ($question.get('selection-min')) data-selection-min="$question.get('selection-min')"#end#if ($question.get('selection-max')) data-selection-max="$question.get('selection-max')"#end&gt;
         &lt;td&gt;
           &lt;table class="table care-pathways-modules-wrapper no-variants"&gt;
