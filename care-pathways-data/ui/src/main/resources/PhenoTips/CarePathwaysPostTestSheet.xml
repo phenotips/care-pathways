@@ -460,7 +460,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -486,7 +486,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -512,7 +512,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -538,7 +538,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -807,7 +807,7 @@ $escapetool.xml($services.localization.render("PhenoTips.CarePathwaysPostTestShe
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -833,7 +833,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -859,7 +859,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
@@ -885,7 +885,7 @@ $!value
 #if ($type == 'edit')
 {{html}}
 &lt;select name="$prefix$name"&gt;
-&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;&lt;/option&gt;
+&lt;option value=""#if ("$!value" == '') selected="selected"#end&gt;Unknown&lt;/option&gt;
 #foreach ($i in [0..99])
 &lt;option value="$i"#if ($value == $i) selected="selected"#end&gt;$i&lt;/option&gt;
 #end
