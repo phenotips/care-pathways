@@ -1579,6 +1579,9 @@
         } else {
           qualifiersWidget.initAffected(false);
         }
+        if (!qualifiers || qualifiers.select('.term-details dt:not(.hidden)').size() == 0) {
+          qualifiers.select('tr:not(.term-holder)').invoke('hide');
+        }
       }
     },
 
@@ -1867,7 +1870,7 @@ var addInputFormElements = function(qualifiersWidget, json, termId, moduleType, 
     'qualifierLabel': "$escapetool.javascript($services.localization.render('phenotips.carePathways.detailsDialog.location.title'))",
     'qualifierName': 'location'});
 
-  qualifiersWidget.dialogsAddTypeAhead(false, {
+  (termId.endsWith('_other') || this._questionId != "CPQ:6") &amp;&amp; qualifiersWidget.dialogsAddTypeAhead(false, {
     'remote' : detailsRemoteUrl + "&amp;parent=" + termId + "&amp;input=",
     'data': json.map(function(x) { return x.name; }),
     'placeholder': 'Begin typing or click to show options',
