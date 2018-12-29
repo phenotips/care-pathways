@@ -265,6 +265,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
   &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
   &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
   #foreach ($question in $posttestQuestions)
+    #if ($xcontext.action == 'edit' || $doc.getValue('noSecondaryVariants') != 1 || ($question.question != 'CPQ:23' &amp;&amp; $question.question != 'CPQ:24'))
     &lt;table id="modules-for-$!{question.question}" class="${section}-section table care-pathways-module-group-container chapter#if ($question.formType) cp-$question.formType#end"&gt;
       &lt;tr class="table-row care-pathways-section-label"&gt;
         &lt;td class="table-cell" colspan="2"&gt;
@@ -282,6 +283,7 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
         &lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
+    #end
   #end
   &lt;/div&gt;
   {{/html}}##
@@ -1879,12 +1881,20 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
     diagnosisInputs.invoke('observe', 'change', function() {
       partialDiagnosisExplanationField.toggle(partialDiagnosisInput.checked);
     });
+
+    var noSecondaryVariantsInput = $('PhenoTips.CarePathwaysPostTestSheet_0_noSecondaryVariants');
+    $('modules-for-CPQ:23').toggle(!noSecondaryVariantsInput.checked);
+    $('modules-for-CPQ:24').toggle(!noSecondaryVariantsInput.checked);
+    noSecondaryVariantsInput &amp;&amp; noSecondaryVariantsInput.observe('click', function() {
+      $('modules-for-CPQ:23').toggle(!noSecondaryVariantsInput.checked);
+      $('modules-for-CPQ:24').toggle(!noSecondaryVariantsInput.checked);
+    });
   };
   (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
 }());</code>
     </property>
     <property>
-      <name>Only show "partial diagnosis explanation" when partial explanation is selected</name>
+      <name>Hide fields that should only show up on certain selections</name>
     </property>
     <property>
       <parse/>
