@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.phenotips</groupId>
     <artifactId>care-pathways-resources</artifactId>
-    <version>1.0.1</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
   <artifactId>vocabulary-source-generation</artifactId>
   <name>Care Pathways - Vocabulary source files and generation scripts</name>
