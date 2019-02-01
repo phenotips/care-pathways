@@ -3016,7 +3016,7 @@ var init = function(event) {
     <property>
       <code>(function() {
   var cancelSaveIfNotValid = function(event) {
-    if (event &amp;&amp; event.memo &amp;&amp; !event.memo.continue) {
+    if (event &amp;&amp; event.memo &amp;&amp; !event.memo['continue']) {
       if (!this.__validation.validate()) {
         event.memo.originalEvent.stopped = true;
       }
@@ -3035,7 +3035,7 @@ var init = function(event) {
           message += "at least " + min;
        }
        if (min &amp;&amp; max) {
-         message += " and "
+         message += " and ";
        }
        if (max) {
          lastValue = max;
@@ -3048,12 +3048,12 @@ var init = function(event) {
      validCheckbox.__validation.add(Validate.Acceptance, {failureMessage: ''});
      document.observe('xwiki:actions:save', cancelSaveIfNotValid.bindAsEventListener(validCheckbox));
      return new Element('p', {'class' : 'mandatory selection-restriction-msg'}).update(message).insert(validCheckbox).insert(new Element('span', {'class' : 'fa fa-exclamation-triangle'})).insert(new Element('span', {'class' : 'fa fa-check'}));
-  }
+  };
 
   var _selectionSync = function(min, max, options, msg) {
-     var selected = options.filter(o =&gt; o.checked == true).size();
+     var selected = options.filter(function(o) { return o.checked == true; }).size();
      if (options[0].type == 'checkbox') {
-       options.filter(o =&gt; o.checked == false).invoke((selected == max) ? 'disable' : 'enable');
+       options.filter(function(o) { return o.checked == false; }).invoke((selected == max) ? 'disable' : 'enable');
      }
      var satisfied = (!min || selected &gt;= min) &amp;&amp; (!max || selected &lt;=max);
      msg.toggleClassName('satisfied', satisfied);
