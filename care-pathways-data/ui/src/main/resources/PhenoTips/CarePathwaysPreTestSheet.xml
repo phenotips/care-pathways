@@ -323,7 +323,7 @@ These questions should be completed prior to whole exome testing
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>syndromicID=Syndromic ID|congenital=Multiple congenital anomalies without ID|multisystem=Multisystem disorder without ID|singleOrgan=Single organ disorder without ID|isolatedID=Isolated ID</values>
+      <values>isolatedID=Isolated intellectual disability (ID) / developmental delay (DD)|syndromicID=Syndromic ID/DD|singleOrgan=Single system disorder without ID/DD|congenital=Multiple congenital anomalies without ID/DD|multisystem=Multisystem disorder without ID/DD</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </phenotypicCategory>
   </class>
