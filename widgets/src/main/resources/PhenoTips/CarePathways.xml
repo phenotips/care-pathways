@@ -613,7 +613,7 @@
       #set($class = $timelineClass)
       #__displayDateRow("laboratory", true)##
       #__displayDateRow("moh_submission_date", true)##
-      #__displayDateRow("moh_approval_date", true)##
+      #__displayDateRow("moh_approval_date", false)##
       #__displayDateRow("sample_received_date", true)##
       #__displayDateRow("lab_report_date", true)##
       #__displayDateRow("result_reported_date", true)##
