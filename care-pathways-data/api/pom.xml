@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.phenotips</groupId>
     <artifactId>care-pathways-data</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.2</version>
   </parent>
   <artifactId>care-pathways-data-api</artifactId>
   <name>PhenoTips - Care Pathways - Data Java APIs</name>
