@@ -136,6 +136,7 @@
         <value>org.phenotips.patientSheet.field.affectedRelatives</value>
         <value>org.phenotips.patientSheet.field.consanguinity</value>
         <value>org.phenotips.patientSheet.field.global_mode_of_inheritance</value>
+        <value>org.phenotips.patientSheet.field.family_history</value>
         <value>org.phenotips.patientSheet.field.phenotype</value>
       </fields>
     </property>
