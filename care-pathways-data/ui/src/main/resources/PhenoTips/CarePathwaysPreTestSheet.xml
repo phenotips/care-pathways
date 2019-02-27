@@ -239,7 +239,7 @@ These questions should be completed prior to whole exome testing
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>2diseases=Differential diagnosis includes ≥ 2 well defined genetic conditions that would be evaluated in separate panels|impairment=Moderate to severe developmental or functional impairment|multisystem=Multisystem involvement|progressive=Progressive clinical course|familialNYD=Suspected severe genetic syndrome NYD for which multiple family members are also affected</values>
+      <values>impairment=Moderate to severe developmental or functional impairment|multisystem=Multisystem involvement|progressive=Progressive clinical course|2diseases=Differential diagnosis includes ≥ 2 well defined conditions requiring evaluation by multiple targeted gene panels|familialNYD=Suspected severe genetic syndrome NYD for which multiple family members are also affected, or where parents are consanguineous</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </clinicalPresentationCriteria>
     <managementImpactCriteria>
@@ -260,7 +260,7 @@ These questions should be completed prior to whole exome testing
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>diagnostic=Will limit further diagnostic investigations|reproduction=Results allow for specific and informed reproductive decision making (for patient or parents)|identification=Will enable identification of at risk family members and facilitate early intervention</values>
+      <values>diagnostic=Will limit further invasive diagnostic investigations|reproduction=Results allow for specific and informed reproductive decision making (for patient or parents)|identification=Will enable identification of at risk family members and facilitate early intervention</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </managementImpactCriteria>
     <noCare>
