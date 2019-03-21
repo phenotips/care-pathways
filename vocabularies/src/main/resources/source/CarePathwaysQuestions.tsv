@@ -23,7 +23,7 @@ post test	Based on my patient's sequencing results, I did not need to order the 
 post test	Based on my patient's sequencing result, I recommended the following care plan for my patient:	CPQ:22
 post test	Based on my patient's secondary sequencing results, I ordered the following investigations	CPQ:23
 post test	Based on my patient's secondary sequencing result, I recommended the following care plan for my patient:	CPQ:24
-post test	After WES analysis:	CPQ:25
+post test	Based on my patient's primary sequencing results:	CPQ:25
 post test	Was additional diagnostic testing ordered?	CPQ:26
 post test	Was additional diagnostic testing avoided?	CPQ:27
 post test	Was specific treatment recommended?	CPQ:28
@@ -32,3 +32,9 @@ post test	Was specific surveillance recommended?	CPQ:30
 post test	Was specific surveillance stopped?	CPQ:31
 post test	Was cascade testing for family member(s) recommended?	CPQ:32
 post test	Was prenatal diagnosis using these findings discussed?	CPQ:33
+post test	Was a specific sub-specialist referral made?	CPQ:34
+post test	Based on my patient's secondary sequencing results:	CPQ:35
+post test	Was a specific sub-specialist referral made?	CPQ:36
+post test	Was a specific treatment recommended?	CPQ:37
+post test	Was specific surveillance recommended?	CPQ:38
+post test	Was cascade testing for family member(s) recommended?	CPQ:39

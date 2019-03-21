@@ -246,6 +246,16 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
               "type" : "1block"
             }
          ]
+      },
+      {
+         'question':'CPQ:35',
+         'formType': 'secondary',
+         'modules':[
+            {
+              "module" : "followUpSecondary",
+              "type" : "1block"
+            }
+         ]
       }
    ]
 )
@@ -414,13 +424,27 @@ These questions should be completed following whole exome testing
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>cascadeTestingRecommended</name>
-      <number>22</number>
+      <number>23</number>
       <prettyName>Was cascade testing for family member(s) recommended?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </cascadeTestingRecommended>
+    <cascadeTestingRecommendedSecondary>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>cascadeTestingRecommendedSecondary</name>
+      <number>32</number>
+      <prettyName>Was cascade testing for family member(s) recommended?</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </cascadeTestingRecommendedSecondary>
     <diseases>
       <cache>0</cache>
       <customDisplay>{{velocity}}
@@ -689,7 +713,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>noFurtherInvestigations</name>
-      <number>25</number>
+      <number>26</number>
       <prettyName>noFurtherInvestigations</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -703,7 +727,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>noFurtherSecondaryInvestigations</name>
-      <number>26</number>
+      <number>27</number>
       <prettyName>noFurtherSecondaryInvestigations</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -717,7 +741,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>noInvestigationsAvoided</name>
-      <number>27</number>
+      <number>28</number>
       <prettyName>noInvestigationsAvoided</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -788,7 +812,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>prenatalDiagnosisDiscussed</name>
-      <number>23</number>
+      <number>24</number>
       <prettyName>Was prenatal diagnosis using these findings discussed?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -958,7 +982,7 @@ $!value
       <displayType>select</displayType>
       <multiSelect>0</multiSelect>
       <name>sequencingStrategy</name>
-      <number>24</number>
+      <number>25</number>
       <picker>0</picker>
       <prettyName>The WES sequencing strategy for my patient involved:</prettyName>
       <relationalStorage>0</relationalStorage>
@@ -972,6 +996,34 @@ $!value
       <values/>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </sequencingStrategy>
+    <specificSubSpecialistReferralMade>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>specificSubSpecialistReferralMade</name>
+      <number>18</number>
+      <prettyName>Was a specific sub-specialist referral made?</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </specificSubSpecialistReferralMade>
+    <specificSubSpecialistReferralMadeSecondary>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>specificSubSpecialistReferralMadeSecondary</name>
+      <number>29</number>
+      <prettyName>Was a specific sub-specialist referral made?</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </specificSubSpecialistReferralMadeSecondary>
     <specificSurveillanceRecommended>
       <customDisplay/>
       <defaultValue/>
@@ -979,13 +1031,27 @@ $!value
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>specificSurveillanceRecommended</name>
-      <number>20</number>
+      <number>21</number>
       <prettyName>Was specific surveillance recommended?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </specificSurveillanceRecommended>
+    <specificSurveillanceRecommendedSecondary>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>specificSurveillanceRecommendedSecondary</name>
+      <number>31</number>
+      <prettyName>Was specific surveillance recommended?</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </specificSurveillanceRecommendedSecondary>
     <specificSurveillanceStopped>
       <customDisplay/>
       <defaultValue/>
@@ -993,7 +1059,7 @@ $!value
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>specificSurveillanceStopped</name>
-      <number>21</number>
+      <number>22</number>
       <prettyName>Was specific surveillance stopped?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -1007,13 +1073,27 @@ $!value
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>specificTreatmentRecommended</name>
-      <number>18</number>
+      <number>19</number>
       <prettyName>Was specific treatment recommended?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </specificTreatmentRecommended>
+    <specificTreatmentRecommendedSecondary>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <name>specificTreatmentRecommendedSecondary</name>
+      <number>30</number>
+      <prettyName>Was specific treatment recommended?</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </specificTreatmentRecommendedSecondary>
     <specificTreatmentStopped>
       <customDisplay/>
       <defaultValue/>
@@ -1021,7 +1101,7 @@ $!value
       <displayFormType>select</displayFormType>
       <displayType/>
       <name>specificTreatmentStopped</name>
-      <number>19</number>
+      <number>20</number>
       <prettyName>Was specific treatment stopped?</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
@@ -1920,12 +2000,24 @@ document.observe('xwiki:dom:updated', attachDuplicateVariantsInPatientSheetValid
       diseasesField.toggle(!noDiagnosisInput.checked);
     });
 
+    var toggleClearableYesNo = function(elem) {
+      // First toggle the element.
+      elem.toggle(!noSecondaryVariantsInput.checked);
+      // If the element is no longer visible, clear all the drop-downs.
+      !elem.visible() &amp;&amp; elem.select("dd select").each(function(selectElem) {
+        var blankOption = selectElem.down("option[value]");
+        blankOption &amp;&amp; (blankOption.selected = true);
+      });
+    };
+
     var noSecondaryVariantsInput = $('PhenoTips.CarePathwaysPostTestSheet_0_noSecondaryVariants');
     $('modules-for-CPQ:23').toggle(!noSecondaryVariantsInput.checked);
     $('modules-for-CPQ:24').toggle(!noSecondaryVariantsInput.checked);
+    $('modules-for-CPQ:35').toggle(!noSecondaryVariantsInput.checked);
     noSecondaryVariantsInput &amp;&amp; noSecondaryVariantsInput.observe('click', function() {
       $('modules-for-CPQ:23').toggle(!noSecondaryVariantsInput.checked);
       $('modules-for-CPQ:24').toggle(!noSecondaryVariantsInput.checked);
+      toggleClearableYesNo($('modules-for-CPQ:35'));
     });
   };
   (XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);

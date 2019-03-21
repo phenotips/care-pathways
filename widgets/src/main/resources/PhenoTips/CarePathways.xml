@@ -279,7 +279,13 @@
           #end
         #elseif ($module.module == "followUp")
           &lt;dl&gt;
-            #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+            #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificSubSpecialistReferralMade', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+              #__displayRow($q)
+            #end
+          &lt;/dl&gt;
+        #elseif ($module.module == "followUpSecondary")
+          &lt;dl&gt;
+            #foreach ($q in ['specificSubSpecialistReferralMadeSecondary', 'specificTreatmentRecommendedSecondary', 'specificSurveillanceRecommendedSecondary', 'cascadeTestingRecommendedSecondary'])
               #__displayRow($q)
             #end
           &lt;/dl&gt;
@@ -547,7 +553,13 @@
     &lt;/dl&gt;
   #elseif ($module.module == "followUp")
     &lt;dl&gt;
-      #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+      #foreach ($q in ['additionalDiagnosticTestingOrdered', 'additionalDiagnosticTestingAvoided', 'specificSubSpecialistReferralMade', 'specificTreatmentRecommended', 'specificTreatmentStopped', 'specificSurveillanceRecommended', 'specificSurveillanceStopped', 'cascadeTestingRecommended', 'prenatalDiagnosisDiscussed'])
+        #__displayRow($q)
+      #end
+    &lt;/dl&gt;
+  #elseif ($module.module == "followUpSecondary")
+    &lt;dl&gt;
+      #foreach ($q in ['specificSubSpecialistReferralMadeSecondary', 'specificTreatmentRecommendedSecondary', 'specificSurveillanceRecommendedSecondary', 'cascadeTestingRecommendedSecondary'])
         #__displayRow($q)
       #end
     &lt;/dl&gt;
