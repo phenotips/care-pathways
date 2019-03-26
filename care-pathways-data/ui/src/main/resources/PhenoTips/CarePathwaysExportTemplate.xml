@@ -1,0 +1,581 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses/
+-->
+
+<xwikidoc version="1.2" reference="PhenoTips.CarePathwaysExportTemplate" locale="">
+  <web>PhenoTips</web>
+  <name>CarePathwaysExportTemplate</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1553535387000</creationDate>
+  <parent>PhenoTips.PatientSheet</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1553553566000</date>
+  <contentUpdateDate>1553535387000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content/>
+  <object>
+    <name>PhenoTips.CarePathwaysExportTemplate</name>
+    <number>0</number>
+    <className>XWiki.PDFClass</className>
+    <guid>1f70e316-55b5-4573-8f39-5e25ce41297c</guid>
+    <class>
+      <name>XWiki.PDFClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <footer>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>footer</name>
+        <number>5</number>
+        <picker>0</picker>
+        <prettyName>Footer displayed at the bottom of each PDF page</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </footer>
+      <fopxsl>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>fopxsl</name>
+        <number>3</number>
+        <picker>0</picker>
+        <prettyName>XSLT for post-processing the FO document</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </fopxsl>
+      <header>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>header</name>
+        <number>4</number>
+        <picker>0</picker>
+        <prettyName>Header displayed on top of each PDF page</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </header>
+      <style>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>style</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>Custom CSS style to apply to the PDF</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </style>
+      <xhtmlxsl>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <name>xhtmlxsl</name>
+        <number>2</number>
+        <picker>0</picker>
+        <prettyName>XSLT for transforming HTML into a FO document</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </xhtmlxsl>
+    </class>
+    <property>
+      <footer>Page (% class="page-number" %)#(%%) of (% class="page-total" %)#(%%)
+
+{{velocity}}(% style="margin-top: 1em; font-size: 70%" %)(((
+$services.localization.render('phenotips.PatientSheetCode.PDFFooterDocInfo', [$xwiki.getUserName($pdfExportedDoc.author, false), $!xwiki.formatDate($pdfExportedDoc.date), $xwiki.getUserName($xcontext.user, false)])
+$services.localization.render('phenotips.PatientSheetCode.PDFFooterDisclaimer', [$xwiki.formatDate($util.date)]) [[PhenoTips&gt;&gt;$pdfExportedDoc.getExternalURL()]].
+))){{/velocity}}</footer>
+    </property>
+    <property>
+      <fopxsl>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+    xmlns:html="http://www.w3.org/1999/xhtml"&gt;
+
+  &lt;xsl:output method="xml"/&gt;
+
+  &lt;xsl:template match="@*|node()"&gt;
+    &lt;xsl:copy&gt;
+      &lt;xsl:apply-templates select="@*|node()"/&gt;
+    &lt;/xsl:copy&gt;
+  &lt;/xsl:template&gt;
+
+  &lt;!-- Skip fo:table-and-caption because Fop won't render tables otherwise --&gt;
+  &lt;xsl:template match="fo:table-and-caption"&gt;
+    &lt;xsl:apply-templates/&gt;
+  &lt;/xsl:template&gt;
+
+  &lt;!-- Ignore fo:table-caption because it is not supported --&gt;
+  &lt;xsl:template match="fo:table-caption" /&gt;
+
+  &lt;!-- Change the page dimensions to Letter --&gt;
+  &lt;xsl:template match="fo:simple-page-master/@page-height"&gt;
+    &lt;xsl:attribute name="page-height"&gt;
+      &lt;xsl:value-of select="'11in'"/&gt;
+    &lt;/xsl:attribute&gt;
+  &lt;/xsl:template&gt;
+  &lt;xsl:template match="fo:simple-page-master/@page-width"&gt;
+    &lt;xsl:attribute name="page-width"&gt;
+      &lt;xsl:value-of select="'8.5in'"/&gt;
+    &lt;/xsl:attribute&gt;
+  &lt;/xsl:template&gt;
+  &lt;!-- Change the font to FreeSans --&gt;
+  &lt;xsl:template match="fo:root/@font-family"&gt;
+    &lt;xsl:attribute name="font-family"&gt;
+      &lt;xsl:value-of select="'FreeSans'"/&gt;
+    &lt;/xsl:attribute&gt;
+  &lt;/xsl:template&gt;
+
+  &lt;!-- Ignore some elements --&gt;
+  &lt;xsl:template match="fo:block[@id='document-actions']" /&gt;
+  &lt;xsl:template match="fo:block[@role='html:h1']" /&gt;
+&lt;/xsl:stylesheet&gt;</fopxsl>
+    </property>
+    <property>
+      <header>{{velocity}}$escapetool.xml($pdfExportedDoc.name)#if ("$!{pdfExportedDoc.getValue('external_id')}" != '') ($!{services.rendering.escape($pdfExportedDoc.getValue('external_id'), $doc.syntax)})#end{{/velocity}}</header>
+    </property>
+    <property>
+      <style>#template('colorThemeInit.vm')
+
+h3, .cp-site-selection h2, tr.care-pathways-section-label {
+  text-transform: uppercase;
+  font-weight: normal;
+  font-size: 10px;
+  font-family: serif;
+}
+
+hr {
+  display: none;
+}
+
+.patient-info h2 {
+  display: none;
+}
+
+.patient-info p {
+  margin: 0;
+  padding: 0;
+  text-indent: 0;
+}
+
+.no-selected {
+  color: $theme.notificationErrorColor;
+}
+
+div.cp-secondary table.cp-primary {
+  display: none;
+}
+
+div.cp-primary table.cp-secondary {
+  display: none;
+}
+
+.cp-site-selection {
+  background-color: $theme.borderColor;
+}
+
+/**********************************************************************************************
+ * Survey css.
+ */
+
+tr.care-pathways-section-label td {
+  padding: 10px 10px 0 0;
+}
+
+tr.care-pathways-module-container-view table.terms-data-table {
+  width: 100%;
+  margin: 0;
+}
+
+tr.care-pathways-module-container-view table.summary-group tr.term-holder {
+  margin: 0;
+  padding: 0;
+}
+
+.care-pathways-module-container-view table.gene-table {
+  width: 50em;
+}
+
+.care-pathways-module-container-view table.terms-data-table td.no-data {
+  padding: 0;
+  font-size: 10px;
+  font-family: serif;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item {
+  background-color: $theme.borderColor;
+  border: 1px solid $theme.panelCollapsedBackgroundColor;
+  margin-left: 10px;
+}
+
+tr.care-pathways-module-container-view table.summary-group tr.term-holder td {
+  margin: 0;
+  padding: 0;
+  font-size: 10px;
+  font-family: serif;
+  font-weight: normal;
+}
+
+.care-pathways-module-container-view .subject-label,
+.care-pathways-module-container-view table.summary-group,
+.care-pathways-module-container-view .no-variants-container,
+.care-pathways-module-container-view .cp-current-selection dl,
+.care-pathways-module-container-view .associated-data-field-label,
+.care-pathways-module-container-view .displayed-value,
+.care-pathways-module-container-view .cp-current-selection,
+.care-pathways-module-container-view .eligibility {
+  font-size: 10px;
+  font-family: serif !important;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dl {
+  display: inline-block;
+  margin: .2em;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt {
+  margin: 0;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dl:first-child {
+  margin-left: 0;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
+  margin: 0;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt.hidden + dd {
+  margin: 0;
+}
+
+tr.care-pathways-module-container-view table.summary-group div.summary-item dt,
+tr.care-pathways-module-container-view table.summary-group div.summary-item dd {
+  float: left;
+  padding: .3em;
+  background-color: $theme.borderColor;
+}</style>
+    </property>
+    <property>
+      <xhtmlxsl/>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysExportTemplate</name>
+    <number>0</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>52b939c7-414f-4641-b0e6-9a4d224d3370</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content>{{velocity}}
+#if ($doc.getObject("PhenoTips.CarePathwaysPreTestSheet"))
+[[Export with Pre-Test data&gt;&gt;path:$doc.getURL('export', "format=pdf&amp;pdfcover=0&amp;pdftoc=0&amp;pages=data.${doc.name}&amp;pages=PhenoTips.CarePathwaysPreTestSheet&amp;pdftemplate=PhenoTips.CarePathwaysExportTemplate")|| class="export-link"]]
+#end
+{{/velocity}}</content>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.patientRecordMenu.moreActions</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.patientRecordMenu.moreActions.exportWithPreTest</name>
+    </property>
+    <property>
+      <parameters/>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysExportTemplate</name>
+    <number>1</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>4858ee51-6225-4046-b441-f9aaa7260e2f</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content>{{velocity}}
+#if ($doc.getObject("PhenoTips.CarePathwaysPostTestSheet"))
+[[Export with Post-Test data&gt;&gt;path:$doc.getURL('export', "format=pdf&amp;pdfcover=0&amp;pdftoc=0&amp;pages=data.${doc.name}&amp;pages=PhenoTips.CarePathwaysPostTestSheet&amp;pdftemplate=PhenoTips.CarePathwaysExportTemplate")|| class="export-link"]]
+#end
+{{/velocity}}</content>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.patientRecordMenu.moreActions</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.patientRecordMenu.moreActions.exportWithPostTest</name>
+    </property>
+    <property>
+      <parameters/>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+  <object>
+    <name>PhenoTips.CarePathwaysExportTemplate</name>
+    <number>2</number>
+    <className>XWiki.UIExtensionClass</className>
+    <guid>e76bf198-1515-4cc5-a0e8-0c3ca63684b1</guid>
+    <class>
+      <name>XWiki.UIExtensionClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <content>
+        <disabled>0</disabled>
+        <name>content</name>
+        <number>3</number>
+        <prettyName>Extension Content</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </content>
+      <extensionPointId>
+        <disabled>0</disabled>
+        <name>extensionPointId</name>
+        <number>1</number>
+        <prettyName>Extension Point ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </extensionPointId>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Extension ID</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parameters>
+        <disabled>0</disabled>
+        <name>parameters</name>
+        <number>4</number>
+        <prettyName>Extension Parameters</prettyName>
+        <rows>10</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </parameters>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>5</number>
+        <prettyName>Extension Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>wiki=Current Wiki|user=Current User|global=Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <content>{{velocity}}
+#if ($doc.getObject("PhenoTips.CarePathwaysPreTestSheet") &amp;&amp; $doc.getObject("PhenoTips.CarePathwaysPostTestSheet"))
+[[Export with Care Pathways data&gt;&gt;path:$doc.getURL('export', "format=pdf&amp;pdfcover=0&amp;pdftoc=0&amp;pages=data.${doc.name}&amp;pages=PhenoTips.CarePathwaysPreTestSheet&amp;pages=PhenoTips.CarePathwaysPostTestSheet&amp;pdftemplate=PhenoTips.CarePathwaysExportTemplate")|| class="export-link"]]
+#end
+{{/velocity}}</content>
+    </property>
+    <property>
+      <extensionPointId>org.phenotips.patientRecordMenu.moreActions</extensionPointId>
+    </property>
+    <property>
+      <name>org.phenotips.patientRecordMenu.moreActions.exportWithPreAndPostTest</name>
+    </property>
+    <property>
+      <parameters/>
+    </property>
+    <property>
+      <scope>wiki</scope>
+    </property>
+  </object>
+</xwikidoc>

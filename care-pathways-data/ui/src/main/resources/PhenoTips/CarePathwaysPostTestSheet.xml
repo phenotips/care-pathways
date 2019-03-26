@@ -266,12 +266,14 @@ $xwiki.jsfx.use('uicomponents/widgets/validation/scrollValidation.js')##
 ##
 #macro (__displayPostTestSurvey)
   #set ($section = "posttest")
+  #set ($cpFormTypePropName = "formType")
   #set ($sheet = "$!{class.name}")
   #set ($storageClass = "PhenoTips.PatientCarePostTestClass")
+  #set ($cpFormType = "$!{obj.getProperty($cpFormTypePropName).value}")
   #set ($clearCategory = $doc.getURL("get", "sheet=$sheet&amp;cpclassname=${storageClass}&amp;action=clearcategory&amp;question=xXx__QUESTION_TEMPLATE__xXx&amp;category=xXx__CATEGORY_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
   #set ($deleteQualifier = $doc.getURL("objectremove", "classname=${storageClass}&amp;classid=xXx__COUNT_TEMPLATE__xXx&amp;form_token=$!{services.csrf.getToken()}"))
   {{html clean="false" wiki="false"}}##
-  &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire care-pathways-form"&gt;
+  &lt;div id="${section}-questionnaire" class="care-pathways-questionnaire care-pathways-form#if ($cpFormType != "") cp-${cpFormType}#end"&gt;
   &lt;input type="hidden" id="delete-qualifier-action" value="$deleteQualifier"/&gt;
   &lt;input type="hidden" id="clear-category-action" value="$clearCategory"/&gt;
   #foreach ($question in $posttestQuestions)
@@ -614,6 +616,19 @@ $!value
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </firstDegreeTestingSecondary>
+    <formType>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>formType</name>
+      <number>7</number>
+      <picker>0</picker>
+      <prettyName>formType</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </formType>
     <genes>
       <cache>0</cache>
       <customDisplay>{{velocity}}
@@ -710,7 +725,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
-      <displayFormType>select</displayFormType>
+      <displayFormType>checkbox</displayFormType>
       <displayType/>
       <name>noFurtherInvestigations</name>
       <number>26</number>
@@ -724,7 +739,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
-      <displayFormType>select</displayFormType>
+      <displayFormType>checkbox</displayFormType>
       <displayType/>
       <name>noFurtherSecondaryInvestigations</name>
       <number>27</number>
@@ -738,7 +753,7 @@ $xwiki.ssx.use('PhenoTips.PatientSheetCode')##
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
-      <displayFormType>select</displayFormType>
+      <displayFormType>checkbox</displayFormType>
       <displayType/>
       <name>noInvestigationsAvoided</name>
       <number>28</number>

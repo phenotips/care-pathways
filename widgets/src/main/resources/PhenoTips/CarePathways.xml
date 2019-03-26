@@ -295,10 +295,10 @@
             &lt;td class="no-data"&gt;&lt;span&gt;$doc.display('sequencingStrategy', $doc.getObject('PhenoTips.CarePathwaysPostTestSheet')).replaceAll('(\{\{html clean="false" wiki="false"\}\})|(\{\{/html\}\})', '').replaceAll('^&lt;p&gt;|&lt;/p&gt;$', '')&lt;/span&gt;&lt;/td&gt;
           &lt;/tr&gt;
           &lt;/table&gt;
-        #elseif($storedValues.size() == 0 || $module.noneOption &amp;&amp; $doc.getValue($module.noneOption))##
+        #elseif($storedValues.size() == 0 || $module.noneOption &amp;&amp; $doc.getValue($module.noneOption) == "1")##
           &lt;table class="terms-data-table"&gt;
           &lt;tr&gt;
-            &lt;td class="no-data"&gt;&lt;span&gt;#if ($module.noneOption &amp;&amp; $doc.getValue($module.noneOption))#if ($question == 'CPQ:21')No diagnostic investigations were avoided#{else}None#end#{else}No data entered#end&lt;/span&gt;&lt;/td&gt;
+            &lt;td class="no-data"&gt;&lt;span&gt;#if ($module.noneOption &amp;&amp; $doc.getValue($module.noneOption) == "1")#if ($question == 'CPQ:21')No diagnostic investigations were avoided#{else}None#end#{else}No data entered#end&lt;/span&gt;&lt;/td&gt;
           &lt;/tr&gt;
           &lt;/table&gt;
         #else##
@@ -513,7 +513,11 @@
 #macro (__displayCategories $submoduleName $rootNode $rootChildren $question $storedValues $justCategories)
   #if ($module.noneOption)
   &lt;div class="controlled-group"&gt;
-  &lt;label class="controller exclude"&gt;&lt;input type="checkbox" name="${class.name}_0_${module.noneOption}" value="1"#if ($doc.getValue($module.noneOption)) checked="checked"#end /&gt; #if ($question == 'CPQ:21')No diagnostic investigations were avoided#{else}None#end&lt;/label&gt;
+  &lt;label class="controller exclude"&gt;
+  {{/html}}##
+  #__form_field(${module.noneOption})##
+  {{html clean="false" wiki="false"}}##
+  #if ($question == 'CPQ:21')No diagnostic investigations were avoided#{else}None#end&lt;/label&gt;
   &lt;ul class="controlled cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
   #else
   &lt;ul class="cp-module-$!module.module cp-submodule-$!module.submodule"&gt;
@@ -3297,11 +3301,11 @@ var init = function(event) {
     <property>
       <code>(function() {
   var init = function(event) {
-    $$('.controller input').invoke('observe', 'click', function(event) {
+    $$('.controller input[type="checkbox"]').invoke('observe', 'click', function(event) {
       var checked = event.element().checked;
       var toHide = event.findElement('.care-pathways-modules-wrapper').down('.cp-current-selection').toggle(!checked);
     });
-    $$('.controller input').each(function(input) {
+    $$('.controller input[type="checkbox"]').each(function(input) {
       var checked = input.checked;
       var toHide = input.up('.care-pathways-modules-wrapper').down('.cp-current-selection').toggle(!checked);
     });
