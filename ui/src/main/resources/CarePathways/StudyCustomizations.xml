@@ -305,6 +305,10 @@ phenotips.homepage.cohorts.browse.tooltip=Browse all cohorts
 input[type="hidden"][name="doCreate"][value="1"] + div div.form-template-option:last-of-type {
   display: none;
 }
+/* Hide the Unsolved WES cohort option when creating a new patient record */
+input[type="hidden"][name="doCreate"][value="1"] + div div.form-template-option:nth-of-type(3) {
+  display: none;
+}
 /* Don't show number of study subscribers, as it's not informative when studies are used to designate cohorts */
 #studies-directory .members, #studies-directory .members + br {
   display: none;
