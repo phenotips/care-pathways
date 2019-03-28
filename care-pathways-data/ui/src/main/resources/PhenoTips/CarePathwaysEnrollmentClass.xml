@@ -62,6 +62,8 @@ $!xwiki.jsx.use('PhenoTips.CarePathwaysEnrollmentClass')##
       &lt;li&gt;&lt;label#if ($site.fullName == $value) class="selected"#end&gt;$site.getValue('name')&lt;input type="radio" name="$prefix$name" value="$site.fullName" #if ($site.fullName == $value)checked="checked" #end/&gt;&lt;/label&gt;&lt;input type="hidden" value="$site.getValue('type')" class="cp-type" /&gt;&lt;/li&gt;
     #end
     &lt;/ul&gt;
+    #set ($site = $xwiki.getDocument($value))
+    &lt;input id="questionnaire-form-type" type="hidden" name="${class.name}_${class.number}_formType" value="$site.getValue('type')" class="form-type"/&gt;
   {{/html}}
 #elseif ($value)
   {{html clean="false" wiki="false"}}
@@ -69,6 +71,7 @@ $!xwiki.jsx.use('PhenoTips.CarePathwaysEnrollmentClass')##
       #set ($site = $xwiki.getDocument($value))
       &lt;li&gt;&lt;label class="selected"&gt;$site.getValue('name')&lt;input type="radio" name="$prefix$name" value="$site.fullName" checked="checked" /&gt;&lt;/label&gt;&lt;input type="hidden" value="$site.getValue('type')" class="cp-type" /&gt;&lt;/li&gt;
     &lt;/ul&gt;
+    &lt;input id="questionnaire-form-type" type="hidden" value="$site.getValue('type')" class="form-type"/&gt;
   {{/html}}
 #end
 {{/velocity}}</customDisplay>
@@ -194,6 +197,8 @@ $!xwiki.jsx.use('PhenoTips.CarePathwaysEnrollmentClass')##
           questionaire.removeClassName("cp-secondary");
           questionaire.removeClassName("cp-undefined");
           questionaire.addClassName("cp-" + site.down("input.cp-type").value);
+          var questionnaireFormType = $('questionnaire-form-type');
+          questionnaireFormType &amp;&amp; (questionnaireFormType.value = site.down("input.cp-type").value);
         }
       });
     });
