@@ -128,6 +128,7 @@
     <property>
       <fields>
         <value>org.phenotips.patientSheet.field.external_id</value>
+        <value>org.phenotips.patientSheet.field.family_external_id</value>
         <value>org.phenotips.patientSheet.field.date_of_birth</value>
         <value>org.phenotips.patientSheet.field.gender</value>
         <value>org.phenotips.patientSheet.field.family</value>
